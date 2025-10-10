@@ -12,9 +12,9 @@ Klienci mają trudności z szybkim znalezieniem wolnego terminu na proste napraw
 
 1. Wyszukiwanie dostępnych terminów
    - lista dostępnych terminów u wszystkich mechaników
-   - filtr po rodzaju usługi i przewidywanym czasie naprawy
+   - filtr po rodzaju usługi 
 2. Rezerwacja wizyty
-   - formularz z polami: imię i nazwisko, telefon, e-mail, numer rejestracyjny, rodzaj usługi, data, godzina; opcjonalnie: VIN, marka, model, rok, typ silnika
+   - formularz dla zalogowanego użytkownika; wymagane: rodzaj usługi, data, godzina, wybór auta - numer rejestracyjny. Dane kontaktowe i auta (opcjonalne: VIN, marka, model, rok, typ silnika)  pobierane z konta; 
    - walidacja inline z czytelnymi komunikatami
 3. Zarządzanie rezerwacjami (CRUD)
    - klient może tworzyć, edytować i anulować własne rezerwacje
@@ -25,7 +25,7 @@ Klienci mają trudności z szybkim znalezieniem wolnego terminu na proste napraw
    - domyślne godziny pracy (8:00-16:00, pn–pt)
    - odblokowanie harmonogramu na kolejny miesiąc 10. dnia każdego miesiąca
 5. Rekomendacje konserwacyjne AI
-   -  sugestie dotyczące przeglądów i wymiany filtrów
+   -  sugestie dotyczące przeglądów i wymiany filtrów, wyświetlane po rezerwacji (np. na ekranie podsumowania)
    - uwzględnienie historii napraw z systemu
 6. Dashboard KPI
    - raport liczby anulowanych wizyt z poprzedniego miesiąca
@@ -51,7 +51,7 @@ W MVP nie uwzględniamy:
   Tytuł: Przegląd dostępnych terminów
   Opis: Jako klient indywidualny chcę zobaczyć listę dostępnych terminów dla wybranej usługi, aby szybko wybrać dogodny termin.
   Kryteria akceptacji:
-  - wyświetlana lista wszystkich terminów w formacie DD.MM.YYYY, HH:MM
+  - wyświetlana lista najbliższych dostępnych terminów (np. kolejne 10) w formacie DD.MM.YYYY, HH:MM
   - możliwość filtrowania po rodzaju usługi
   - brak dostępnych terminów wyświetla odpowiedni komunikat
 
@@ -86,6 +86,7 @@ W MVP nie uwzględniamy:
   - sekretariat używa identycznego formularza jak klient
   - sekcja sekretariatu może wybrać z listy klienta lub wprowadzić dane ręcznie
   - po zatwierdzeniu rezerwacja trafia do systemu i jest widoczna we wszystkich widokach
+  - możliwe utworzenie rezerwacji z override (świadome nadpisanie pojemności)
 
 - ID: US-006
   Tytuł: Definiowanie dostępności
@@ -94,6 +95,8 @@ W MVP nie uwzględniamy:
   - administrator wprowadza dni i godziny pracy każdego mechanika i stanowiska
   - system zapisuje harmonogram i udostępnia sloty klientom od 10. dnia miesiąca
   - możliwość edycji harmonogramu przed jego odblokowaniem
+  - możliwe jest dodanie wyjątków dla wybranych dni lub godzin
+  - klienci widzą listę najbliższych terminów w ustalonym horyzoncie (np. 30 dni)
 
 - ID: US-007
   Tytuł: rekomendacja konserwacji
@@ -120,7 +123,7 @@ W MVP nie uwzględniamy:
 
 ## 6. Metryki sukcesu
 
-- ponad 50% wszystkich rezerwacji realizowanych online
+- ponad 50% wszystkich rezerwacji realizowanych online (źródło rezerwacji rejestrowane jako online/telefon)
 - liczba anulowanych wizyt poniżej ustalonego progu (monitorowane w dashboardzie)
 - brak błędów przy obsłudze 2 jednoczesnych użytkowników
 - demo prezentujące scenariusze tworzenia, edycji i anulowania wizyt

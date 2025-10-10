@@ -71,7 +71,7 @@ A web application for automotive workshops that enables customers to quickly fin
 - **Online Booking**: Customer booking form with inline validation for logged-in users
 - **Reservation Management**: Full CRUD operations for customers and staff
 - **Admin Panel**: Monthly scheduling of mechanics and workstation availability (unlocked on the 10th of each month)
-- **AI Maintenance Recommendations**: Suggestions based on repair history displayed after booking
+- **AI-powered Maintenance Recommendations**: Suggestions based on repair history displayed after booking
 - **KPI Dashboard**: Monthly cancellation reports for staff
 - **Authentication & Authorization**: Role-based access (customers see only their bookings, staff sees all)
 
@@ -96,7 +96,6 @@ This project is currently in **MVP development phase**. The core booking functio
 Success metrics:
 - >50% of reservations made online
 - Cancellation rates below established threshold
-- Support for 2+ concurrent users without errors
 - Demo showcasing booking, editing, and cancellation scenarios
 
 ## License

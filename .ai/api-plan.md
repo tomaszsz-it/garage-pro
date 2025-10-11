@@ -7,17 +7,10 @@
 - EmployeeSchedules — table `employee_schedules`
 - Reservations — table `reservations`
 - Availability — derived resource computed from `employee_schedules`, `reservations`, `services`
-- KPI — derived analytics (e.g., cancellations), computed from `reservations`
 - Auth/Users — identity via Supabase Auth (`auth.users`), referenced by `reservations.user_id` and `reservations.created_by`
 
 Assumptions and notes:
-- All timestamps are ISO-8601 (UTC).
 - Pagination uses limit/offset and stable sort keys.
-- Anonymous access: read-only to public info where RLS permits (employees, services, schedules for browsing), otherwise authenticated JWT required.
-- Secretariat (staff) needs elevated access beyond RLS defaults. Two viable options:
-  1) Server-side Supabase client with Service Role key for staff endpoints (bypasses RLS; enforce authorization in API).
-  2) Adjust RLS to honor a JWT claim (e.g., `role = 'Secretary'`) to allow broader access. This plan describes both, preferring (2) when claims are available, otherwise (1).
-- “Override capacity”: by default the DB exclusion constraint prevents double-booking per mechanic. In MVP we allow overriding schedule checks (e.g., outside default hours) but still do NOT double-book the same mechanic. If true mechanic double-booking is required, a schema change is recommended (add `admin_override boolean` and make exclusion constraint conditional) — see Validation and Business Logic.
 
 ## 2. Endpoints
 
@@ -411,10 +404,3 @@ Pagination wrapper
 ```json
 { "items": [/* rows */], "total": 123 }
 ```
-
-Implementation hints (Astro + Supabase):
-- Create API routes under `src/pages/api/v1/*.ts` using Astro endpoints.
-- Use `context.locals.supabase` for anon/authenticated operations.
-- For staff endpoints, instantiate a service-role Supabase client with `SUPABASE_SERVICE_ROLE_KEY` (server-only env) or rely on adjusted RLS with JWT claim.
-- Validate inputs with Zod before DB calls; map DB constraint errors to HTTP codes.
-- Always return UTC timestamps.

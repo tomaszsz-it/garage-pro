@@ -24,6 +24,7 @@ This table is managed by Supabase Auth.
 - service_id: SERIAL PRIMARY KEY
 - name: varchar(100) NOT NULL
 - duration_minutes: INT NOT NULL
+- description: varchar(200) NULLABLE
 - created_at: TIMESTAMPTZ NOT NULL DEFAULT now()
 
 ### vehicles
@@ -33,14 +34,14 @@ This table is managed by Supabase Auth.
 - brand: varchar(50)
 - model: varchar(50)
 - production_year: INT
-- type: varchar(200)
+- car_type: varchar(200)
 - created_at: TIMESTAMPTZ NOT NULL DEFAULT now()
 
 ### employee_schedules
 - id: UUID PRIMARY KEY DEFAULT gen_random_uuid()
 - employee_id: UUID NOT NULL REFERENCES employees(id)
-- from: TIMESTAMPTZ NOT NULL  -- schedule start
-- to: TIMESTAMPTZ NOT NULL  -- schedule end
+- start_ts: TIMESTAMPTZ NOT NULL  -- schedule start
+- end_ts: TIMESTAMPTZ NOT NULL  -- schedule end
 
 ### reservations
 - id: UUID PRIMARY KEY DEFAULT gen_random_uuid()
@@ -71,9 +72,13 @@ CREATE INDEX idx_reservations_user_id ON reservations(user_id);
 CREATE INDEX idx_reservations_created_by ON reservations(created_by);
 CREATE INDEX idx_reservations_employee_id ON reservations(employee_id);
 
-
 -- Vehicle lookups
 CREATE INDEX idx_vehicles_license_plate ON vehicles(license_plate);
+
+-- Employee schedules indexes
+CREATE INDEX idx_employee_schedules_employee_id ON employee_schedules(employee_id);
+CREATE INDEX idx_employee_schedules_start_ts ON employee_schedules(start_ts);
+CREATE INDEX idx_employee_schedules_end_ts ON employee_schedules(end_ts);
 
 ```
 

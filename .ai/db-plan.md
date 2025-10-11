@@ -3,7 +3,8 @@
 ## 1. Tables
 
 ### users
-- id: UUID PRIMARY KEY DEFAULT gen_random_uuid()
+This table is managed by Supabase Auth.
+- id: UUID PRIMARY KEY
 - email: varchar(255) NOT NULL UNIQUE
 - name: varchar(100) NOT NULL
 - surname: varchar(100) NOT NULL
@@ -90,6 +91,3 @@ ALTER TABLE reservations
 ## 5. Row-Level Security (RLS)
 - W tabelach reservations, vehicles wdrożyć polityki RLS, które pozwalają użytkownikowi na dostęp tylko do rekordów, gdzie `user_id` odpowiada identyfikatorowi użytkownika z Supabase Auth (np. auth.uid() = user_id).
 
-
-## 6. Additional Notes
-- Timezone: All timestamps are `TIMESTAMPTZ` configured for Europe/Warsaw.

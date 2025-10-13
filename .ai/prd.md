@@ -54,6 +54,7 @@ W MVP nie uwzględniamy:
   - wyświetlana lista najbliższych dostępnych terminów (np. kolejne 10) w formacie DD.MM.YYYY, HH:MM
   - możliwość filtrowania po rodzaju usługi
   - brak dostępnych terminów wyświetla odpowiedni komunikat
+  </scope_update> zakładam endpoint GET /reservations/available oraz serviceId and date range jako query parameters
 
 - ID: US-002
   Tytuł: Rezerwacja wizyty
@@ -62,6 +63,7 @@ W MVP nie uwzględniamy:
   - formularz zawiera wymagane i opcjonalne pola
   - walidacja inline z komunikatami o błędach
   - po zatwierdzeniu wyświetlany jest ekran podsumowania z numerem rezerwacji i możliwością skopiowania linku
+  <scope_update> myślę tutaj o endpoincie POST /reservations </scope_update> 
 
 - ID: US-003
   Tytuł: Anulowanie rezerwacji
@@ -70,6 +72,7 @@ W MVP nie uwzględniamy:
   - opcja anulowania dostępna na ekranie szczegółów rezerwacji
   - po anulowaniu slot jest natychmiast widoczny w liście dostępnych terminów
   - klient otrzymuje potwierdzenie anulowania
+   </scope_update> Myślę tutaj o endpoincie POST /reservationsUsunięcie rezerwacji bedzie zaimplementowane przez aktualizacji flagi więc zostanie reużyty endpoint PATCH reservations</scope_update> 
 
 - ID: US-004
   Tytuł: Edycja rezerwacji
@@ -86,8 +89,10 @@ W MVP nie uwzględniamy:
   - sekretariat używa identycznego formularza jak klient
   - sekcja sekretariatu może wybrać z listy klienta lub wprowadzić dane ręcznie
   - po zatwierdzeniu rezerwacja trafia do systemu i jest widoczna we wszystkich widokach
-  - możliwe utworzenie rezerwacji z override (świadome nadpisanie pojemności)
-
+  Usunięcie tej historii ze scope MVP.Weż pod uwagę, że historia będzie wydevelopowana w przyszłości, poza mvp, tak więc podczas mvp trzeba założyć że będzie potrzebna rola skretariat.
+  <scope_update>Klient musi się sam zarejestrować, żeby potwierdzić email itd. Gdy się zarejestruje to może wtedy już sam również zarezerwować wizytę.
+  W szczególnym przypadku sekretariat może skontaktować się administratorem systemu, który zmieni status rezerwacji na anulowaną bezpośrednio w bazie danych. Próbujemy zmusić klientów do korzystania tylko z kanału online, a w przypadku negatywnego feedbacku klientów po miesiącu uzytkowania systemu, zostanie rozważone czy developować tą historię czy nie</scope_update>  
+  
 - ID: US-006
   Tytuł: Definiowanie dostępności
   Opis: Jako administrator chcę raz w miesiącu zdefiniować dostępność mechaników i stanowisk, aby zaplanować harmonogram.
@@ -97,6 +102,10 @@ W MVP nie uwzględniamy:
   - możliwość edycji harmonogramu przed jego odblokowaniem
   - możliwe jest dodanie wyjątków dla wybranych dni lub godzin
   - klienci widzą listę najbliższych terminów w ustalonym horyzoncie (np. 30 dni)
+  </scope_update> To wymaganie w kontekście GUI jest poza MVP, zakładam że w MVP właściciel warsztatu jest również administratorem systemu i może sam wykonać insert do bazy danych. Natomiast W zakresie MVP jest 
+  - wyprodukowanie skryptu bazodanowego odpowiedzialnego za utworzenie 3 mechaników z ich losowymi danymi ale imionami Mechanik1 Mechanik2 Mechanik3
+   oraz charmongramu dostepności w pracy we wszystkie dni robocze w Polsce roku 2025 i 2026
+   - dodatkowo skrypt z insertami do bazy danych który tworzy 4 stanowiska z losowymi danymi. Staniwiska będą dostępne we wszystkie dni w roku 2025 i 2026</scope_update> 
 
 - ID: US-007
   Tytuł: rekomendacja konserwacji
@@ -105,6 +114,7 @@ W MVP nie uwzględniamy:
   - po zakończonej rezerwacji wyświetlana jest rekomendacja w formie tekstu
   - rekomendacja uwzględnia historię napraw z systemu
   - tekst jest sformatowany i czytelny
+  </scope_update>W MVP nie jest analizowana hostoria serwisowa, natomiast wysyłane jest zapytanie do modelu LLM a dnymi auta, rokiem produkcji oraz aktualna data. Na tej podstawie klient dostaje rekomendację, np. jeśli wizyta jest rok po dacie produkcji auta oraz auto ma przjejechane tylko 15000 km, nie ma sensu propozycja wymiany filtra paliwa, ale to AI już lepiej wie, co doradzić w takiej sytuacji </scope_update> 
 
 - ID: US-008
   Tytuł: Dashboard KPI dla sekretariatu
@@ -112,12 +122,13 @@ W MVP nie uwzględniamy:
   Kryteria akceptacji:
   - dashboard pokazuje liczbę anulowanych wizyt za poprzedni miesiąc
   - widok przedstawia dane w tabeli
+  </scope_update> Usunięto to wymaganie z MVP</scope_update> 
 
 - ID: US-009
   Tytuł: Logowanie i autoryzacja
   Opis: Jako użytkownik systemu chcę się zalogować i mieć dostęp zgodny z moją rolą, aby zapewnić bezpieczeństwo danych.
   Kryteria akceptacji:
-  - możliwy jest login dla klientów i pracowników sekretariatu
+  - możliwy jest login dla klientów oraz pracowników sekretariatu
   - klienci widzą tylko swoje rezerwacje
   - sekretariat ma dostęp do wszystkich danych rezerwacji
 
@@ -127,3 +138,4 @@ W MVP nie uwzględniamy:
 - liczba anulowanych wizyt poniżej ustalonego progu (monitorowane w dashboardzie)
 - brak błędów przy obsłudze 2 jednoczesnych użytkowników
 - demo prezentujące scenariusze tworzenia, edycji i anulowania wizyt
+</scope_update> 90% wszystkich rezerwacji realizowanych online (źródło rezerwacji rejestrowane jako online przez system). Tylko 10% rezerwacji może pochodzić z interwencji manualnych przez administartora systemu</scope_update> 

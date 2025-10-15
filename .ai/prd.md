@@ -87,17 +87,6 @@ W MVP nie uwzględniamy:
   - walidacja zmian zgodnie z dostępnymi slotami
   - potwierdzenie zmian i aktualizacja daty w systemie
 
-- ID: US-005
-  Tytuł: Tworzenie rezerwacji przez sekretariat
-  Opis: Jako pracownik sekretariatu chcę wprowadzić rezerwację telefoniczną za klienta za pomocą tego samego formularza, aby uprościć proces.
-  Kryteria akceptacji:
-  - sekretariat używa identycznego formularza jak klient
-  - sekcja sekretariatu może wybrać z listy klienta lub wprowadzić dane ręcznie
-  - po zatwierdzeniu rezerwacja trafia do systemu i jest widoczna we wszystkich widokach
-  Usunięcie tej historii ze scope MVP.Weż pod uwagę, że historia będzie wydevelopowana w przyszłości, poza mvp, tak więc podczas mvp trzeba założyć że będzie potrzebna rola skretariat.
-  <scope_update>Klient musi się sam zarejestrować, żeby potwierdzić email itd. Gdy się zarejestruje to może wtedy już sam również zarezerwować wizytę.
-  W szczególnym przypadku sekretariat może skontaktować się administratorem systemu, który zmieni status rezerwacji na anulowaną bezpośrednio w bazie danych. Próbujemy zmusić klientów do korzystania tylko z kanału online, a w przypadku negatywnego feedbacku klientów po miesiącu uzytkowania systemu, zostanie rozważone czy developować tą historię czy nie</scope_update>  
-  
 - ID: US-006
   Tytuł: Definiowanie dostępności
   Opis: Jako administrator chcę raz w miesiącu zdefiniować dostępność mechaników i stanowisk, aby zaplanować harmonogram.

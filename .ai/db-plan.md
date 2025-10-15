@@ -28,9 +28,11 @@ This table is managed by Supabase Auth.
 - created_at: TIMESTAMPTZ NOT NULL DEFAULT now()
 
 ### vehicles
-- license_plate: varchar(20) NOT NULL PRIMARY KEY 
+- license_plate: varchar(20) NOT NULL PRIMARY KEY
 - user_id: UUID NOT NULL REFERENCES users(id)
-- vin: varchar(17) NULLABLE 
+- vin: varchar(17) NULLABLE
+- UNIQUE(vin) WHERE vin IS NOT NULL
+- CHECK (char_length(vin) = 17)
 - brand: varchar(50)
 - model: varchar(50)
 - production_year: INT
@@ -52,8 +54,8 @@ This table is managed by Supabase Auth.
 - employee_id: UUID NOT NULL REFERENCES employees(id)
 - start_ts: TIMESTAMPTZ NOT NULL
 - end_ts: TIMESTAMPTZ NOT NULL
-- status: varchar(20) NOT NULL CHECK (status IN ('New','Cancelled','Done'))
-- recommendation_text: varchar(2000) NOT NULL DEFAULT ''
+- status: reservation_status ENUM NOT NULL DEFAULT 'New'
+- recommendation_text: TEXT NOT NULL DEFAULT ''
 - created_at: TIMESTAMPTZ NOT NULL DEFAULT now()
 - updated_at: TIMESTAMPTZ NOT NULL DEFAULT now()
 
@@ -74,6 +76,8 @@ CREATE INDEX idx_reservations_employee_id ON reservations(employee_id);
 
 -- Vehicle lookups
 CREATE INDEX idx_vehicles_license_plate ON vehicles(license_plate);
+-- Unique VIN lookup
+CREATE UNIQUE INDEX idx_vehicles_vin ON vehicles(vin) WHERE vin IS NOT NULL;
 
 -- Employee schedules indexes
 CREATE INDEX idx_employee_schedules_employee_id ON employee_schedules(employee_id);
@@ -94,5 +98,8 @@ ALTER TABLE reservations
 ```
 
 ## 5. Row-Level Security (RLS)
-- W tabelach reservations, vehicles wdrożyć polityki RLS, które pozwalają użytkownikowi na dostęp tylko do rekordów, gdzie `user_id` odpowiada identyfikatorowi użytkownika z Supabase Auth (np. auth.uid() = user_id).
+- W tabelach reservations, vehicles wdrożyć polityki RLS:
+  - Klienci: SELECT/INSERT/UPDATE/DELETE tylko gdy auth.uid() = user_id
+  - Sekretariat (rola 'secretariat'): pełne uprawnienia (USING (current_setting('app.user_role') = 'secretariat')).
+- (services, employees, employee_schedules): SELECT dla anon i authenticated, bez ograniczeń.
 

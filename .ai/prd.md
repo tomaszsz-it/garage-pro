@@ -54,7 +54,9 @@ W MVP nie uwzględniamy:
   - wyświetlana lista najbliższych dostępnych terminów (np. kolejne 10) w formacie DD.MM.YYYY, HH:MM
   - możliwość filtrowania po rodzaju usługi
   - brak dostępnych terminów wyświetla odpowiedni komunikat
-  </scope_update> zakładam endpoint GET /reservations/available oraz serviceId and date range jako query parameters
+  <scope_update>
+  Zakładam endpoint GET /reservations/available przy użyciu query parameters: serviceId, from, to.
+  </scope_update>
 
 - ID: US-002
   Tytuł: Rezerwacja wizyty
@@ -63,7 +65,9 @@ W MVP nie uwzględniamy:
   - formularz zawiera wymagane i opcjonalne pola
   - walidacja inline z komunikatami o błędach
   - po zatwierdzeniu wyświetlany jest ekran podsumowania z numerem rezerwacji i możliwością skopiowania linku
-  <scope_update> myślę tutaj o endpoincie POST /reservations </scope_update> 
+  <scope_update>
+  Zakładam endpoint POST /reservations z użyciem standardowej walidacji danych wejściowych.
+  </scope_update> 
 
 - ID: US-003
   Tytuł: Anulowanie rezerwacji
@@ -72,7 +76,8 @@ W MVP nie uwzględniamy:
   - opcja anulowania dostępna na ekranie szczegółów rezerwacji
   - po anulowaniu slot jest natychmiast widoczny w liście dostępnych terminów
   - klient otrzymuje potwierdzenie anulowania
-   </scope_update> Myślę tutaj o endpoincie POST /reservationsUsunięcie rezerwacji bedzie zaimplementowane przez aktualizacji flagi więc zostanie reużyty endpoint PATCH reservations</scope_update> 
+   </scope_update> Zakładam, że anulowanie rezerwacji będzie realizowane poprzez aktualizację flagi rezerwacji przy użyciu endpointu PATCH /reservations, ustawiając status na 'Cancelled'.
+</scope_update> 
 
 - ID: US-004
   Tytuł: Edycja rezerwacji
@@ -138,4 +143,4 @@ W MVP nie uwzględniamy:
 - liczba anulowanych wizyt poniżej ustalonego progu (monitorowane w dashboardzie)
 - brak błędów przy obsłudze 2 jednoczesnych użytkowników
 - demo prezentujące scenariusze tworzenia, edycji i anulowania wizyt
-</scope_update> 90% wszystkich rezerwacji realizowanych online (źródło rezerwacji rejestrowane jako online przez system). Tylko 10% rezerwacji może pochodzić z interwencji manualnych przez administartora systemu</scope_update> 
+</scope_update> 90% wszystkich rezerwacji realizowanych online (źródło rezerwacji rejestrowane jako online przez system). Tylko 10% rezerwacji może pochodzić z interwencji manualnych przez administartora systemu</scope_update>

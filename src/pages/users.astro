@@ -1,0 +1,17 @@
+---
+import Welcome from "../components/Welcome.astro";
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Users - Garage Pro">
+  <main class="min-h-screen bg-gray-50 py-8">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-2">User Management</h1>
+        <p class="text-lg text-gray-600">View and manage all users in the system.</p>
+      </div>
+
+      <UserList client:load />
+    </div>
+  </main>
+</Layout>

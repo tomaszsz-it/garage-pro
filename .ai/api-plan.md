@@ -7,6 +7,7 @@
 - EmployeeSchedules — table `employee_schedules`
 - Reservations — table `reservations`
 - Availability — derived resource computed from `employee_schedules`, `reservations`, `services`
+- KPI — derived analytics (e.g., cancellations), computed from `reservations`
 - Auth/Users — identity via Supabase Auth (`auth.users`), referenced by `reservations.user_id` and `reservations.created_by`
 
 Assumptions and notes:
@@ -311,18 +312,17 @@ Rate limiting and security:
 ## 4. Validation and Business Logic
 
 Common validation (Zod recommended):
-- UUID fields: `id`, `employee_id`, `user_id` must be valid UUIDs.
 - `license_plate`: non-empty, normalized uppercase w/o spaces.
 - `duration_minutes`: positive integer (e.g., 5–480).
 - Timestamps: valid ISO-8601; `start_ts < end_ts`.
-- `status`: one of `New|Cancelled|Done` (server enforces allowed transitions only).
+- `status`: one of `New|Cancelled|Done` 
 
 Reservations specific:
 - Derive `end_ts = start_ts + duration_minutes` from the chosen `service_id`.
 - Reject creating/updating when:
   - the time window overlaps existing reservation for the same `employee_id` (DB will enforce; map DB error to HTTP 409 with code `TIME_OVERLAP`).
-  - the window falls outside any schedule block for that employee (422 with code `OUTSIDE_SCHEDULE`), unless `allow_schedule_override=true`.
-  - the `vehicle_license_plate` is not owned by the booking `user_id` (404 or 403 depending on disclosure policy).
+
+
 - State transitions:
   - New → Cancelled: allowed.
   - New → Done: allowed.
@@ -332,23 +332,15 @@ Availability computation:
 - Input: `service_id`, date range, optional `employee_id`.
 - Steps:
   1) Get `duration_minutes` for the service.
-  2) Collect schedule windows within `[from, to]` (respect unlock rule: next month opens on the 10th).
+  2) Collect schedule windows within `[from, to]` 
   3) Subtract reserved intervals (status != Cancelled) for each `employee_id`.
   4) Slice remaining intervals into slots of length `duration_minutes`, aligned to `granularity_minutes`.
   5) Return the first `limit` slots.
 - Performance: leverage indexes on `employee_id`, `start_ts`, `end_ts`, `status` as defined in migrations.
 
-KPI (cancellations):
-- Count reservations with `status='Cancelled'` filtered by `start_ts` month (or `created_at`, depending on desired metric). Return aggregate.
 
-Vehicles:
-- Enforce RLS for all operations; server fills `user_id` from JWT, not from client payload.
 
-Employees and services:
-- Admin-only writes; validate name/email uniqueness, type in `('Mechanic','Secretary')`.
 
-Schedule:
-- `start_ts < end_ts` (DB constraint). When creating larger monthly windows, the API may accept batch creation.
 - Prevent overlapping schedule blocks for the same employee in API (even if DB allows), to keep availability logic simple.
 
 Override capacity (optional enhancement):

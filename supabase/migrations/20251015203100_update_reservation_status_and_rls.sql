@@ -3,7 +3,16 @@
 -- affected tables: reservations, vehicles
 
 -- create enum type for reservation status values
-create type if not exists reservation_status as enum ('New','Cancelled','Done');
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_type
+    WHERE typname = 'reservation_status'
+  ) THEN
+    CREATE TYPE reservation_status AS ENUM ('New','Cancelled','Done');
+  END IF;
+END$$;
 
 -- alter reservations.status to use enum type
 -- drop existing default to avoid conflict

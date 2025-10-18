@@ -46,8 +46,9 @@ export type VehicleUpdateDto = Omit<VehicleUpdate, "license_plate" | "user_id" |
 //    Contains pagination parameters used in query strings and list responses
 // ------------------------------------------------------------------------------------------------
 export interface PaginationDto {
+  page: number;
   limit: number;
-  offset: number;
+  total: number;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -85,6 +86,7 @@ export type ReservationCreateDto = Pick<
 // ------------------------------------------------------------------------------------------------
 export type ReservationDto = Omit<Reservation, "created_by" | "recommendation_text"> & {
   service_name: string;
+  service_duration_minutes: number;
   employee_name: string;
 };
 
@@ -155,7 +157,7 @@ export interface ReservationsQueryParams extends PaginationDto {
 }
 
 export interface AvailableSlotsQueryParams {
-  serviceId: number;
+  service_id: number;
   from?: string; // ISO8601 datetime, default now
   to?: string; // ISO8601 datetime, default +30 days
   limit?: number; // default 10, max 50

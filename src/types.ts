@@ -152,13 +152,13 @@ export interface VehiclesQueryParams extends PaginationDto {}
 
 export interface ReservationsQueryParams extends PaginationDto {
   status?: ReservationStatus;
-  from?: string; // ISO8601 datetime
-  to?: string; // ISO8601 datetime
+  start_ts?: string; // ISO8601 datetime
+  end_ts?: string; // ISO8601 datetime
 }
 
 export interface AvailableSlotsQueryParams {
   service_id: number;
-  from?: string; // ISO8601 datetime, default now
-  to?: string; // ISO8601 datetime, default +30 days
+  start_ts?: string; // ISO8601 datetime, default now
+  end_ts?: string; // ISO8601 datetime, default +30 days
   limit?: number; // default 10, max 50
 }

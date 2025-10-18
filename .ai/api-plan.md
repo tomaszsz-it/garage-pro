@@ -130,13 +130,13 @@
 - Description: List next available slots for a service.
 - Query params:
   - `service_id` (int, required) - must exist in services table
-  - `from` (ISO8601 datetime, default now) - search start time
-  - `to` (ISO8601 datetime, optional, default +30 days) - search end time
+  - `start_ts` (ISO8601 datetime, default now) - search start time
+  - `end_ts` (ISO8601 datetime, optional, default +30 days) - search end time
   - `limit` (int, default 10, max 50) - max slots to return
 - Validation:
   - `service_id`: must be positive integer and exist in services table
-  - `from`: must be valid ISO8601 datetime, cannot be in the past
-  - `to`: must be after `from`, max 90 days from `from`  
+  - `start_ts`: must be valid ISO8601 datetime, cannot be in the past
+  - `end_ts`: must be after `start_ts`, max 90 days from `start_ts`  
 - Response 200:
   ```json
   {

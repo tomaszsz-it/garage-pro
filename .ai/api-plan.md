@@ -10,8 +10,8 @@
 #### GET /vehicles
 - Description: List vehicles owned by current user.
 - Query params: 
+  - `page` (int, default 1, min 1)
   - `limit` (int, default 20, max 100)
-  - `offset` (int, default 0)
 - Validation:
   - `license_plate`: required, 2-20 chars, alphanumeric + spaces
   - `vin`: optional, exactly 17 chars if provided
@@ -21,17 +21,24 @@
   - `car_type`: optional, max 200 chars  
 - Response 200:
   ```json
-  [
-    {
-      "license_plate": "WAW1234",
-      "vin": "1FUJA6CK14LM94383",
-      "brand": "VW",
-      "model": "Passat",
-      "production_year": 2010,
-      "car_type": "B5 2.0 TDI",
-      "created_at": "2024-10-15T10:30:00Z"
+  {
+    "data": [
+      {
+        "license_plate": "WAW1234",
+        "vin": "1FUJA6CK14LM94383",
+        "brand": "VW",
+        "model": "Passat",
+        "production_year": 2010,
+        "car_type": "B5 2.0 TDI",
+        "created_at": "2024-10-15T10:30:00Z"
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 20,
+      "total": 1
     }
-  ]
+  }
   ```
 - Errors: 401 Unauthorized
 
@@ -122,33 +129,35 @@
 #### GET /reservations/available
 - Description: List next available slots for a service.
 - Query params:
-  - `serviceId` (int, required) - must exist in services table
+  - `service_id` (int, required) - must exist in services table
   - `from` (ISO8601 datetime, default now) - search start time
   - `to` (ISO8601 datetime, optional, default +30 days) - search end time
   - `limit` (int, default 10, max 50) - max slots to return
 - Validation:
-  - `serviceId`: must be positive integer and exist in services table
+  - `service_id`: must be positive integer and exist in services table
   - `from`: must be valid ISO8601 datetime, cannot be in the past
   - `to`: must be after `from`, max 90 days from `from`  
 - Response 200:
   ```json
-  [
-    {
-      "start_ts": "2024-10-16T09:00:00Z",
-      "end_ts": "2024-10-16T09:30:00Z",
-      "employee_id": "550e8400-e29b-41d4-a716-446655440000",
-      "employee_name": "Mechanik1"
-    },
-    {
-      "start_ts": "2024-10-16T09:30:00Z",
-      "end_ts": "2024-10-16T10:00:00Z",
-      "employee_id": "550e8400-e29b-41d4-a716-446655440000",
-      "employee_name": "Mechanik1"
-    }
-  ]
+  {
+    "data": [
+      {
+        "start_ts": "2024-10-16T09:00:00Z",
+        "end_ts": "2024-10-16T09:30:00Z",
+        "employee_id": "550e8400-e29b-41d4-a716-446655440000",
+        "employee_name": "Mechanik1"
+      },
+      {
+        "start_ts": "2024-10-16T09:30:00Z",
+        "end_ts": "2024-10-16T10:00:00Z",
+        "employee_id": "550e8400-e29b-41d4-a716-446655440000",
+        "employee_name": "Mechanik1"
+      }
+    ]
+  }
   ```
 - Errors:
-  - 400 Bad Request ("serviceId is required", "Invalid datetime format", "from cannot be in the past")
+  - 400 Bad Request ("service_id is required", "Invalid datetime format", "from cannot be in the past")
   - 404 Not Found ("Service not found")
   - 401 Unauthorized
 
@@ -181,8 +190,11 @@
     "id": "123e4567-e89b-12d3-a456-426614174000",
     "user_id": "550e8400-e29b-41d4-a716-446655440001",
     "service_id": 1,
+    "service_name": "Oil Change",
+    "service_duration_minutes": 30,
     "vehicle_license_plate": "WAW1234",
     "employee_id": "550e8400-e29b-41d4-a716-446655440000",
+    "employee_name": "Mechanik1",
     "start_ts": "2024-10-16T09:00:00Z",
     "end_ts": "2024-10-16T09:30:00Z",
     "status": "New",
@@ -201,9 +213,9 @@
 #### GET /reservations
 - Description: List reservations.
 - Query params:
+  - `page` (int, default 1, min 1)
   - `limit` (int, default 20, max 100)
-  - `offset` (int, default 0)
-  - `status` (string, optional) - filter by status: "New", "InProgress", "Completed", "Cancelled"
+  - `status` (string, optional) - filter by status: "New", "Completed", "Cancelled"
   - `from` (ISO8601, optional) - filter reservations from this date
   - `to` (ISO8601, optional) - filter reservations until this date
 - Authorization:
@@ -211,22 +223,30 @@
   - Secretariat sees all reservations
 - Response 200:
   ```json
-  [
-    {
-      "id": "123e4567-e89b-12d3-a456-426614174000",
-      "user_id": "550e8400-e29b-41d4-a716-446655440001",
-      "service_id": 1,
-      "service_name": "Oil Change",
-      "vehicle_license_plate": "WAW1234",
-      "employee_id": "550e8400-e29b-41d4-a716-446655440000",
-      "employee_name": "Mechanik1",
-      "start_ts": "2024-10-16T09:00:00Z",
-      "end_ts": "2024-10-16T09:30:00Z",
-      "status": "New",
-      "created_at": "2024-10-15T14:30:00Z",
-      "updated_at": "2024-10-15T14:30:00Z"
+  {
+    "data": [
+      {
+        "id": "123e4567-e89b-12d3-a456-426614174000",
+        "user_id": "550e8400-e29b-41d4-a716-446655440001",
+        "service_id": 1,
+        "service_name": "Oil Change",
+        "service_duration_minutes": 30,
+        "vehicle_license_plate": "WAW1234",
+        "employee_id": "550e8400-e29b-41d4-a716-446655440000",
+        "employee_name": "Mechanik1",
+        "start_ts": "2024-10-16T09:00:00Z",
+        "end_ts": "2024-10-16T09:30:00Z",
+        "status": "New",
+        "created_at": "2024-10-15T14:30:00Z",
+        "updated_at": "2024-10-15T14:30:00Z"
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 20,
+      "total": 1
     }
-  ]
+  }
   ```
 - Errors:
   - 400 Bad Request ("Invalid status value", "Invalid date format")
@@ -267,7 +287,7 @@
 - Validation:
   - `service_id`: must exist, duration must match new time range
   - `start_ts`/`end_ts`: cannot be in the past, must be available slot
-  - `status`: must be valid enum value ("New", "InProgress", "Completed", "Cancelled")
+  - `status`: must be valid enum value ("New", "Completed", "Cancelled")
   - Only future reservations can be modified (except status changes)
 - Logic:
     - Automatic update of the `updated_at` field via database triggers when reservation are modified.
@@ -315,11 +335,11 @@
 - **duration match**: (end_ts - start_ts) must equal service.duration_minutes
 - **availability**: time slot must not overlap with existing reservations for the employee
 - **employee schedule**: time slot must fall within employee's working hours
-- **status transitions**: New → InProgress → Completed, or New/InProgress → Cancelled
+- **status transitions**: New → Completed, or New/Completed → Cancelled
 
 #### Query Parameter Validation
+- **page**: integer, min 1, default 1
 - **limit**: integer, min 1, max 100, default 20
-- **offset**: integer, min 0, default 0
 - **datetime params**: valid ISO8601 format, reasonable ranges (max 90 days for availability search)
 
 ### 3.2 Business Logic

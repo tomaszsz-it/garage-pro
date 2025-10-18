@@ -4,6 +4,7 @@ import { vehicleCreateSchema } from "../../lib/validation/vehicleSchemas";
 import { createVehicleService } from "../../lib/services/vehicleService";
 import { DEFAULT_USER_ID } from "../../db/supabase.client";
 import type { VehicleCreateDto } from "../../types";
+import { DatabaseError } from "../../lib/errors/database.error";
 
 /**
  * POST /api/vehicles - Create a new vehicle
@@ -76,21 +77,23 @@ export const POST: APIRoute = async ({ request, locals }) => {
     // Log error for debugging (in production, use proper logging service)
     // Error details available in error variable for debugging
 
-    // Handle known business logic errors
-    if (error instanceof Error) {
-      if (error.message.includes("already exists")) {
-        return new Response(
-          JSON.stringify({
-            error: "Conflict",
-            message: error.message,
-          }),
-          {
-            status: 409,
-            headers: { "Content-Type": "application/json" },
-          }
-        );
-      }
+    // Handle known database errors
+    if (error instanceof DatabaseError) {
+      return new Response(
+        JSON.stringify({
+          error: error.message,
+          details: error.details,
+          code: error.code,
+        }),
+        {
+          status: error.code === "23505" ? 409 : 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     }
+
+    // Log unexpected errors (in production, use proper logging service)
+    console.error("Error creating vehicle:", error);
 
     // Handle unexpected errors
     return new Response(

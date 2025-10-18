@@ -1,6 +1,7 @@
 // src/lib/services/vehicleService.ts
 import type { SupabaseClient } from "../../db/supabase.client";
 import type { VehicleCreateDto, VehicleDto } from "../../types";
+import { DatabaseError } from "../errors/database.error";
 
 /**
  * Service class for vehicle-related operations
@@ -37,17 +38,15 @@ export class VehicleService {
       // Handle specific database errors
       if (error.code === "23505") {
         // Unique constraint violation
-        if (error.message.includes("license_plate")) {
-          throw new Error("Vehicle with this license plate already exists");
-        }
-        if (error.message.includes("vin")) {
-          throw new Error("Vehicle with this VIN already exists");
-        }
-        throw new Error("Vehicle with these details already exists");
+        throw new DatabaseError(
+          "Vehicle with these details already exists",
+          { field: error.message.includes("license_plate") ? "license_plate" : "vin" },
+          error.code
+        );
       }
 
       // Handle other database errors
-      throw new Error(`Failed to create vehicle: ${error.message}`);
+      throw new DatabaseError("Failed to create vehicle", error, error.code);
     }
 
     if (!data) {

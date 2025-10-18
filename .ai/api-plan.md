@@ -6,12 +6,19 @@
 
 ## 2. Endpoints
 
-### 2.3 Vehicles
+### 2.1 Vehicles
 #### GET /vehicles
 - Description: List vehicles owned by current user.
 - Query params: 
   - `limit` (int, default 20, max 100)
   - `offset` (int, default 0)
+- Validation:
+  - `license_plate`: required, 2-20 chars, alphanumeric + spaces
+  - `vin`: optional, exactly 17 chars if provided
+  - `brand`: optional, max 50 chars
+  - `model`: optional, max 50 chars
+  - `production_year`: optional, integer 1980-2080
+  - `car_type`: optional, max 200 chars  
 - Response 200:
   ```json
   [
@@ -30,6 +37,7 @@
 
 #### POST /vehicles
 - Description: Create a new vehicle.
+- Validation: same rules as POST (except license_plate not updatable)
 - Payload:
   ```json
   {
@@ -41,13 +49,6 @@
     "car_type": "B5 2.0 TDI"
   }
   ```
-- Validation:
-  - `license_plate`: required, 2-20 chars, alphanumeric + spaces
-  - `vin`: optional, exactly 17 chars if provided
-  - `brand`: optional, max 50 chars
-  - `model`: optional, max 50 chars
-  - `production_year`: optional, integer 1980-2080
-  - `car_type`: optional, max 200 chars
 - Response 201:
   ```json
   {
@@ -98,7 +99,6 @@
     "car_type": "B6 2.0 TDI"
   }
   ```
-- Validation: same rules as POST (except license_plate not updatable)
 - Response 200: updated vehicle object
 - Errors:
   - 400 Bad Request (validation errors)
@@ -118,7 +118,7 @@
 
 ---
 
-### 2.4 Available Slots
+### 2.2 Available Slots
 #### GET /reservations/available
 - Description: List next available slots for a service.
 - Query params:
@@ -129,7 +129,7 @@
 - Validation:
   - `serviceId`: must be positive integer and exist in services table
   - `from`: must be valid ISO8601 datetime, cannot be in the past
-  - `to`: must be after `from`, max 90 days from `from`
+  - `to`: must be after `from`, max 90 days from `from`  
 - Response 200:
   ```json
   [
@@ -152,12 +152,19 @@
   - 404 Not Found ("Service not found")
   - 401 Unauthorized
 
-
 ---
 
-### 2.5 Reservations
+### 2.3 Reservations
 #### POST /reservations
 - Description: Create a reservation.
+- Validation:
+  - `service_id`: required, must exist in services table
+  - `vehicle_license_plate`: required, must be owned by current user
+  - `employee_id`: required, must exist in employees table
+  - `start_ts`: required, valid ISO8601, cannot be in the past
+  - `end_ts`: required, valid ISO8601, must be after start_ts
+  - Time slot must be available (no overlapping reservations for employee)
+  - Duration must match service duration (end_ts - start_ts = service.duration_minutes)
 - Payload:
   ```json
   {
@@ -168,14 +175,6 @@
     "end_ts": "2024-10-16T09:30:00Z"
   }
   ```
-- Validation:
-  - `service_id`: required, must exist in services table
-  - `vehicle_license_plate`: required, must be owned by current user
-  - `employee_id`: required, must exist in employees table
-  - `start_ts`: required, valid ISO8601, cannot be in the past
-  - `end_ts`: required, valid ISO8601, must be after start_ts
-  - Time slot must be available (no overlapping reservations for employee)
-  - Duration must match service duration (end_ts - start_ts = service.duration_minutes)
 - Response 201:
   ```json
   {
@@ -265,6 +264,16 @@
 
 #### PATCH /reservations/{id}
 - Description: Update reservation (change time/service/status).
+- Validation:
+  - `service_id`: must exist, duration must match new time range
+  - `start_ts`/`end_ts`: cannot be in the past, must be available slot
+  - `status`: must be valid enum value ("New", "InProgress", "Completed", "Cancelled")
+  - Only future reservations can be modified (except status changes)
+- Logic:
+    - Automatic update of the `updated_at` field via database triggers when reservation are modified.
+- Authorization:
+  - Clients can only update their own reservations
+  - Secretariat can update any reservation
 - Payload (any subset of updatable fields):
   ```json
   {
@@ -274,15 +283,6 @@
     "status": "Cancelled"
   }
   ```
-- Validation:
-  - `service_id`: must exist, duration must match new time range
-  - `start_ts`/`end_ts`: cannot be in the past, must be available slot
-  - `status`: must be valid enum value ("New", "InProgress", "Completed", "Cancelled")
-  - Only future reservations can be modified (except status changes)
-- Authorization:
-  - Clients can only update their own reservations
-  - Secretariat can update any reservation
-  - Status changes to "Completed" only by secretariat
 - Response 200: updated reservation object (same format as GET)
 - Errors:
   - 400 Bad Request ("Cannot modify past reservation", "Invalid status transition")
@@ -294,10 +294,9 @@
 
 ---
 
+## 3. Validation & Business Logic
 
-## 4. Validation & Business Logic
-
-### 4.1 Validation Rules
+### 3.1 Validation Rules
 
 #### Vehicle Validation
 - **license_plate**: required, 2-20 characters, alphanumeric + spaces, unique per user
@@ -323,7 +322,7 @@
 - **offset**: integer, min 0, default 0
 - **datetime params**: valid ISO8601 format, reasonable ranges (max 90 days for availability search)
 
-### 4.2 Business Logic
+### 3.2 Business Logic
 
 #### Available Slots Algorithm
 1. **Query employee schedules**: Find all employee_schedules within the requested time range
@@ -360,4 +359,15 @@
 #### Performance Considerations
 - **Pagination**: Default limit/offset on all list endpoints
 - **Indexing**: Leverage DB indexes on foreign keys and timestamp ranges
+
+## 5. Authentication and Authorization
+
+- **Mechanism**: Token-based authentication using Supabase Auth.
+- **Process**:
+  - Users authenticate via `/auth/login` or `/auth/register`, receiving a bearer token.
+  - Protected endpoints require the token in the `Authorization` header.
+  - Database-level Row-Level Security (RLS) ensures that users access only records with matching `user_id`.
+- **Additional Considerations**: Use HTTPS, rate limiting, and secure error messaging to mitigate security risks.
+
+
 

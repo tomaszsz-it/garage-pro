@@ -52,11 +52,11 @@ export interface PaginationDto {
 }
 
 // ------------------------------------------------------------------------------------------------
-// 5. Available Slot DTO
+// 5. Available Reservation DTO
 //    Represents an available time slot for booking a service (GET /reservations/available).
 //    Combines data from employee_schedules and employees tables
 // ------------------------------------------------------------------------------------------------
-export interface AvailableSlotDto {
+export interface AvailableReservationDto {
   start_ts: string;
   end_ts: string;
   employee_id: string;
@@ -137,18 +137,18 @@ export interface ReservationsListResponseDto {
 }
 
 // ------------------------------------------------------------------------------------------------
-// 12. Available Slots Response DTO
+// 12. Available Reservations Response DTO
 //     Represents the response from GET /reservations/available endpoint
 // ------------------------------------------------------------------------------------------------
-export interface AvailableSlotsResponseDto {
-  data: AvailableSlotDto[];
+export interface AvailableReservationsResponseDto {
+  data: AvailableReservationDto[];
 }
 
 // ------------------------------------------------------------------------------------------------
 // 13. Query Parameters DTOs
 //     Type definitions for query parameters used in various endpoints
 // ------------------------------------------------------------------------------------------------
-export interface VehiclesQueryParams extends PaginationDto {}
+export type VehiclesQueryParams = PaginationDto;
 
 export interface ReservationsQueryParams extends PaginationDto {
   status?: ReservationStatus;
@@ -156,7 +156,7 @@ export interface ReservationsQueryParams extends PaginationDto {
   end_ts?: string; // ISO8601 datetime
 }
 
-export interface AvailableSlotsQueryParams {
+export interface AvailableReservationsQueryParams {
   service_id: number;
   start_ts?: string; // ISO8601 datetime, default now
   end_ts?: string; // ISO8601 datetime, default +30 days

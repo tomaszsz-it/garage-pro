@@ -125,14 +125,14 @@
 
 ---
 
-### 2.2 Available Slots
+### 2.2 Available Reservation
 #### GET /reservations/available
-- Description: List next available slots for a service.
+- Description: List next available reservation for a service.
 - Query params:
   - `service_id` (int, required) - must exist in services table
   - `start_ts` (ISO8601 datetime, default now) - search start time
   - `end_ts` (ISO8601 datetime, optional, default +30 days) - search end time
-  - `limit` (int, default 10, max 50) - max slots to return
+  - `limit` (int, default 10, max 50) - max available reservation to return
 - Validation:
   - `service_id`: must be positive integer and exist in services table
   - `start_ts`: must be valid ISO8601 datetime, cannot be in the past
@@ -344,20 +344,20 @@
 
 ### 3.2 Business Logic
 
-#### Available Slots Algorithm
+#### Available Reservations Algorithm
 1. **Query employee schedules**: Find all employee_schedules within the requested time range
 2. **Generate time slots**: For each employee schedule, create potential booking windows by sliding the service duration across their available hours (e.g., 8:00-16:00 with 30min service = slots at 8:00-8:30, 8:30-9:00, etc.)
 3. **Filter existing reservations**: Exclude time ranges that overlap with existing reservations using DB EXCLUDE constraint
-4. **Apply business rules**: Only show slots that are:
+4. **Apply business rules**: Only show avaialable reservations that are:
    - In the future (start_ts > now)
    - Within employee working hours
    - Not conflicting with other reservations
    - Matching exact service duration
-5. **Sort and limit**: Return chronologically ordered slots, limited by query parameter
+5. **Sort and limit**: Return chronologically ordered avaiable reservations, limited by query parameter
 
 #### Reservation Creation Flow
 1. **Validate input**: Check all required fields and business rules
-2. **Check availability**: Verify the exact time slot is still available (atomic check)
+2. **Check reservation availability**: Verify the exact time slot is still available (atomic check)
 3. **Create reservation**: Insert with status "New", auto-set user_id from JWT
 4. **Generate recommendation**: Call LLM service with vehicle data (brand, model, year, current date) and store result
 5. **Return response**: Include generated recommendation_text

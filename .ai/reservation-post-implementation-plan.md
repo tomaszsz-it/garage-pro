@@ -7,7 +7,6 @@
 - Metoda HTTP: POST  
 - URL: `/api/reservations`  
 - Nagłówki:  
-  - `Authorization: Bearer <JWT>` (wymagane)  
   - `Content-Type: application/json`  
 - Request Body (JSON):  
   ```json
@@ -25,7 +24,6 @@
 ## 3. Wykorzystywane typy i modele
 - ReservationCreateDto (src/types.ts)  
 - ReservationDto (src/types.ts)  
-- AvailableReservationsResponseDto – analogiczna struktura dla listy (opcjonalnie przy walidacji slotów)  
 - Zod schema: ReservationCreateSchema (src/lib/validation/reservationSchema.ts)
 
 ## 4. Szczegóły odpowiedzi
@@ -62,15 +60,20 @@
 3. **Autoryzacja**  – sprawdzenie własności `vehicle_license_plate`  
 4. **Dostępność**  – w service: zapytanie do `reservations` i `employee_schedules` w jednej transakcji dla wykluczenia kolizji  
 5. **Tworzenie rezerwacji**  – `INSERT` do `reservations` (status = New, created_by = user_id)  
-6. **Generowanie rekomendacji**  – wywołanie serwisu LLM z danymi pojazdu, aktualna data, wstawienie `recommendation_text` w tabeli  
+6. **Generowanie rekomendacji**  – generowanie krótkiego (maks. 400 znaków) tekstu z praktycznymi sugestiami dodatkowymi dotyczącymi czynności serwisowych, które użytkownik może rozważyć (np. wymiana filtra paliwa podczas wymiany oleju). Szczegóły:
+   1. Pobranie danych pojazdu (`brand`, `model`, `production_year`) oraz usługi (`service_name`, `duration_minutes`).
+   2. Zbudowanie promptu do serwisu LLM z instrukcją ograniczenia odpowiedzi do maks. 400 znaków, np.:
+      ```text
+      "Podczas wymiany {service_name} na {production_year} {brand} {model} wygeneruj maksymalnie 400-znakowe sugestie dodatkowych prac serwisowych, np. wymiana filtra paliwa."
+      ```
+   3. Wywołanie zewnętrznego serwisu LLM z przygotowanym promptem.
+   4. Zapisanie zwróconej odpowiedzi w polu `recommendation_text` w tabeli `reservations`.
 7. **Odpowiedź**  – odczyt wstawionego rekordu z joinami do `services` i `employees`
 
 ## 6. Względy bezpieczeństwa
-- **Authentication**: JWT, `supabase.auth` w middleware  
 - **Authorization**: sprawdzenie własności pojazdu, RLS w Supabase (polityki na tabeli `reservations`)  
 - **Walidacja**: Zod, guard clauses (early return)  
 - **SQL Injection**: użycie query buildera Supabase lub parametrów wiązanych  
-- **Eksfiltracja**: nie ujawniać wrażliwych danych w odpowiedziach
 
 ## 7. Obsługa błędów
 | Kod  | Warunek                                     | Komunikat                                   |
@@ -86,16 +89,14 @@
 - **Indeksy**: indeks na `(employee_id, start_ts, end_ts)`  
 - **Transakcje**: atomiczna weryfikacja dostępności + wstawienie  
 - **Rate limiting**: aby uniknąć DoS przy generowaniu rekomendacji  
-- **Cache**: statyczne listy usług/pojazdów (opcjonalnie)
 
-## 9. Kroki implementacji
+## 8. Kroki implementacji
 1. Dodać `ReservationCreateSchema` (Zod) w `src/lib/validation/reservationSchema.ts`  
-2. Rozszerzyć `src/lib/services/reservationAvailabilityService.ts` o metodę `findAvailableSlot`  
-3. Utworzyć nowy serwis `src/lib/services/reservationService.ts`:  
+2. Utworzyć nowy serwis `src/lib/services/reservationService.ts`:  
    - `createReservation(dto: ReservationCreateDto, userId: string)`  
-4. W serwisie implementować: walidacja, autoryzacja, dostępność, wstawienie i generowanie rekomendacji  
-5. Dodać route handler w `src/pages/api/reservations/index.ts`:  
-   - `export const POST` z `prerender = false`, `await supabase.from(context).…`  
-6. Napisać testy integracyjne `__tests__/reservations-post.test.ts` (ścieżki, kody, scenariusze błędów)  
-7. Aktualizacja dokumentacji w README-reservations.md  
-8. Code review, merge i deployment
+3. W serwisie implementować: walidacja, autoryzacja własności pojazdu, weryfikacja kolizji rezerwacji, wstawienie rekordu oraz generowanie rekomendacji  
+4. Dodać route handler w `src/pages/api/reservations/index.ts`:  
+   - `export const POST` z `prerender = false`, użycie `context.locals` dla kontroli dostępu  
+
+6. Aktualizacja dokumentacji w README-reservations.md 
+7, Aktualizacja kolekcji postman w pliku garage-pro.postman_collection.json 

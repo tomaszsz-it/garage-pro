@@ -1,52 +1,68 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { ReservationCreateDto, ReservationDto } from "../../types";
+import type { ReservationCreateDto, ReservationDto, ReservationStatus } from "../../types";
 import { DatabaseError } from "../errors/database.error";
 
 export interface ReservationService {
   createReservation(dto: ReservationCreateDto, userId: string): Promise<ReservationDto>;
 }
 
+interface ServiceData {
+  name: string;
+  duration_minutes: number;
+}
+
+interface EmployeeData {
+  name: string;
+}
+
+interface ReservationWithRelations {
+  id: string;
+  user_id: string;
+  service_id: number;
+  vehicle_license_plate: string;
+  employee_id: string;
+  start_ts: string;
+  end_ts: string;
+  status: ReservationStatus;
+  created_at: string;
+  updated_at: string;
+  services: ServiceData;
+  employees: EmployeeData;
+}
+
 export function createReservationService(supabase: SupabaseClient): ReservationService {
   return {
     async createReservation(dto: ReservationCreateDto, userId: string): Promise<ReservationDto> {
       // 1. Verify vehicle ownership
-      const { data: vehicle, error: vehicleError } = await supabase
+      const { data: vehicle } = await supabase
         .from("vehicles")
-        .select("id, brand, model, production_year")
+        .select("user_id, brand, model, production_year")
         .eq("license_plate", dto.vehicle_license_plate)
         .eq("user_id", userId)
         .single();
 
-      //  if (vehicleError || !vehicle) {
-      //    throw new DatabaseError("Vehicle not owned by user", 403, "VEHICLE_NOT_OWNED", {
-      //      license_plate: dto.vehicle_license_plate,
-      //    });
-      //  }
+      if (!vehicle) {
+        throw new DatabaseError("Vehicle not owned by user", {
+          license_plate: dto.vehicle_license_plate,
+        });
+      }
 
       // 2. Verify service exists and get duration
-      const { data: service, error: serviceError } = await supabase
+      const { data: service } = await supabase
         .from("services")
         .select("service_id, name, duration_minutes")
         .eq("service_id", dto.service_id)
         .single();
 
-      console.log("Service data:", JSON.stringify(service, null, 2));
-
       if (!service) {
-        throw new DatabaseError("Service not serve by our garage", 404, "SERVICE_NOT_FOUND", {
-          service_id: dto.service_id,
-        });
+        throw new DatabaseError("Service not found in the garage", { service_id: dto.service_id });
       }
 
       // 3. Verify employee exists
-      const { data: employee, error: employeeError } = await supabase
-        .from("employees")
-        .select("employee_id, name")
-        .eq("employee_id", dto.employee_id)
-        .single();
+      const { data: employee } = await supabase.from("employees").select("id, name").eq("id", dto.employee_id).single();
 
-      if (employeeError || !employee) {
-        throw new DatabaseError("Employee not found", 404, "EMPLOYEE_NOT_FOUND", { employee_id: dto.employee_id });
+      if (!employee) {
+        throw new DatabaseError("Employee not found", { employee_id: dto.employee_id });
       }
 
       // 4. Verify time slot duration matches service duration
@@ -55,7 +71,7 @@ export function createReservationService(supabase: SupabaseClient): ReservationS
       const durationMinutes = Math.round((end.getTime() - start.getTime()) / (1000 * 60));
 
       if (durationMinutes !== service.duration_minutes) {
-        throw new DatabaseError("Time slot duration does not match service duration", 400, "INVALID_DURATION", {
+        throw new DatabaseError("Time slot duration does not match service duration", {
           expected: service.duration_minutes,
           actual: durationMinutes,
           start_ts: dto.start_ts,
@@ -72,24 +88,24 @@ export function createReservationService(supabase: SupabaseClient): ReservationS
         .not("status", "eq", "Cancelled");
 
       if (conflictsError) {
-        throw new DatabaseError("Error checking time slot availability", 500, "AVAILABILITY_CHECK_ERROR");
+        throw new DatabaseError("Error checking time slot availability");
       }
 
       if (conflicts && conflicts.length > 0) {
-        throw new DatabaseError("Time slot not available", 409, "TIME_SLOT_CONFLICT", { conflicts: conflicts.length });
+        throw new DatabaseError("Time slot not available", { conflicts: conflicts.length });
       }
 
       // 6. Check employee schedule
       const { data: schedule, error: scheduleError } = await supabase
         .from("employee_schedules")
-        .select("id")
+        .select("employee_id, start_ts, end_ts")
         .eq("employee_id", dto.employee_id)
-        .gte("start_ts", start.toISOString().split("T")[0])
-        .lte("end_ts", end.toISOString().split("T")[0])
+        .lte("start_ts", dto.start_ts)
+        .gte("end_ts", dto.end_ts)
         .single();
 
       if (scheduleError || !schedule) {
-        throw new DatabaseError("Employee not available at this time (outside schedule)", 409, "OUTSIDE_SCHEDULE", {
+        throw new DatabaseError("Employee not available at this time (outside schedule)", {
           employee_id: dto.employee_id,
         });
       }
@@ -100,7 +116,9 @@ export function createReservationService(supabase: SupabaseClient): ReservationS
       // - Current service being performed
       // - Service history (if available)
       // For now, using a default recommendation text
-      const recommendationText = `Consider checking other maintenance items during your ${service.name} service for your ${vehicle.production_year} ${vehicle.brand} ${vehicle.model}. Our mechanics can provide a detailed inspection.`;
+      const recommendationText = `Consider checking other maintenance items during your ${service.name} service${
+        vehicle ? ` for your ${vehicle.production_year} ${vehicle.brand} ${vehicle.model}` : ""
+      }. Our mechanics can provide a detailed inspection.`;
 
       // 7. Create reservation
       const { data: reservation, error: insertError } = await supabase
@@ -111,13 +129,15 @@ export function createReservationService(supabase: SupabaseClient): ReservationS
           employee_id: dto.employee_id,
           start_ts: dto.start_ts,
           end_ts: dto.end_ts,
-          status: "New",
+          status: "New" as const,
           created_by: userId,
+          user_id: userId,
           recommendation_text: recommendationText,
         })
         .select(
           `
           id,
+          user_id,
           service_id,
           vehicle_license_plate,
           employee_id,
@@ -126,11 +146,11 @@ export function createReservationService(supabase: SupabaseClient): ReservationS
           status,
           created_at,
           updated_at,
-          services (
+          services!inner (
             name,
             duration_minutes
           ),
-          employees (
+          employees!inner (
             name
           )
         `
@@ -138,23 +158,26 @@ export function createReservationService(supabase: SupabaseClient): ReservationS
         .single();
 
       if (insertError || !reservation) {
-        throw new DatabaseError("Error creating reservation", 500, "RESERVATION_CREATE_ERROR");
+        throw new DatabaseError("Error creating reservation");
       }
+
+      const typedReservation = reservation as unknown as ReservationWithRelations;
 
       // 8. Return formatted DTO
       return {
-        id: reservation.id,
-        service_id: reservation.service_id,
-        service_name: reservation.services.name,
-        service_duration_minutes: reservation.services.duration_minutes,
-        vehicle_license_plate: reservation.vehicle_license_plate,
-        employee_id: reservation.employee_id,
-        employee_name: reservation.employees.name,
-        start_ts: reservation.start_ts,
-        end_ts: reservation.end_ts,
-        status: reservation.status,
-        created_at: reservation.created_at,
-        updated_at: reservation.updated_at,
+        id: typedReservation.id,
+        user_id: typedReservation.user_id,
+        service_id: typedReservation.service_id,
+        service_name: typedReservation.services.name,
+        service_duration_minutes: typedReservation.services.duration_minutes,
+        vehicle_license_plate: typedReservation.vehicle_license_plate,
+        employee_id: typedReservation.employee_id,
+        employee_name: typedReservation.employees.name,
+        start_ts: typedReservation.start_ts,
+        end_ts: typedReservation.end_ts,
+        status: typedReservation.status,
+        created_at: typedReservation.created_at,
+        updated_at: typedReservation.updated_at,
       };
     },
   };

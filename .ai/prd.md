@@ -99,7 +99,7 @@ W MVP nie uwzględniamy:
   </scope_update> To wymaganie w kontekście GUI jest poza MVP, zakładam że w MVP właściciel warsztatu jest również administratorem systemu i może sam wykonać insert do bazy danych. Natomiast W zakresie MVP jest 
   - wyprodukowanie skryptu bazodanowego odpowiedzialnego za utworzenie 3 mechaników z ich losowymi danymi ale imionami Mechanik1 Mechanik2 Mechanik3
    oraz charmongramu dostepności w pracy we wszystkie dni robocze w Polsce roku 2025 i 2026
-   - dodatkowo skrypt z insertami do bazy danych który tworzy 4 stanowiska z losowymi danymi. Staniwiska będą dostępne we wszystkie dni w roku 2025 i 2026</scope_update> 
+   - dodatkowo skrypt z insertami do bazy danych który tworzy 4 stanowiska z losowymi danymi. Stanowiska będą dostępne we wszystkie dni w roku 2025 i 2026</scope_update> 
 
 - ID: US-007
   Tytuł: rekomendacja konserwacji

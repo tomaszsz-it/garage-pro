@@ -1,0 +1,454 @@
+{
+  "info": {
+    "name": "Garage Pro API",
+    "description": "Collection for testing Garage Pro API endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Vehicles",
+      "description": "Endpoints for managing vehicles",
+      "item": [
+        {
+          "name": "Create Vehicle",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/vehicles",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "vehicles"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"license_plate\": \"WAW1234\",\n  \"vin\": \"1FUJA6CK14LM94383\",\n  \"brand\": \"Volkswagen\",\n  \"model\": \"Passat\",\n  \"production_year\": 2020,\n  \"car_type\": \"Sedan B8\"\n}"
+            },
+            "description": "Creates a new vehicle in the system"
+          },
+          "response": [
+            {
+              "name": "Success - Full Vehicle",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/vehicles",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "vehicles"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"license_plate\": \"WAW1234\",\n  \"vin\": \"1FUJA6CK14LM94383\",\n  \"brand\": \"Volkswagen\",\n  \"model\": \"Passat\",\n  \"production_year\": 2020,\n  \"car_type\": \"Sedan B8\"\n}"
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"license_plate\": \"WAW1234\",\n  \"vin\": \"1FUJA6CK14LM94383\",\n  \"brand\": \"Volkswagen\",\n  \"model\": \"Passat\",\n  \"production_year\": 2020,\n  \"car_type\": \"Sedan B8\"\n}"
+            },
+            {
+              "name": "Success - Minimal Vehicle",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/vehicles",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "vehicles"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"license_plate\": \"KR5678\"\n}"
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"license_plate\": \"KR5678\",\n  \"vin\": null,\n  \"brand\": null,\n  \"model\": null,\n  \"production_year\": null,\n  \"car_type\": null,\n  \"created_at\": \"2025-10-18T15:30:12.123456+00:00\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Reservations",
+      "description": "Endpoints for managing reservations",
+      "item": [
+        {
+          "name": "Get Available Slots",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/reservations/available?service_id=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reservations", "available"],
+              "query": [
+                {
+                  "key": "service_id",
+                  "value": "1",
+                  "description": "ID of the service to check availability for"
+                },
+                {
+                  "key": "start_ts",
+                  "value": "2025-10-23T00:00:00Z",
+                  "description": "Start of the time range",
+                  "disabled": true
+                },
+                {
+                  "key": "end_ts",
+                  "value": "2025-10-30T00:00:00Z",
+                  "description": "End of the time range",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "32",
+                  "description": "Maximum number of slots to return",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Returns a list of available reservation slots for a specific service"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/reservations/available?service_id=1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "reservations", "available"],
+                  "query": [
+                    {
+                      "key": "service_id",
+                      "value": "1"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "no-cache"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"start_ts\": \"2025-10-23T09:00:00Z\",\n      \"end_ts\": \"2025-10-23T09:30:00Z\",\n      \"employee_id\": \"uuid\",\n      \"employee_name\": \"John Doe\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Create Reservation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/reservations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reservations"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"service_id\": 1,\n  \"vehicle_license_plate\": \"WAW1234\",\n  \"employee_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"start_ts\": \"2024-10-16T09:00:00Z\",\n  \"end_ts\": \"2024-10-16T09:30:00Z\"\n}"
+            },
+            "description": "Creates a new reservation"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/reservations",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "reservations"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"service_id\": 1,\n  \"vehicle_license_plate\": \"WAW1234\",\n  \"employee_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"start_ts\": \"2024-10-16T09:00:00Z\",\n  \"end_ts\": \"2024-10-16T09:30:00Z\"\n}"
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"user_id\": \"550e8400-e29b-41d4-a716-446655440001\",\n  \"service_id\": 1,\n  \"service_name\": \"Oil Change\",\n  \"service_duration_minutes\": 30,\n  \"vehicle_license_plate\": \"WAW1234\",\n  \"employee_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"employee_name\": \"Mechanik1\",\n  \"start_ts\": \"2024-10-16T09:00:00Z\",\n  \"end_ts\": \"2024-10-16T09:30:00Z\",\n  \"status\": \"New\",\n  \"recommendation_text\": \"Based on your 2010 VW Passat, consider checking brake fluid and air filter replacement.\",\n  \"created_at\": \"2024-10-15T14:30:00Z\",\n  \"updated_at\": \"2024-10-15T14:30:00Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Reservations List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/reservations?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reservations"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Items per page"
+                },
+                {
+                  "key": "status",
+                  "value": "New",
+                  "description": "Filter by status",
+                  "disabled": true
+                },
+                {
+                  "key": "from",
+                  "value": "2024-10-16T00:00:00Z",
+                  "description": "Filter from date",
+                  "disabled": true
+                },
+                {
+                  "key": "to",
+                  "value": "2024-10-23T00:00:00Z",
+                  "description": "Filter to date",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Returns a list of user's reservations"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/reservations?page=1&limit=20",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "reservations"],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n      \"user_id\": \"550e8400-e29b-41d4-a716-446655440001\",\n      \"service_id\": 1,\n      \"service_name\": \"Oil Change\",\n      \"service_duration_minutes\": 30,\n      \"vehicle_license_plate\": \"WAW1234\",\n      \"employee_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n      \"employee_name\": \"Mechanik1\",\n      \"start_ts\": \"2024-10-16T09:00:00Z\",\n      \"end_ts\": \"2024-10-16T09:30:00Z\",\n      \"status\": \"New\",\n      \"created_at\": \"2024-10-15T14:30:00Z\",\n      \"updated_at\": \"2024-10-15T14:30:00Z\"\n    }\n  ],\n  \"pagination\": {\n    \"page\": 1,\n    \"limit\": 20,\n    \"total\": 1\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Reservation Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/reservations/123e4567-e89b-12d3-a456-426614174000",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reservations", "123e4567-e89b-12d3-a456-426614174000"]
+            },
+            "description": "Returns details of a specific reservation"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/reservations/123e4567-e89b-12d3-a456-426614174000",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "reservations", "123e4567-e89b-12d3-a456-426614174000"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"user_id\": \"550e8400-e29b-41d4-a716-446655440001\",\n  \"service_id\": 1,\n  \"service_name\": \"Oil Change\",\n  \"service_duration_minutes\": 30,\n  \"vehicle_license_plate\": \"WAW1234\",\n  \"vehicle_brand\": \"VW\",\n  \"vehicle_model\": \"Passat\",\n  \"employee_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"employee_name\": \"Mechanik1\",\n  \"start_ts\": \"2024-10-16T09:00:00Z\",\n  \"end_ts\": \"2024-10-16T09:30:00Z\",\n  \"status\": \"New\",\n  \"recommendation_text\": \"Based on your 2010 VW Passat, consider checking brake fluid and air filter replacement.\",\n  \"created_at\": \"2024-10-15T14:30:00Z\",\n  \"updated_at\": \"2024-10-15T14:30:00Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Reservation",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/reservations/123e4567-e89b-12d3-a456-426614174000",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reservations", "123e4567-e89b-12d3-a456-426614174000"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"service_id\": 2,\n  \"start_ts\": \"2024-10-16T10:00:00Z\",\n  \"end_ts\": \"2024-10-16T11:00:00Z\",\n  \"status\": \"Cancelled\"\n}"
+            },
+            "description": "Updates an existing reservation"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/reservations/123e4567-e89b-12d3-a456-426614174000",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "reservations", "123e4567-e89b-12d3-a456-426614174000"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"service_id\": 2,\n  \"start_ts\": \"2024-10-16T10:00:00Z\",\n  \"end_ts\": \"2024-10-16T11:00:00Z\",\n  \"status\": \"Cancelled\"\n}"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"user_id\": \"550e8400-e29b-41d4-a716-446655440001\",\n  \"service_id\": 2,\n  \"service_name\": \"Brake Check\",\n  \"service_duration_minutes\": 60,\n  \"vehicle_license_plate\": \"WAW1234\",\n  \"vehicle_brand\": \"VW\",\n  \"vehicle_model\": \"Passat\",\n  \"employee_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"employee_name\": \"Mechanik1\",\n  \"start_ts\": \"2024-10-16T10:00:00Z\",\n  \"end_ts\": \"2024-10-16T11:00:00Z\",\n  \"status\": \"Cancelled\",\n  \"recommendation_text\": \"Based on your 2010 VW Passat, consider checking brake fluid and air filter replacement.\",\n  \"created_at\": \"2024-10-15T14:30:00Z\",\n  \"updated_at\": \"2024-10-15T15:00:00Z\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "YOUR_AUTH_TOKEN",
+      "type": "string"
+    }
+  ]
+}

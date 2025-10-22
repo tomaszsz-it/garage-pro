@@ -1,6 +1,6 @@
 # Garage Pro
 
-A web application for automotive workshops that enables customers to quickly find available appointment slots for basic car repairs and make reservations. The system also allows workshop staff to handle phone reservations through the same interface, with an admin panel for monthly scheduling of mechanics and workstations availability.
+A web application for automotive workshops that enables customers to quickly find available reservations (appointment slots) for basic car repairs and make reservations. The system also allows workshop staff to handle phone reservations through the same interface, with an admin panel for monthly scheduling of mechanics and workstations availability.
 
 ## Tech Stack
 
@@ -67,7 +67,7 @@ A web application for automotive workshops that enables customers to quickly fin
 ## Project Scope
 
 ### MVP Features
-- **Appointment Search**: Browse available time slots across all mechanics with service type filtering
+- **Appointment Search**: Browse available reservations across all mechanics with service type filtering
 - **Online Booking**: Customer booking form with inline validation for logged-in users
 - **Reservation Management**: Full CRUD operations for customers and staff
 - **Admin Panel**: Monthly scheduling of mechanics and workstation availability (unlocked on the 10th of each month)

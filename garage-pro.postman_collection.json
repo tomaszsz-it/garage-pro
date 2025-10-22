@@ -201,9 +201,9 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"service_id\": 1,\n  \"vehicle_license_plate\": \"WAW1234\",\n  \"employee_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"start_ts\": \"2024-10-16T09:00:00Z\",\n  \"end_ts\": \"2024-10-16T09:30:00Z\"\n}"
+              "raw": "{\n  \"service_id\": 1,\n  \"vehicle_license_plate\": \"WAW1234\",\n  \"employee_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"start_ts\": \"2025-10-23T09:00:00Z\",\n  \"end_ts\": \"2025-10-23T09:30:00Z\"\n}"
             },
-            "description": "Creates a new reservation"
+            "description": "Creates a new reservation for a service"
           },
           "response": [
             {
@@ -227,7 +227,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"service_id\": 1,\n  \"vehicle_license_plate\": \"WAW1234\",\n  \"employee_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"start_ts\": \"2024-10-16T09:00:00Z\",\n  \"end_ts\": \"2024-10-16T09:30:00Z\"\n}"
+                  "raw": "{\n  \"service_id\": 1,\n  \"vehicle_license_plate\": \"WAW1234\",\n  \"employee_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"start_ts\": \"2025-10-23T09:00:00Z\",\n  \"end_ts\": \"2025-10-23T09:30:00Z\"\n}"
                 }
               },
               "status": "Created",
@@ -238,7 +238,109 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"user_id\": \"550e8400-e29b-41d4-a716-446655440001\",\n  \"service_id\": 1,\n  \"service_name\": \"Oil Change\",\n  \"service_duration_minutes\": 30,\n  \"vehicle_license_plate\": \"WAW1234\",\n  \"employee_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"employee_name\": \"Mechanik1\",\n  \"start_ts\": \"2024-10-16T09:00:00Z\",\n  \"end_ts\": \"2024-10-16T09:30:00Z\",\n  \"status\": \"New\",\n  \"recommendation_text\": \"Based on your 2010 VW Passat, consider checking brake fluid and air filter replacement.\",\n  \"created_at\": \"2024-10-15T14:30:00Z\",\n  \"updated_at\": \"2024-10-15T14:30:00Z\"\n}"
+              "body": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"service_id\": 1,\n  \"service_name\": \"Oil Change\",\n  \"service_duration_minutes\": 30,\n  \"vehicle_license_plate\": \"WAW1234\",\n  \"employee_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"employee_name\": \"John Doe\",\n  \"start_ts\": \"2025-10-23T09:00:00Z\",\n  \"end_ts\": \"2025-10-23T09:30:00Z\",\n  \"status\": \"New\",\n  \"created_at\": \"2025-10-22T15:30:00Z\",\n  \"updated_at\": \"2025-10-22T15:30:00Z\"\n}"
+            },
+            {
+              "name": "Error - Invalid Input",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/reservations",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "reservations"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"service_id\": \"invalid\",\n  \"vehicle_license_plate\": \"\",\n  \"employee_id\": \"not-a-uuid\",\n  \"start_ts\": \"invalid-date\",\n  \"end_ts\": \"2025-10-23T09:00:00Z\"\n}"
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Bad Request\",\n  \"message\": \"Validation failed\",\n  \"details\": [\n    {\n      \"field\": \"service_id\",\n      \"message\": \"service_id must be a number\"\n    },\n    {\n      \"field\": \"vehicle_license_plate\",\n      \"message\": \"vehicle_license_plate cannot be empty\"\n    },\n    {\n      \"field\": \"employee_id\",\n      \"message\": \"employee_id must be a valid UUID\"\n    },\n    {\n      \"field\": \"start_ts\",\n      \"message\": \"start_ts must be a valid ISO8601 datetime string\"\n    }\n  ]\n}"
+            },
+            {
+              "name": "Error - Vehicle Not Owned",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/reservations",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "reservations"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"service_id\": 1,\n  \"vehicle_license_plate\": \"NOT-OWNED\",\n  \"employee_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"start_ts\": \"2025-10-23T09:00:00Z\",\n  \"end_ts\": \"2025-10-23T09:30:00Z\"\n}"
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Vehicle not owned by user\",\n  \"details\": {\n    \"license_plate\": \"NOT-OWNED\"\n  }\n}"
+            },
+            {
+              "name": "Error - Time Slot Conflict",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/reservations",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "reservations"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"service_id\": 1,\n  \"vehicle_license_plate\": \"WAW1234\",\n  \"employee_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"start_ts\": \"2025-10-23T09:00:00Z\",\n  \"end_ts\": \"2025-10-23T09:30:00Z\"\n}"
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Time slot not available\",\n  \"details\": {\n    \"conflicts\": 1\n  }\n}"
             }
           ]
         },
@@ -324,7 +426,7 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n  \"data\": [\n    {\n      \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n      \"user_id\": \"550e8400-e29b-41d4-a716-446655440001\",\n      \"service_id\": 1,\n      \"service_name\": \"Oil Change\",\n      \"service_duration_minutes\": 30,\n      \"vehicle_license_plate\": \"WAW1234\",\n      \"employee_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n      \"employee_name\": \"Mechanik1\",\n      \"start_ts\": \"2024-10-16T09:00:00Z\",\n      \"end_ts\": \"2024-10-16T09:30:00Z\",\n      \"status\": \"New\",\n      \"created_at\": \"2024-10-15T14:30:00Z\",\n      \"updated_at\": \"2024-10-15T14:30:00Z\"\n    }\n  ],\n  \"pagination\": {\n    \"page\": 1,\n    \"limit\": 20,\n    \"total\": 1\n  }\n}"
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n      \"service_id\": 1,\n      \"service_name\": \"Oil Change\",\n      \"service_duration_minutes\": 30,\n      \"vehicle_license_plate\": \"WAW1234\",\n      \"employee_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n      \"employee_name\": \"John Doe\",\n      \"start_ts\": \"2025-10-23T09:00:00Z\",\n      \"end_ts\": \"2025-10-23T09:30:00Z\",\n      \"status\": \"New\",\n      \"created_at\": \"2025-10-22T15:30:00Z\",\n      \"updated_at\": \"2025-10-22T15:30:00Z\"\n    }\n  ],\n  \"pagination\": {\n    \"page\": 1,\n    \"limit\": 20,\n    \"total\": 1\n  }\n}"
             }
           ]
         },
@@ -370,7 +472,7 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"user_id\": \"550e8400-e29b-41d4-a716-446655440001\",\n  \"service_id\": 1,\n  \"service_name\": \"Oil Change\",\n  \"service_duration_minutes\": 30,\n  \"vehicle_license_plate\": \"WAW1234\",\n  \"vehicle_brand\": \"VW\",\n  \"vehicle_model\": \"Passat\",\n  \"employee_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"employee_name\": \"Mechanik1\",\n  \"start_ts\": \"2024-10-16T09:00:00Z\",\n  \"end_ts\": \"2024-10-16T09:30:00Z\",\n  \"status\": \"New\",\n  \"recommendation_text\": \"Based on your 2010 VW Passat, consider checking brake fluid and air filter replacement.\",\n  \"created_at\": \"2024-10-15T14:30:00Z\",\n  \"updated_at\": \"2024-10-15T14:30:00Z\"\n}"
+              "body": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"service_id\": 1,\n  \"service_name\": \"Oil Change\",\n  \"service_duration_minutes\": 30,\n  \"vehicle_license_plate\": \"WAW1234\",\n  \"vehicle_brand\": \"VW\",\n  \"vehicle_model\": \"Passat\",\n  \"employee_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"employee_name\": \"John Doe\",\n  \"start_ts\": \"2025-10-23T09:00:00Z\",\n  \"end_ts\": \"2025-10-23T09:30:00Z\",\n  \"status\": \"New\",\n  \"recommendation_text\": \"Based on your 2010 VW Passat, consider checking brake fluid and air filter replacement.\",\n  \"created_at\": \"2025-10-22T15:30:00Z\",\n  \"updated_at\": \"2025-10-22T15:30:00Z\"\n}"
             }
           ]
         },
@@ -395,7 +497,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"service_id\": 2,\n  \"start_ts\": \"2024-10-16T10:00:00Z\",\n  \"end_ts\": \"2024-10-16T11:00:00Z\",\n  \"status\": \"Cancelled\"\n}"
+              "raw": "{\n  \"service_id\": 2,\n  \"start_ts\": \"2025-10-23T10:00:00Z\",\n  \"end_ts\": \"2025-10-23T11:00:00Z\",\n  \"status\": \"Cancelled\"\n}"
             },
             "description": "Updates an existing reservation"
           },
@@ -421,7 +523,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"service_id\": 2,\n  \"start_ts\": \"2024-10-16T10:00:00Z\",\n  \"end_ts\": \"2024-10-16T11:00:00Z\",\n  \"status\": \"Cancelled\"\n}"
+                  "raw": "{\n  \"service_id\": 2,\n  \"start_ts\": \"2025-10-23T10:00:00Z\",\n  \"end_ts\": \"2025-10-23T11:00:00Z\",\n  \"status\": \"Cancelled\"\n}"
                 }
               },
               "status": "OK",
@@ -432,7 +534,7 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"user_id\": \"550e8400-e29b-41d4-a716-446655440001\",\n  \"service_id\": 2,\n  \"service_name\": \"Brake Check\",\n  \"service_duration_minutes\": 60,\n  \"vehicle_license_plate\": \"WAW1234\",\n  \"vehicle_brand\": \"VW\",\n  \"vehicle_model\": \"Passat\",\n  \"employee_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"employee_name\": \"Mechanik1\",\n  \"start_ts\": \"2024-10-16T10:00:00Z\",\n  \"end_ts\": \"2024-10-16T11:00:00Z\",\n  \"status\": \"Cancelled\",\n  \"recommendation_text\": \"Based on your 2010 VW Passat, consider checking brake fluid and air filter replacement.\",\n  \"created_at\": \"2024-10-15T14:30:00Z\",\n  \"updated_at\": \"2024-10-15T15:00:00Z\"\n}"
+              "body": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"service_id\": 2,\n  \"service_name\": \"Brake Check\",\n  \"service_duration_minutes\": 60,\n  \"vehicle_license_plate\": \"WAW1234\",\n  \"employee_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"employee_name\": \"John Doe\",\n  \"start_ts\": \"2025-10-23T10:00:00Z\",\n  \"end_ts\": \"2025-10-23T11:00:00Z\",\n  \"status\": \"Cancelled\",\n  \"created_at\": \"2025-10-22T15:30:00Z\",\n  \"updated_at\": \"2025-10-22T16:00:00Z\"\n}"
             }
           ]
         }

@@ -31,7 +31,7 @@ export async function getAvailableReservations(
   const { data: service, error: serviceError } = await supabase
     .from('services')
     .select('duration_minutes')
-    .eq('id', params.service_id)
+    .eq('service_id', params.service_id)
     .single();
 
   if (serviceError || !service) {

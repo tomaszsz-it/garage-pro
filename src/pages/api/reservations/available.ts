@@ -1,91 +1,114 @@
-import type { APIRoute } from 'astro';
-import { ZodError } from 'zod';
-import { BadRequestError, DatabaseError } from '../../../lib/errors/database.error';
-import { availableReservationsQuerySchema } from '../../../lib/validation/reservationAvailabilitySchema';
-import { getAvailableReservations } from '../../../lib/services/reservationAvailabilityService';
-import type { AvailableReservationsResponseDto } from '../../../types';
+import type { APIRoute } from "astro";
+import { DatabaseError } from "../../../lib/errors/database.error";
+import { availableReservationsQuerySchema } from "../../../lib/validation/reservationAvailabilitySchema";
+import { getAvailableReservations } from "../../../lib/services/reservationAvailabilityService";
+import type { AvailableReservationsQueryParams } from "../../../types";
 
 export const prerender = false;
 
 /**
- * GET /reservations/available
- * Returns available reservation slots for a given service
+ * GET /api/reservations/available - Get available reservation slots
+ *
+ * Returns available reservation slots for a given service based on query parameters.
+ * Authentication will be implemented later.
+ *
+ * Query Parameters:
+ * - service_id: number
+ * - date: string (YYYY-MM-DD)
+ *
+ * Response: 200 OK with AvailableReservationsResponseDto
+ *
+ * Error Responses:
+ * - 400: Bad Request (validation errors)
+ * - 404: Not Found (service not found)
+ * - 500: Internal Server Error
  */
 export const GET: APIRoute = async ({ request, locals }) => {
   try {
-    // Ensure user is authenticated
-    const session = await locals.supabase.auth.getSession();
-    if (!session.data.session) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
+    const supabase = locals.supabase;
 
     // Parse and validate query parameters
     const url = new URL(request.url);
     const rawParams = Object.fromEntries(url.searchParams);
-    
-    try {
-      const params = availableReservationsQuerySchema.parse(rawParams);
-      
-      // Get available slots
-      const availableSlots = await getAvailableReservations(params, locals.supabase);
+    const validationResult = availableReservationsQuerySchema.safeParse(rawParams);
+    if (!validationResult.success) {
+      const errors = validationResult.error.errors.map((err) => ({
+        field: err.path.join("."),
+        message: err.message,
+      }));
 
-      // Return response
-      const response: AvailableReservationsResponseDto = {
-        data: availableSlots
-      };
+      return new Response(
+        JSON.stringify({
+          error: "Bad Request",
+          message: "Validation failed",
+          details: errors,
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
 
-      return new Response(JSON.stringify(response), {
+    const params = validationResult.data;
+    const availableSlots = await getAvailableReservations(params as AvailableReservationsQueryParams, supabase);
+
+    // Return success response
+    return new Response(
+      JSON.stringify({
+        data: availableSlots,
+      }),
+      {
         status: 200,
         headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache, no-store, must-revalidate'
-        }
-      });
-    } catch (validationError) {
-      if (validationError instanceof ZodError) {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+        },
+      }
+    );
+  } catch (error) {
+    // Handle known database errors
+    if (error instanceof DatabaseError) {
+      if (error.message.includes("not found")) {
         return new Response(
           JSON.stringify({
-            error: 'Validation error',
-            details: validationError.errors
+            error: "Not Found",
+            message: error.message,
+            details: (error as DatabaseError).details,
           }),
           {
-            status: 400,
-            headers: { 'Content-Type': 'application/json' }
+            status: 404,
+            headers: { "Content-Type": "application/json" },
           }
         );
       }
-      throw validationError;
+      return new Response(
+        JSON.stringify({
+          error: error.message,
+          details: (error as DatabaseError).details,
+          code: (error as DatabaseError).code,
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     }
-  } catch (error) {
-    // Handle known error types
-    if (error instanceof DatabaseError) {
-      if (error.message.includes('not found')) {
-        return new Response(JSON.stringify({ error: error.message }), {
-          status: 404,
-          headers: { 'Content-Type': 'application/json' }
-        });
+
+    // Log unexpected errors (in production, use proper logging service)
+    // eslint-disable-next-line no-console
+    console.error("Error in GET /reservations/available:", error);
+
+    // Handle unexpected errors
+    return new Response(
+      JSON.stringify({
+        error: "Internal Server Error",
+        message: "An unexpected error occurred",
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
       }
-      return new Response(JSON.stringify({ error: error.message }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
-
-    if (error instanceof BadRequestError) {
-      return new Response(JSON.stringify({ error: error.message }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
-
-    // Log unexpected errors
-    console.error('Error in GET /reservations/available:', error);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    );
   }
 };

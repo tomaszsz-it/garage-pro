@@ -80,4 +80,18 @@ Aplikacja opiera się na pojedynczym layoutcie z publicznym ekranem logowania or
 - **SkeletonLoader**: stany ładowania.
 - **ErrorBoundary / NetworkBanner**: obsługa błędów runtime i sieciowych.
 
+## 6. Zarządzanie stanem i integracja z danymi
+
+- **React Query**: globalne hooki `useQuery` do pobierania danych (GET `/reservations`, GET `/reservations/available`, GET `/vehicles`) oraz `useMutation` do operacji mutacji (POST `/reservations`, PATCH `/reservations/{id}`, POST/PATCH/DELETE `/vehicles`).
+- **Cache invalidation**: automatyczne odświeżanie list po zakończonych mutacjach (np. refetchQueries dla kluczy `['reservations']`, `['vehicles']`).
+- **Retry i error handling**: domyślne retry 1 raz przy błędach sieciowych, obsługa błędów przez InlineAlert i globalny ErrorBoundary.
+
 ---
+## 7. Walidacja i obsługa błędów
+
+- **Login**: inline validation pustych pól; na błędy 401/403 wyświetlać `InlineAlert` z odpowiednim komunikatem i blokować submit;
+- **Formularz rezerwacji**: service wybór zawsze dostępny; pojazd wymagany; `DatePicker` ograniczony do przyszłości; `TimePicker` z krokami równymi minutom usługi; błędy walidacji (brak pojazdu, nieprawidłowa data/godzina) jako inline alerts przy polach;
+- **Wyszukiwanie slotów**: brak slotów → `InlineAlert` „Brak dostępnych terminów”; błędy 400/404 → `Toast` error;
+- **Formularz pojazdu**: `license_plate` 2–20 alfanum., `vin` 17 znaków, `production_year` 1980–2080; błędy jako inline alerts;
+- **Globalne błędy sieciowe**: `NetworkBanner` w headerze (offline), `ErrorBoundary` dla nieoczekiwanych błędów;
+- **Toasty**: sukcesy operacji mutacji (dodano auto, stworzono rezerwację, edycja, anulowanie) – zielone, 5s; błędy niekrytyczne (409, 500) – czerwone, 5s.

@@ -7,11 +7,11 @@ Aplikacja opiera się na pojedynczym layoutcie z publicznym ekranem logowania or
 ## 2. Lista widoków
 
 - **Ekran logowania**
-  - Ścieżka: `/login`
-  - Cel: umożliwić bezpieczne uwierzytelnienie użytkownika.
-  - Informacje kluczowe: pola login, hasło, komunikaty błędów 401/403.
-  - Komponenty: `Form`, `Input`, `Button`, `InlineAlert`, `SkeletonLoader`.
-  - UX/Accessibility/Security: aria-labely, focus na pierwszym polu, zabezpieczenie tras.
+  - Ścieżka: `/login` i register
+  - Cel: umożliwić bezpieczne uwierzytelnienie użytkownika oraz rejestrację.
+  - Informacje kluczowe: Formularze z polami emaili i hasło, komunikaty o blędach uwierzytelniania
+  - Komponenty: Formularz logowania/rejestracji, komponent walidacji, przyciski, komunikaty blędów
+  - UX/Accessibility/Security: Prosty formularz, czytelne komunikaty blędów, obsluga klawiatury, zabezpieczenia JWT
 
 - **Lista rezerwacji**
   - Ścieżka: `/reservations`
@@ -65,7 +65,8 @@ Aplikacja opiera się na pojedynczym layoutcie z publicznym ekranem logowania or
 
 ## 4. Układ i struktura nawigacji
 
-- **Header** (persistent): linki „Rezerwacje” (`/reservations`), „Moje auta” (`/vehicles`), przycisk „Wyloguj”.
+- **Glówna naiwgacja** Dostepna jako górne menu w layoucie strony po zalogowaniu
+- **Elementy nawigacyjne** Linki do widoków: „Rezerwacje” (`/reservations`), „Moje auta” (`/vehicles`), przycisk „Wyloguj”.
 - **Chronione trasy**: ochrona tras przy pomocy Context i przekierowanie do `/login` przy braku tokenu.
 - **Breadcrumbs** lub tytuły stron dla orientacji użytkownika.
 

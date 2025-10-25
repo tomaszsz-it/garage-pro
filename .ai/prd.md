@@ -47,6 +47,15 @@ W MVP nie uwzględniamy:
 
 ## 5. Historyjki użytkowników
 
+- ID: US-000
+  Tytuł: Przegląd swoich rezerwacji
+  Opis: Jako klient indywidualny chcę zobaczyć listę zaplanowanych i historycznych rezerwacji.
+  Kryteria akceptacji:
+  - wyświetlana lista rezerwacji
+  - możliwość filtrowania po pojeżdzie, rodzaju usługi
+  - możliwość przejścia do ekranu szczegółów rezerwacji
+  - możliwośc przejścia do ekranu przeglądu dostępnych terminów (US-001) w celu utworzenia nowej rezerwacji
+
 - ID: US-001
   Tytuł: Przegląd dostępnych terminów
   Opis: Jako klient indywidualny chcę zobaczyć listę dostępnych terminów dla wybranej usługi, aby szybko wybrać dogodny termin.

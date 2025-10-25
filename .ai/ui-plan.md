@@ -23,8 +23,8 @@ Aplikacja opiera się na pojedynczym layoutcie z publicznym ekranem logowania or
 - **Wyszukiwanie dostępnych terminów**
   - Ścieżka: `/reservations/available`
   - Cel: wyświetlić dostępne sloty dla wybranej usługi i pojazdu.
-  - Informacje kluczowe: panel filtrów (usługa, zakres dat), lista slotów (start_ts, end_ts, employee_name).
-  - Komponenty: `FilterBar`, `DatePicker`, `TimePicker`, `Table`/`Card`, `Button` („Rezerwuj”), `InlineAlert`, `SkeletonLoader`.
+  - Informacje kluczowe: panel filtrów (dropdown usług z hardkodowanymi opcjami: Wymiana oleju, Przegląd hamulców, Wymiana opon; wybór daty i godziny), lista slotów (start_ts, end_ts) – employee_id ukryty, mechanik wybierany automatycznie.
+  - Komponenty: `FilterBar`, `DatePicker` (Shadcn/UI), `Table`/`Card`, `Button` („Rezerwuj”), `InlineAlert`, `SkeletonLoader`.
   - UX/Accessibility/Security: ograniczenia dat, aria-live dla ładowania, blokada przycisków.
 
 - **Formularz tworzenia/edycji rezerwacji** *(modal lub strona)*
@@ -73,8 +73,8 @@ Aplikacja opiera się na pojedynczym layoutcie z publicznym ekranem logowania or
 
 - **Header**: nawigacja i wylogowanie.
 - **Table / Card**: responsywne tabele i karty danych.
-- **FilterBar**: menu filtrów (select, date).
-- **Form**, **Input**, **Select**, **DatePicker**, **TimePicker**: formularze z walidacją.
+- **FilterBar**: menu filtrów (select, DatePicker).
+- **Form**, **Input**, **Select**, **DatePicker**: formularze z walidacją (komponenty Shadcn/UI).
 - **Dialog**: potwierdzenia i formularze modalne.
 - **Toast**, **InlineAlert**: feedback użytkownika.
 - **SkeletonLoader**: stany ładowania.

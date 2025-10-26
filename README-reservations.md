@@ -1,5 +1,108 @@
 # Reservations API Documentation
 
+## GET /api/reservations
+
+Returns a paginated list of reservations. Regular users can only see their own reservations, while users with the secretariat role can see all reservations.
+
+### Authentication
+
+- Requires a valid authentication token
+- Token must be provided in the Authorization header
+
+### Query Parameters
+
+| Parameter | Type    | Required | Default | Description                                  |
+|-----------|---------|----------|---------|----------------------------------------------|
+| page      | integer | No       | 1       | Page number (min: 1)                         |
+| limit     | integer | No       | 20      | Items per page (max: 100)                    |
+
+### Response
+
+#### 200 OK
+
+```json
+{
+  "data": [
+    {
+      "id": "123e4567-e89b-12d3-a456-426614174000",
+      "service_id": 1,
+      "service_name": "Oil Change",
+      "service_duration_minutes": 30,
+      "vehicle_license_plate": "WAW1234",
+      "employee_id": "550e8400-e29b-41d4-a716-446655440000",
+      "employee_name": "John Doe",
+      "start_ts": "2025-10-23T09:00:00Z",
+      "end_ts": "2025-10-23T09:30:00Z",
+      "status": "New",
+      "created_at": "2025-10-22T15:30:00Z",
+      "updated_at": "2025-10-22T15:30:00Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 1
+  }
+}
+```
+
+#### Error Responses
+
+- 400 Bad Request
+  - Invalid query parameters
+
+```json
+{
+  "error": "Bad Request",
+  "message": "Invalid query parameters",
+  "details": [
+    {
+      "field": "page",
+      "message": "page must be greater than 0"
+    }
+  ]
+}
+```
+
+- 401 Unauthorized
+  - Missing or invalid authentication token
+
+```json
+{
+  "error": "Unauthorized",
+  "message": "Authentication required"
+}
+```
+
+- 500 Internal Server Error
+  - Unexpected server error
+
+```json
+{
+  "error": "Internal Server Error",
+  "message": "An unexpected error occurred"
+}
+```
+
+### Example Usage
+
+```bash
+# Get first page of reservations (default 20 per page)
+curl -X GET 'https://api.example.com/api/reservations' \
+  -H 'Authorization: Bearer YOUR_TOKEN'
+
+# Get second page with 10 items per page
+curl -X GET 'https://api.example.com/api/reservations?page=2&limit=10' \
+  -H 'Authorization: Bearer YOUR_TOKEN'
+```
+
+### Notes
+
+- Results are sorted by start_ts in ascending order
+- Regular users can only see their own reservations
+- Users with secretariat role can see all reservations
+- All times are in UTC (ISO8601 format)
+
 ## POST /api/reservations
 
 Creates a new reservation for a service.

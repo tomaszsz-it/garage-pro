@@ -13,7 +13,7 @@ Widok `/reservations` ma na celu umożliwienie użytkownikom przeglądania, filt
   - **ReservationsList** – komponent wyświetlający listę rezerwacji, dostosowujący się do rozmiaru ekranu (tabela lub karty).
     - **ReservationListItem** – pojedynczy element listy (wiersz tabeli lub karta), reprezentujący jedną rezerwację i umożliwiający nawigację do jej szczegółów.
   - **PaginationControls** – zestaw kontrolek do nawigacji między stronami listy rezerwacji.
-  - **LoadingIndicator** – komponent wskaźnika ładowania, wyświetlany podczas pobierania danych z API.
+  - **SkeletonLoader** – komponent wskaźnika ładowani (skeleton), wyświetlany podczas oczekiwania na odpowiedź z API.
   - **EmptyStateMessage** – komponent wyświetlany, gdy lista rezerwacji jest pusta lub filtry nie zwracają wyników.
   - **ErrorNotification** – komponent do wyświetlania komunikatów o błędach (np. problem z pobraniem danych).
 
@@ -25,7 +25,7 @@ Widok `/reservations` ma na celu umożliwienie użytkownikom przeglądania, filt
   - Obsługa zmian w filtrach.
   - Obsługa zmiany strony w paginacji.
 - **Warunki walidacji:** Brak; komponent deleguje walidację do komponentów podrzędnych.
-- **Typy:** Model widoku rezerwacji, Model pojazdu, Model usługi, Model filtrów, Model paginacji.
+- **Typy:** `ReservationDto`, `VehicleDto`, `Service`, `ReservationFiltersViewModel`, `PaginationDto`.
 - **Propsy:** Brak.
 
 ### **ReservationsFilterPanel**
@@ -38,8 +38,8 @@ Widok `/reservations` ma na celu umożliwienie użytkownikom przeglądania, filt
   - Przycisk nawigujący do widoku dodawania pojazdu.
 - **Obsługiwane zdarzenia:** Przekazuje zdarzenie zmiany wartości w polach filtrów do komponentu nadrzędnego.
 - **Warunki walidacji:** Brak.
-- **Typy:** Model pojazdu, Model usługi, Status rezerwacji, Model filtrów.
-- **Propsy:** Lista pojazdów, Lista usług, Aktualny stan filtrów, Funkcja zwrotna informująca o zmianie filtrów.
+- **Typy:** `VehicleDto`, `Service`, `ReservationStatus`, `ReservationFiltersViewModel`.
+- **Propsy:** Lista pojazdów (`VehicleDto[]`), Lista usług (`Service[]`), Aktualny stan filtrów (`ReservationFiltersViewModel`), Funkcja zwrotna informująca o zmianie filtrów.
 
 ### **ReservationsList**
 - **Opis:** Komponent prezentacyjny, który renderuje listę rezerwacji w sposób responsywny.
@@ -49,31 +49,62 @@ Widok `/reservations` ma na celu umożliwienie użytkownikom przeglądania, filt
   - Każdy element listy jest klikalny i przenosi do szczegółów rezerwacji.
 - **Obsługiwane zdarzenia:** Nawigacja do szczegółów rezerwacji po kliknięciu elementu.
 - **Warunki walidacji:** Brak.
-- **Typy:** Model widoku rezerwacji.
-- **Propsy:** Lista rezerwacji do wyświetlenia, Flaga informująca o stanie ładowania.
+- **Typy:** `ReservationViewModel`.
+- **Propsy:** Lista rezerwacji do wyświetlenia (`ReservationViewModel[]`), Flaga informująca o stanie ładowania.
 
 ### **PaginationControls**
 - **Opis:** Wyświetla kontrolki paginacji, umożliwiając nawigację między stronami.
 - **Elementy:** Przyciski "poprzednia" i "następna" oraz wskaźniki numerów stron.
 - **Obsługiwane zdarzenia:** Przekazuje zdarzenie zmiany numeru strony do komponentu nadrzędnego.
 - **Warunki walidacji:** Przyciski nawigacyjne są wyłączane, gdy osiągnięta zostanie pierwsza lub ostatnia strona.
-- **Typy:** Model paginacji.
-- **Propsy:** Obiekt z danymi o paginacji, Funkcja zwrotna informująca o zmianie strony.
+- **Typy:** `PaginationDto`.
+- **Propsy:** Obiekt z danymi o paginacji (`PaginationDto`), Funkcja zwrotna informująca o zmianie strony.
 
 ## 5. Typy i modele danych
-- **Model widoku rezerwacji**: Reprezentuje pojedynczą rezerwację z danymi przygotowanymi do wyświetlenia (np. sformatowana data, nazwa usługi).
-- **Model filtrów**: Reprezentuje obiekt przechowujący aktualne wartości filtrów wybrane przez użytkownika.
-- **Model paginacji**: Reprezentuje obiekt z informacjami potrzebnymi do renderowania kontrolek paginacji.
+Do implementacji widoku, oprócz typów DTO z `src/types.ts` (`ReservationDto`, `VehicleDto`, `Service`, `ReservationStatus`, `PaginationDto`), potrzebne będą następujące typy `ViewModel`:
+
+- **`ReservationViewModel`**: Reprezentuje pojedynczą rezerwację z danymi przygotowanymi do wyświetlenia w UI. Będzie mapowany z `ReservationDto`.
+  ```typescript
+  interface ReservationViewModel {
+    id: string;
+    date: string; // sformatowana data
+    time: string; // sformatowana godzina
+    serviceName: string;
+    vehicleLicensePlate: string;
+    status: ReservationStatus;
+    detailsUrl: string;
+  }
+  ```
+- **`ReservationFiltersViewModel`**: Reprezentuje obiekt przechowujący aktualne wartości filtrów wybrane przez użytkownika.
+  ```typescript
+  interface ReservationFiltersViewModel {
+    vehicleLicensePlate: string | null;
+    serviceId: number | null;
+    status: ReservationStatus | null;
+  }
+  ```
 
 ## 6. Zarządzanie stanem
-Stan widoku jest zarządzany wewnątrz głównego komponentu. Obejmuje on pełną listę rezerwacji, dane dla filtrów, aktualny stan filtrów i paginacji, a także statusy ładowania i błędów. Dane wyświetlane w liście są dynamicznie obliczane na podstawie tych stanów (filtrowanie i paginacja po stronie klienta).
+Stan widoku będzie zarządzany za pomocą hooków React (`useState`, `useEffect`). Kluczowe stany:
+- Lista wszystkich rezerwacji (`ReservationDto[]`).
+- Lista pojazdów użytkownika (`VehicleDto[]`).
+- Aktualny stan filtrów (`ReservationFiltersViewModel`).
+- Aktualna strona paginacji (`number`).
+- Stan ładowania (`isLoading`) dla wywołania API.
+- Stan błędów (`errorMessage`) dla komunikatów o błędach.
+
+Konieczne jest wydzielenie logiki API do customowego hooka (np. `useReservations`) w celu obsługi logiki pobierania danych (`/api/reservations`, `/api/vehicles`), filtrowania i paginacji po stronie klienta oraz zarządzania stanami ładowania i błędów.
 
 ## 7. Integracja z API
 Główny komponent widoku jest odpowiedzialny za komunikację z API:
 
 1.  **Pobieranie rezerwacji**:
+    - **Endpoint:** `GET /api/reservations`
+    - **Typ odpowiedzi:** `ReservationsListResponseDto`
     - **Cel:** Pobranie wszystkich rezerwacji dla zalogowanego użytkownika. Filtrowanie odbywa się po stronie klienta.
 2.  **Pobieranie pojazdów**:
+    - **Endpoint:** `GET /api/vehicles`
+    - **Typ odpowiedzi:** `VehiclesListResponseDto`
     - **Cel:** Pobranie listy pojazdów użytkownika w celu wypełnienia filtra.
 
 Dla MVP dane dotyczące usług oferowanych przez warsztat pochodzą ze statycznej, zdefiniowanej w kodzie listy.
@@ -83,6 +114,7 @@ Dla MVP dane dotyczące usług oferowanych przez warsztat pochodzą ze statyczne
 - **Zmiana filtra:** Wybranie opcji w filtrze powoduje natychmiastowe przefiltrowanie listy i zresetowanie paginacji.
 - **Zmiana strony:** Kliknięcie na numer strony w paginacji powoduje wyświetlenie odpowiedniego podzbioru danych.
 - **Nawigacja:** Kliknięcie elementu listy przenosi do strony szczegółów danej rezerwacji.
+- **Stan pusty (brak rezerwacji):** Jeśli użytkownik nie ma rezerwacji, widoczny jest komunikat oraz przycisk "Znajdź termin". Przycisk jest nieaktywny, jeśli użytkownik nie posiada żadnego pojazdu. W takim przypadku widoczny jest również przycisk "Dodaj pojazd".
 
 ## 9. Warunki brzegowe
 - **Paginacja:** Przyciski nawigacyjne są nieaktywne na krańcowych stronach.

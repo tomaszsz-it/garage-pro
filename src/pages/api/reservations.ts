@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { ReservationCreateSchema } from "../../lib/validation/reservationSchema";
+import { ReservationCreateSchema, getReservationsQuerySchema } from "../../lib/validation/reservationSchema";
 import { createReservationService } from "../../lib/services/reservationService";
 import type { ReservationCreateDto } from "../../types";
 import { DatabaseError } from "../../lib/errors/database.error";
@@ -8,14 +8,107 @@ import { DEFAULT_USER_ID } from "../../db/supabase.client";
 export const prerender = false;
 
 /**
+ * GET /api/reservations - List reservations with pagination
+ *
+ * Retrieves a list of reservations with pagination. Regular users can only see their own reservations,
+ * while secretariat role can see all reservations.
+ *
+ * Query Parameters:
+ * - page: number (default: 1, min: 1)
+ * - limit: number (default: 20, max: 100)
+ *
+ * Response: 200 OK with ReservationsListResponseDto
+ *
+ * Error Responses:
+ * - 400: Bad Request (validation errors)
+ * - 401: Unauthorized (no JWT token)
+ * - 500: Internal Server Error
+ */
+export const GET: APIRoute = async ({ request, locals }) => {
+  try {
+    const supabase = locals.supabase;
+    const url = new URL(request.url);
+
+    // Parse and validate query parameters
+    const queryParams = Object.fromEntries(url.searchParams.entries());
+    const validationResult = getReservationsQuerySchema.safeParse(queryParams);
+
+    if (!validationResult.success) {
+      const errors = validationResult.error.errors.map((err) => ({
+        field: err.path.join("."),
+        message: err.message,
+      }));
+
+      return new Response(
+        JSON.stringify({
+          error: "Bad Request",
+          message: "Invalid query parameters",
+          details: errors,
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    const params = validationResult.data;
+
+    // Get user from context (from middleware)
+    // For now using default user with secretariat role for testing
+    const user = {
+      id: DEFAULT_USER_ID,
+      role: "secretariat", // In real app, this would come from context.locals.user
+    };
+
+    // Fetch reservations using service layer
+    const reservationService = createReservationService(supabase);
+    const reservationsResponse = await reservationService.getReservations(params, user);
+
+    // Return success response
+    return new Response(JSON.stringify(reservationsResponse), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    // Handle known database errors
+    if (error instanceof DatabaseError) {
+      return new Response(
+        JSON.stringify({
+          error: error.message,
+          details: error.details,
+          code: error.code,
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // Handle unexpected errors
+    return new Response(
+      JSON.stringify({
+        error: "Internal Server Error",
+        message: "An unexpected error occurred",
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+};
+
+/**
  * POST /api/reservations - Create a new reservation
- * 
+ *
  * Creates a new reservation for a service with specified vehicle and employee.
  * Validates time slot availability and generates service recommendations.
- * 
+ *
  * Request Body: ReservationCreateDto (JSON)
  * Response: 201 Created with ReservationDto
- * 
+ *
  * Error Responses:
  * - 400: Bad Request (validation errors)
  * - 403: Forbidden (vehicle not owned by user)

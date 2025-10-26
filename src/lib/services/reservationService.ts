@@ -1,9 +1,19 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { ReservationCreateDto, ReservationDto, ReservationStatus } from "../../types";
+import type {
+  ReservationCreateDto,
+  ReservationDto,
+  ReservationStatus,
+  ReservationsListResponseDto,
+  ReservationsQueryParams,
+} from "../../types";
 import { DatabaseError } from "../errors/database.error";
 
 export interface ReservationService {
   createReservation(dto: ReservationCreateDto, userId: string): Promise<ReservationDto>;
+  getReservations(
+    params: ReservationsQueryParams,
+    user: { id: string; role?: string }
+  ): Promise<ReservationsListResponseDto>;
 }
 
 interface ServiceData {
@@ -32,6 +42,95 @@ interface ReservationWithRelations {
 
 export function createReservationService(supabase: SupabaseClient): ReservationService {
   return {
+    async getReservations(
+      params: ReservationsQueryParams,
+      user: { id: string; role?: string }
+    ): Promise<ReservationsListResponseDto> {
+      // Initialize query builder
+      let query = supabase.from("reservations").select(`
+      id,
+      user_id,
+      service_id,
+      vehicle_license_plate,
+      employee_id,
+      start_ts,
+      end_ts,
+      status,
+      created_at,
+      updated_at,
+      services!inner (
+        name,
+        duration_minutes
+      ),
+      employees!inner (
+        name
+      )
+    `);
+
+      // Apply role-based filtering
+      // If not secretariat, only show user's own reservations
+      if (user.role !== "secretariat") {
+        query = query.eq("user_id", user.id);
+      }
+
+      // Get total count before pagination
+      const { count, error: countError } = await query.count();
+      const total = count || 0;
+
+      if (countError) {
+        throw new DatabaseError("Error counting reservations");
+      }
+
+      // Apply sorting and pagination
+      const { data: reservations, error } = await query
+        .order("start_ts", { ascending: true })
+        .range((params.page - 1) * params.limit, params.page * params.limit - 1);
+
+      if (error) {
+        throw new DatabaseError("Error fetching reservations");
+      }
+
+      if (!reservations) {
+        return {
+          data: [],
+          pagination: {
+            page: params.page,
+            limit: params.limit,
+            total: 0,
+          },
+        };
+      }
+
+      // Map database results to DTOs
+      const typedReservations = reservations as unknown as ReservationWithRelations[];
+
+      const reservationDtos: ReservationDto[] = typedReservations.map((res) => ({
+        id: res.id,
+        user_id: res.user_id,
+        service_id: res.service_id,
+        service_name: res.services.name,
+        service_duration_minutes: res.services.duration_minutes,
+        vehicle_license_plate: res.vehicle_license_plate,
+        employee_id: res.employee_id,
+        employee_name: res.employees.name,
+        start_ts: res.start_ts,
+        end_ts: res.end_ts,
+        status: res.status,
+        created_at: res.created_at,
+        updated_at: res.updated_at,
+      }));
+
+      // Return formatted response with pagination
+      return {
+        data: reservationDtos,
+        pagination: {
+          page: params.page,
+          limit: params.limit,
+          total,
+        },
+      };
+    },
+
     async createReservation(dto: ReservationCreateDto, userId: string): Promise<ReservationDto> {
       // 1. Verify vehicle ownership
       const { data: vehicle } = await supabase
@@ -101,10 +200,15 @@ export function createReservationService(supabase: SupabaseClient): ReservationS
         .select("employee_id, start_ts, end_ts")
         .eq("employee_id", dto.employee_id)
         .lte("start_ts", dto.start_ts)
-        .gte("end_ts", dto.end_ts)
-        .single();
+        .gte("end_ts", dto.end_ts);
 
-      if (scheduleError || !schedule) {
+      if (scheduleError) {
+        throw new DatabaseError("Error checking employee schedule", {
+          employee_id: dto.employee_id,
+        });
+      }
+
+      if (!schedule) {
         throw new DatabaseError("Employee not available at this time (outside schedule)", {
           employee_id: dto.employee_id,
         });

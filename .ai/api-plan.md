@@ -215,9 +215,6 @@
 - Query params:
   - `page` (int, default 1, min 1)
   - `limit` (int, default 20, max 100)
-  - `status` (string, optional) - filter by status: "New", "Completed", "Cancelled"
-  - `from` (ISO8601, optional) - filter reservations from this date
-  - `to` (ISO8601, optional) - filter reservations until this date
 - Authorization:
   - Clients see only their own reservations (user_id = auth.sub)
   - Secretariat sees all reservations

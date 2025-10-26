@@ -150,11 +150,7 @@ export interface AvailableReservationsResponseDto {
 // ------------------------------------------------------------------------------------------------
 export type VehiclesQueryParams = PaginationDto;
 
-export interface ReservationsQueryParams extends PaginationDto {
-  status?: ReservationStatus;
-  start_ts?: string; // ISO8601 datetime
-  end_ts?: string; // ISO8601 datetime
-}
+export type ReservationsQueryParams = PaginationDto;
 
 export interface AvailableReservationsQueryParams {
   service_id: number;

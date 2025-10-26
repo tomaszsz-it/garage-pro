@@ -17,7 +17,7 @@ Aplikacja opiera się na pojedynczym layoutcie z publicznym ekranem logowania or
   - **Ścieżka:** `/reservations`
   - **Główny cel:** umożliwić przeglądanie i zarządzanie rezerwacjami użytkownika.
   - **Kluczowe informacje:** lista rezerwacji (data, godzina, usługa, pojazd, status); paginacja; filtr po pojeździe, usłudze, statusie
-  - **Kluczowe komponenty:** filtr pojazdów; lista w formie tabeli (desktop) lub kart (mobile); Dodatkow przyciski akcji (wyszukaj dostępne, dodaj auto).
+  - **Kluczowe komponenty:** filtr pojazdów; lista w formie tabeli (desktop) lub kart (mobile); Dodatkow przyciski akcji (wyszukaj dostępne, dodaj pojazd).
   - **UX, dostępność i względy bezpieczeństwa:** czytelne nagłówki; wskazanie statusu; responsywność, potwierdzenie anulowania.
 
 - **Wyszukiwanie dostępnych terminów i bookowanie rezerwacji**

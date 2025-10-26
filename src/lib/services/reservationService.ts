@@ -74,8 +74,20 @@ export function createReservationService(supabase: SupabaseClient): ReservationS
       }
 
       // Get total count before pagination
-      const { count, error: countError } = await query.count();
-      const total = count || 0;
+      // Using a simpler approach to count total records
+      // First, get all IDs without pagination to count them
+      let countQuery = supabase.from("reservations").select("id");
+
+      // Apply the same user filtering
+      if (user.role !== "secretariat") {
+        countQuery = countQuery.eq("user_id", user.id);
+      }
+
+      // Get the data to count
+      const { data: countData, error: countError } = await countQuery;
+
+      // Count the records
+      const total = countData?.length || 0;
 
       if (countError) {
         throw new DatabaseError("Error counting reservations");

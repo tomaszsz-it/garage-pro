@@ -61,9 +61,15 @@ export const GET: APIRoute = async ({ request, locals }) => {
       role: "secretariat", // In real app, this would come from context.locals.user
     };
 
+    // Add total to params to satisfy PaginationDto type requirement
+    const paramsWithTotal = {
+      ...params,
+      total: 0, // This will be overwritten by the service
+    };
+
     // Fetch reservations using service layer
     const reservationService = createReservationService(supabase);
-    const reservationsResponse = await reservationService.getReservations(params, user);
+    const reservationsResponse = await reservationService.getReservations(paramsWithTotal, user);
 
     // Return success response
     return new Response(JSON.stringify(reservationsResponse), {
@@ -182,14 +188,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
           code: error.code,
         }),
         {
-          status: error.code === "23505" ? 409 : error.status || 400,
+          status: error.code === "23505" ? 409 : 400,
           headers: { "Content-Type": "application/json" },
         }
       );
     }
 
-    // Log unexpected errors (in production, use proper logging service)
-    console.error("Error creating reservation:", error);
+    // In production, log unexpected errors to a proper logging service
+    // For now, errors will be handled silently
 
     // Handle unexpected errors
     return new Response(

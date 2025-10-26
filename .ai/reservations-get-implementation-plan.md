@@ -38,7 +38,7 @@
 - 500 Internal Server Error – nieoczekiwany błąd serwera
 
 ## 5. Przepływ danych
-1. **Middleware** (src/middleware/index.ts) – weryfikacja JWT, ustawienie `context.locals.user`
+1. **Middleware**  – weryfikacja JWT, `context.locals.user` 
 2. **Walidacja**  – użycie Zod do sprawdzenia typów i reguł    
 2. **Endpoint handler** w `src/pages/api/reservations.ts`:  
    1. `export const prerender = false`  
@@ -48,7 +48,6 @@
 3. **Serwis** `reservationService.getReservations`:  
    1. Inicjalizacja query buildera Supabase:  
    2. Jeżeli użytkownik nie ma roli sekretariatu: `.eq('user_id', user.id)`  
-
    4. Sortowanie: `.order('start_ts', { ascending: true })`  
    5. Stronicowanie: `.range((page-1)*limit, page*limit-1)`  
    6. Wywołanie `.throwOnError()` lub obsługa błędów  

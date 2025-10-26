@@ -1,4 +1,22 @@
 import { z } from "zod";
+import type { ReservationStatus } from "../../types";
+
+/**
+ * Schema for validating GET /reservations query parameters
+ */
+export const getReservationsQuerySchema = z.object({
+  page: z.coerce
+    .number()
+    .int("page must be an integer")
+    .min(1, "page must be greater than 0")
+    .default(1),
+  limit: z.coerce
+    .number()
+    .int("limit must be an integer")
+    .min(1, "limit must be greater than 0")
+    .max(100, "limit cannot exceed 100")
+    .default(20),
+});
 
 /**
  * Schema for validating reservation creation requests

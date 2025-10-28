@@ -328,11 +328,11 @@ button,
 [type="reset"] {
   cursor: pointer;
   
-  &:hover:not(:disabled) {
+  &:hover:not(:disabled):not([data-slot="button"]) {
     background-color: color-mix(in srgb, currentColor var(--state-hover-opacity), transparent);
   }
   
-  &:active:not(:disabled) {
+  &:active:not(:disabled):not([data-slot="button"]) {
     background-color: color-mix(in srgb, currentColor var(--state-pressed-opacity), transparent);
   }
   

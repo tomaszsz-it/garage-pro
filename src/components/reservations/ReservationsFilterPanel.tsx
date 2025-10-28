@@ -18,7 +18,7 @@ interface ReservationsFilterPanelProps {
 const RESERVATION_STATUSES: { value: ReservationStatus; label: string }[] = [
   { value: "New", label: "Nowa" },
   { value: "Cancelled", label: "Anulowana" },
-  { value: "Done", label: "Zakończona" },
+  { value: "Completed", label: "Zakończona" },
 ];
 
 const ALL_VALUE = "all";
@@ -48,11 +48,11 @@ export function ReservationsFilterPanel({
   return (
     <section
       aria-label="Filtry rezerwacji"
-      className="bg-card p-6 rounded-lg shadow-sm space-y-6"
+      className="bg-card p-[var(--spacing-2xl)] rounded-[var(--radius-lg)] shadow-[var(--elevation-2)] border border-[var(--neutral-30)] space-y-[var(--spacing-2xl)] animate-[fadeIn_300ms_ease-out]"
       data-testid="filter-panel"
     >
       <div 
-        className="flex flex-col md:flex-row gap-4"
+        className="flex flex-col md:flex-row gap-[var(--spacing-lg)]"
         role="group"
         aria-label="Opcje filtrowania"
       >
@@ -139,7 +139,7 @@ export function ReservationsFilterPanel({
       </div>
 
       <div 
-        className="flex justify-end gap-4"
+        className="flex justify-end gap-[var(--spacing-lg)] flex-wrap"
         role="group"
         aria-label="Akcje"
       >
@@ -147,6 +147,7 @@ export function ReservationsFilterPanel({
           variant="outline"
           onClick={handleClearFilters}
           aria-label="Wyczyść wszystkie filtry"
+          className="hover:scale-105 active:scale-95 transition-all duration-150 ease-out"
         >
           Wyczyść filtry
         </Button>
@@ -155,6 +156,7 @@ export function ReservationsFilterPanel({
           onClick={() => window.location.href = "/reservations/new"}
           disabled={!vehicles?.length}
           aria-label={!vehicles?.length ? "Dodaj pojazd aby móc znaleźć termin" : "Znajdź dostępny termin"}
+          className="hover:scale-105 active:scale-95 transition-all duration-150 ease-out"
         >
           Znajdź termin
         </Button>
@@ -163,6 +165,7 @@ export function ReservationsFilterPanel({
             variant="secondary"
             onClick={() => window.location.href = "/vehicles/new"}
             aria-label="Dodaj nowy pojazd"
+            className="hover:scale-105 active:scale-95 transition-all duration-150 ease-out"
           >
             Dodaj pojazd
           </Button>

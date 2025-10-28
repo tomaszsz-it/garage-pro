@@ -21,9 +21,7 @@ export function EmptyStateMessage({ hasVehicles, hasFilters }: EmptyStateMessage
         )}
       </div>
       <h2 className="text-[var(--font-size-title-2)] font-[var(--font-weight-semibold)] mb-[var(--spacing-lg)] text-foreground">
-        {hasFilters
-          ? "Brak rezerwacji spełniających kryteria"
-          : "Nie masz jeszcze żadnych rezerwacji"}
+        {hasFilters ? "Brak rezerwacji spełniających kryteria" : "Nie masz jeszcze żadnych rezerwacji"}
       </h2>
       <p className="text-[var(--font-size-body-large)] font-[var(--font-weight-regular)] text-[var(--neutral-70)] mb-[var(--spacing-3xl)] max-w-md mx-auto leading-[var(--line-height-body-large)]">
         {hasFilters
@@ -43,7 +41,7 @@ export function EmptyStateMessage({ hasVehicles, hasFilters }: EmptyStateMessage
           <>
             <Button
               variant="default"
-              onClick={() => window.location.href = "/reservations/new"}
+              onClick={() => (window.location.href = "/reservations/new")}
               disabled={!hasVehicles}
               className="min-w-[10rem] hover:scale-105 active:scale-95 transition-all duration-150 ease-out"
             >
@@ -52,7 +50,7 @@ export function EmptyStateMessage({ hasVehicles, hasFilters }: EmptyStateMessage
             {!hasVehicles && (
               <Button
                 variant="outline"
-                onClick={() => window.location.href = "/vehicles/new"}
+                onClick={() => (window.location.href = "/vehicles/new")}
                 className="min-w-[10rem] hover:scale-105 active:scale-95 transition-all duration-150 ease-out"
               >
                 Dodaj pojazd

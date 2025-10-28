@@ -11,31 +11,31 @@ export function EmptyStateMessage({ hasVehicles, hasFilters }: EmptyStateMessage
     <div
       role="status"
       aria-live="polite"
-      className="text-center py-12 px-4"
+      className="text-center py-[var(--spacing-5xl)] px-[var(--spacing-xl)] animate-[fadeIn_400ms_ease-out]"
     >
-      <div className="flex justify-center mb-6">
+      <div className="flex justify-center mb-[var(--spacing-2xl)] p-[var(--spacing-xl)] bg-[var(--neutral-10)] rounded-full w-fit mx-auto shadow-[var(--elevation-2)]">
         {hasFilters ? (
-          <CalendarPlus className="h-16 w-16 text-muted-foreground" />
+          <CalendarPlus className="h-16 w-16 text-[var(--neutral-60)]" />
         ) : (
-          <CarFront className="h-16 w-16 text-muted-foreground" />
+          <CarFront className="h-16 w-16 text-[var(--neutral-60)]" />
         )}
       </div>
-      <h2 className="text-2xl font-semibold mb-4">
+      <h2 className="text-[var(--font-size-title-2)] font-[var(--font-weight-semibold)] mb-[var(--spacing-lg)] text-foreground">
         {hasFilters
           ? "Brak rezerwacji spełniających kryteria"
           : "Nie masz jeszcze żadnych rezerwacji"}
       </h2>
-      <p className="text-muted-foreground mb-8 max-w-md mx-auto">
+      <p className="text-[var(--font-size-body-large)] font-[var(--font-weight-regular)] text-[var(--neutral-70)] mb-[var(--spacing-3xl)] max-w-md mx-auto leading-[var(--line-height-body-large)]">
         {hasFilters
           ? "Spróbuj zmienić kryteria wyszukiwania lub wyczyść filtry, aby zobaczyć więcej rezerwacji."
           : "Zaplanuj swoją pierwszą wizytę w naszym warsztacie już teraz."}
       </p>
-      <div className="flex justify-center gap-4">
+      <div className="flex justify-center gap-[var(--spacing-lg)] flex-wrap">
         {hasFilters ? (
           <Button
             variant="outline"
             onClick={() => window.location.reload()}
-            className="min-w-[160px]"
+            className="min-w-[10rem] hover:scale-105 active:scale-95 transition-all duration-150 ease-out"
           >
             Wyczyść filtry
           </Button>
@@ -45,7 +45,7 @@ export function EmptyStateMessage({ hasVehicles, hasFilters }: EmptyStateMessage
               variant="default"
               onClick={() => window.location.href = "/reservations/new"}
               disabled={!hasVehicles}
-              className="min-w-[160px]"
+              className="min-w-[10rem] hover:scale-105 active:scale-95 transition-all duration-150 ease-out"
             >
               Znajdź termin
             </Button>
@@ -53,7 +53,7 @@ export function EmptyStateMessage({ hasVehicles, hasFilters }: EmptyStateMessage
               <Button
                 variant="outline"
                 onClick={() => window.location.href = "/vehicles/new"}
-                className="min-w-[160px]"
+                className="min-w-[10rem] hover:scale-105 active:scale-95 transition-all duration-150 ease-out"
               >
                 Dodaj pojazd
               </Button>

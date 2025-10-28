@@ -8,61 +8,61 @@ export function LoadingIndicator() {
     <div 
       role="status" 
       aria-label="Ładowanie zawartości"
-      className="space-y-6"
+      className="space-y-[var(--spacing-2xl)] animate-[fadeIn_300ms_ease-out]"
     >
       {/* Filter Panel Skeleton */}
-      <div className="bg-card p-6 rounded-lg shadow-sm space-y-6">
-        <div className="flex flex-col md:flex-row gap-4">
-          <Skeleton className="h-10 flex-1" />
-          <Skeleton className="h-10 flex-1" />
-          <Skeleton className="h-10 flex-1" />
+      <div className="bg-card p-[var(--spacing-2xl)] rounded-[var(--radius-lg)] shadow-[var(--elevation-2)] border border-[var(--neutral-30)] space-y-[var(--spacing-2xl)]">
+        <div className="flex flex-col md:flex-row gap-[var(--spacing-lg)]">
+          <Skeleton className="h-[2.5rem] flex-1" />
+          <Skeleton className="h-[2.5rem] flex-1" />
+          <Skeleton className="h-[2.5rem] flex-1" />
         </div>
-        <div className="flex justify-end gap-4">
-          <Skeleton className="h-10 w-[120px]" />
-          <Skeleton className="h-10 w-[120px]" />
+        <div className="flex justify-end gap-[var(--spacing-lg)]">
+          <Skeleton className="h-[2.5rem] w-[7.5rem]" />
+          <Skeleton className="h-[2.5rem] w-[7.5rem]" />
         </div>
       </div>
 
       {isDesktop ? (
         // Table Skeleton
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto rounded-[var(--radius-lg)] border border-[var(--neutral-30)] bg-card shadow-[var(--elevation-2)]">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="border-b">
-                <th className="p-4 text-left">
-                  <Skeleton className="h-4 w-20" />
+              <tr className="border-b border-[var(--neutral-30)] bg-[var(--neutral-10)]">
+                <th className="p-[var(--spacing-lg)] text-left">
+                  <Skeleton className="h-[1rem] w-[5rem]" />
                 </th>
-                <th className="p-4 text-left">
-                  <Skeleton className="h-4 w-20" />
+                <th className="p-[var(--spacing-lg)] text-left">
+                  <Skeleton className="h-[1rem] w-[5rem]" />
                 </th>
-                <th className="p-4 text-left">
-                  <Skeleton className="h-4 w-32" />
+                <th className="p-[var(--spacing-lg)] text-left">
+                  <Skeleton className="h-[1rem] w-[8rem]" />
                 </th>
-                <th className="p-4 text-left">
-                  <Skeleton className="h-4 w-24" />
+                <th className="p-[var(--spacing-lg)] text-left">
+                  <Skeleton className="h-[1rem] w-[6rem]" />
                 </th>
-                <th className="p-4 text-left">
-                  <Skeleton className="h-4 w-20" />
+                <th className="p-[var(--spacing-lg)] text-left">
+                  <Skeleton className="h-[1rem] w-[5rem]" />
                 </th>
               </tr>
             </thead>
             <tbody>
               {Array.from({ length: 5 }).map((_, index) => (
-                <tr key={index} className="border-b">
-                  <td className="p-4">
-                    <Skeleton className="h-4 w-20" />
+                <tr key={index} className="border-b border-[var(--neutral-30)] hover:bg-[var(--neutral-10)] transition-colors">
+                  <td className="p-[var(--spacing-lg)]">
+                    <Skeleton className="h-[1rem] w-[5rem]" />
                   </td>
-                  <td className="p-4">
-                    <Skeleton className="h-4 w-16" />
+                  <td className="p-[var(--spacing-lg)]">
+                    <Skeleton className="h-[1rem] w-[4rem]" />
                   </td>
-                  <td className="p-4">
-                    <Skeleton className="h-4 w-32" />
+                  <td className="p-[var(--spacing-lg)]">
+                    <Skeleton className="h-[1rem] w-[8rem]" />
                   </td>
-                  <td className="p-4">
-                    <Skeleton className="h-4 w-24" />
+                  <td className="p-[var(--spacing-lg)]">
+                    <Skeleton className="h-[1rem] w-[6rem]" />
                   </td>
-                  <td className="p-4">
-                    <Skeleton className="h-6 w-20 rounded-full" />
+                  <td className="p-[var(--spacing-lg)]">
+                    <Skeleton className="h-[1.5rem] w-[5rem] rounded-[var(--radius-sm)]" />
                   </td>
                 </tr>
               ))}
@@ -71,19 +71,19 @@ export function LoadingIndicator() {
         </div>
       ) : (
         // Cards Skeleton
-        <div className="space-y-4">
+        <div className="space-y-[var(--spacing-lg)]">
           {Array.from({ length: 5 }).map((_, index) => (
-            <div key={index} className="bg-card p-4 rounded-lg shadow-sm">
-              <div className="flex justify-between items-start mb-3">
-                <div className="space-y-2">
-                  <Skeleton className="h-5 w-32" />
-                  <Skeleton className="h-4 w-24" />
+            <div key={index} className="bg-card p-[var(--spacing-xl)] rounded-[var(--radius-lg)] shadow-[var(--elevation-2)] border border-[var(--neutral-30)]">
+              <div className="flex justify-between items-start mb-[var(--spacing-lg)]">
+                <div className="space-y-[var(--spacing-sm)]">
+                  <Skeleton className="h-[1.25rem] w-[8rem]" />
+                  <Skeleton className="h-[1rem] w-[6rem]" />
                 </div>
-                <Skeleton className="h-6 w-20 rounded-full" />
+                <Skeleton className="h-[1.5rem] w-[5rem] rounded-[var(--radius-sm)]" />
               </div>
-              <div className="space-y-1">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-4 w-16" />
+              <div className="space-y-[var(--spacing-xs)]">
+                <Skeleton className="h-[1rem] w-[6rem]" />
+                <Skeleton className="h-[1rem] w-[4rem]" />
               </div>
             </div>
           ))}
@@ -91,10 +91,10 @@ export function LoadingIndicator() {
       )}
 
       {/* Pagination Skeleton */}
-      <div className="flex justify-center gap-2">
-        <Skeleton className="h-8 w-8 rounded-md" />
-        <Skeleton className="h-8 w-8 rounded-md" />
-        <Skeleton className="h-8 w-8 rounded-md" />
+      <div className="flex justify-center gap-[var(--spacing-xs)] p-[var(--spacing-lg)] bg-background rounded-[var(--radius-lg)] shadow-[var(--elevation-2)] border border-[var(--neutral-30)]">
+        <Skeleton className="h-[2rem] w-[2rem] rounded-[var(--radius-md)]" />
+        <Skeleton className="h-[2rem] w-[2rem] rounded-[var(--radius-md)]" />
+        <Skeleton className="h-[2rem] w-[2rem] rounded-[var(--radius-md)]" />
       </div>
     </div>
   );

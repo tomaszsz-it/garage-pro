@@ -6,9 +6,9 @@ interface ReservationListItemProps {
   view: "table" | "card";
 }
 
-const STATUS_BADGES: Record<ReservationStatus, { label: string; variant: "default" | "secondary" | "destructive" }> = {
+const STATUS_BADGES: Record<ReservationStatus, { label: string; variant: "default" | "secondary" | "destructive" | "success" }> = {
   New: { label: "Nowa", variant: "default" },
-  Done: { label: "Zakończona", variant: "secondary" },
+  Completed: { label: "Zakończona", variant: "success" },
   Cancelled: { label: "Anulowana", variant: "destructive" },
 };
 
@@ -34,7 +34,7 @@ function TableRow({ reservation }: { reservation: ReservationDto }) {
 
   return (
     <tr
-      className="hover:bg-muted/50 transition-colors cursor-pointer"
+      className="hover:bg-[var(--neutral-10)] hover:shadow-[var(--elevation-2)] transition-all duration-150 ease-out cursor-pointer rounded-[var(--radius-md)] group"
       onClick={() => window.location.href = `/reservations/${reservation.id}`}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -46,11 +46,11 @@ function TableRow({ reservation }: { reservation: ReservationDto }) {
       role="link"
       aria-label={`Rezerwacja ${reservation.service_name} na ${formattedDate} o ${formattedTime}, status: ${statusBadge.label}`}
     >
-      <td className="p-4">{formattedDate}</td>
-      <td className="p-4">{formattedTime}</td>
-      <td className="p-4">{reservation.service_name}</td>
-      <td className="p-4">{reservation.vehicle_license_plate}</td>
-      <td className="p-4">
+      <td className="p-[var(--spacing-lg)] text-[var(--font-size-body)] font-[var(--font-weight-regular)] text-[var(--neutral-100)]">{formattedDate}</td>
+      <td className="p-[var(--spacing-lg)] text-[var(--font-size-body)] font-[var(--font-weight-regular)] text-[var(--neutral-100)]">{formattedTime}</td>
+      <td className="p-[var(--spacing-lg)] text-[var(--font-size-body)] font-[var(--font-weight-medium)] text-foreground">{reservation.service_name}</td>
+      <td className="p-[var(--spacing-lg)] text-[var(--font-size-body)] font-[var(--font-weight-regular)] text-[var(--neutral-100)]">{reservation.vehicle_license_plate}</td>
+      <td className="p-[var(--spacing-lg)]">
         <Badge variant={statusBadge.variant} aria-label={`Status: ${statusBadge.label}`}>
           {statusBadge.label}
         </Badge>
@@ -66,7 +66,7 @@ function Card({ reservation }: { reservation: ReservationDto }) {
 
   return (
     <div
-      className="bg-card p-4 rounded-lg shadow-sm hover:shadow transition-shadow cursor-pointer"
+      className="bg-card p-[var(--spacing-xl)] rounded-[var(--radius-lg)] shadow-[var(--elevation-2)] hover:shadow-[var(--elevation-8)] hover:scale-[1.01] active:scale-[0.99] transition-all duration-150 ease-out cursor-pointer border border-[var(--neutral-30)] hover:border-[var(--neutral-40)] group"
       onClick={() => window.location.href = `/reservations/${reservation.id}`}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -78,10 +78,10 @@ function Card({ reservation }: { reservation: ReservationDto }) {
       role="link"
       aria-label={`Rezerwacja ${reservation.service_name} na ${formattedDate} o ${formattedTime}, status: ${statusBadge.label}`}
     >
-      <div className="flex justify-between items-start mb-3">
-        <div>
-          <p className="text-lg font-medium">{reservation.service_name}</p>
-          <p className="text-sm text-muted-foreground" aria-label="Numer rejestracyjny pojazdu">
+      <div className="flex justify-between items-start mb-[var(--spacing-lg)]">
+        <div className="space-y-[var(--spacing-xs)]">
+          <p className="text-[var(--font-size-body-large)] font-[var(--font-weight-semibold)] text-foreground group-hover:text-primary transition-colors duration-150">{reservation.service_name}</p>
+          <p className="text-[var(--font-size-body)] font-[var(--font-weight-regular)] text-[var(--neutral-60)]" aria-label="Numer rejestracyjny pojazdu">
             {reservation.vehicle_license_plate}
           </p>
         </div>
@@ -92,9 +92,9 @@ function Card({ reservation }: { reservation: ReservationDto }) {
           {statusBadge.label}
         </Badge>
       </div>
-      <div className="text-sm text-muted-foreground">
-        <p aria-label="Data rezerwacji">{formattedDate}</p>
-        <p aria-label="Godzina rezerwacji">{formattedTime}</p>
+      <div className="text-[var(--font-size-body)] text-[var(--neutral-70)] space-y-[var(--spacing-xs)]">
+        <p aria-label="Data rezerwacji" className="font-[var(--font-weight-medium)]">{formattedDate}</p>
+        <p aria-label="Godzina rezerwacji" className="font-[var(--font-weight-regular)]">{formattedTime}</p>
       </div>
     </div>
   );

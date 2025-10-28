@@ -16,9 +16,7 @@ describe("PaginationControls", () => {
       total: 5,
     };
 
-    const { container } = render(
-      <PaginationControls pagination={pagination} onPageChange={mockOnPageChange} />
-    );
+    const { container } = render(<PaginationControls pagination={pagination} onPageChange={mockOnPageChange} />);
 
     expect(container.firstChild).toBeNull();
   });

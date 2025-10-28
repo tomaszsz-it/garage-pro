@@ -1,5 +1,4 @@
 import { z } from "zod";
-import type { ReservationStatus } from "../../types";
 
 /**
  * Schema for validating GET /reservations query parameters

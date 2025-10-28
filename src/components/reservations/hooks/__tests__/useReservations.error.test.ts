@@ -135,7 +135,24 @@ describe("useReservations Error Handling", () => {
       ok: true,
       json: () =>
         Promise.resolve({
-          data: [{ id: "1", status: "New" }],
+          data: [
+            {
+              id: "1",
+              user_id: "user-1",
+              service_id: 1,
+              service_name: "Wymiana oleju",
+              service_duration_minutes: 30,
+              vehicle_license_plate: "WA123456",
+              employee_id: "1",
+              employee_name: "Jan Kowalski",
+              start_ts: "2025-10-27T10:00:00Z",
+              end_ts: "2025-10-27T10:30:00Z",
+              status: "New",
+              created_at: "2025-10-26T09:00:00Z",
+              updated_at: "2025-10-26T09:00:00Z",
+              recommendation_text: "Check brakes soon",
+            },
+          ],
           pagination: { page: 1, limit: 10, total: 1 },
         }),
     };

@@ -8,6 +8,7 @@ global.fetch = jest.fn();
 const mockReservations: ReservationDto[] = [
   {
     id: "1",
+    user_id: "user-1",
     service_id: 1,
     service_name: "Wymiana oleju",
     service_duration_minutes: 30,
@@ -17,9 +18,13 @@ const mockReservations: ReservationDto[] = [
     start_ts: "2025-10-27T10:00:00Z",
     end_ts: "2025-10-27T10:30:00Z",
     status: "New",
+    created_at: "2025-10-26T09:00:00Z",
+    updated_at: "2025-10-26T09:00:00Z",
+    recommendation_text: "Check brakes soon",
   },
   {
     id: "2",
+    user_id: "user-1",
     service_id: 2,
     service_name: "Przegląd hamulców",
     service_duration_minutes: 45,
@@ -28,7 +33,10 @@ const mockReservations: ReservationDto[] = [
     employee_name: "Anna Nowak",
     start_ts: "2025-10-27T11:00:00Z",
     end_ts: "2025-10-27T11:45:00Z",
-    status: "Done",
+    status: "Completed",
+    created_at: "2025-10-26T09:30:00Z",
+    updated_at: "2025-10-26T09:30:00Z",
+    recommendation_text: "Rotate tires at next visit",
   },
 ];
 
@@ -153,7 +161,7 @@ describe("useReservations", () => {
         filters: {
           vehicleLicensePlate: null,
           serviceId: null,
-          status: "Done",
+          status: "Completed",
         },
       })
     );
@@ -163,13 +171,11 @@ describe("useReservations", () => {
     });
 
     expect(result.current.reservations).toHaveLength(1);
-    expect(result.current.reservations?.[0].status).toBe("Done");
+    expect(result.current.reservations?.[0].status).toBe("Completed");
   });
 
   it("should handle API errors", async () => {
-    (global.fetch as jest.Mock).mockImplementationOnce(() =>
-      Promise.reject(new Error("Network error"))
-    );
+    (global.fetch as jest.Mock).mockImplementationOnce(() => Promise.reject(new Error("Network error")));
 
     const { result } = renderHook(() =>
       useReservations({

@@ -84,10 +84,11 @@ export type ReservationCreateDto = Pick<
 //    Represents a reservation as returned by the GET /reservations endpoint.
 //    Includes joined data from services and employees tables, excludes internal fields
 // ------------------------------------------------------------------------------------------------
-export type ReservationDto = Omit<Reservation, "created_by" | "recommendation_text"> & {
+export type ReservationDto = Omit<Reservation, "created_by"> & {
   service_name: string;
   service_duration_minutes: number;
   employee_name: string;
+  recommendation_text: string;
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -101,6 +102,7 @@ export type ReservationDetailDto = Omit<Reservation, "created_by"> & {
   vehicle_brand: string | null;
   vehicle_model: string | null;
   employee_name: string;
+  recommendation_text: string;
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -109,7 +111,7 @@ export type ReservationDetailDto = Omit<Reservation, "created_by"> & {
 //    Validation rules:
 //      - service_id: must exist, duration must match new time range
 //      - start_ts/end_ts: cannot be in the past, must be available slot
-//      - status: must be valid enum value ("New", "Cancelled", "Done")
+//      - status: must be valid enum value ("New", "Cancelled", "Completed")
 //      - Only future reservations can be modified (except status changes)
 // ------------------------------------------------------------------------------------------------
 export type ReservationUpdateDto = Partial<Pick<ReservationUpdate, "service_id" | "start_ts" | "end_ts" | "status">>;

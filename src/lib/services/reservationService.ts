@@ -36,6 +36,7 @@ interface ReservationWithRelations {
   status: ReservationStatus;
   created_at: string;
   updated_at: string;
+  recommendation_text: string;
   services: ServiceData;
   employees: EmployeeData;
 }
@@ -58,6 +59,7 @@ export function createReservationService(supabase: SupabaseClient): ReservationS
       status,
       created_at,
       updated_at,
+      recommendation_text,
       services!inner (
         name,
         duration_minutes
@@ -130,6 +132,7 @@ export function createReservationService(supabase: SupabaseClient): ReservationS
         status: res.status,
         created_at: res.created_at,
         updated_at: res.updated_at,
+        recommendation_text: res.recommendation_text,
       }));
 
       // Return formatted response with pagination
@@ -220,7 +223,7 @@ export function createReservationService(supabase: SupabaseClient): ReservationS
         });
       }
 
-      if (!schedule) {
+      if (!schedule || schedule.length === 0) {
         throw new DatabaseError("Employee not available at this time (outside schedule)", {
           employee_id: dto.employee_id,
         });
@@ -262,6 +265,7 @@ export function createReservationService(supabase: SupabaseClient): ReservationS
           status,
           created_at,
           updated_at,
+          recommendation_text,
           services!inner (
             name,
             duration_minutes
@@ -294,6 +298,7 @@ export function createReservationService(supabase: SupabaseClient): ReservationS
         status: typedReservation.status,
         created_at: typedReservation.created_at,
         updated_at: typedReservation.updated_at,
+        recommendation_text: typedReservation.recommendation_text,
       };
     },
   };

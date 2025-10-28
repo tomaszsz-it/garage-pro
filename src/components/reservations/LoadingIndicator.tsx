@@ -5,8 +5,8 @@ export function LoadingIndicator() {
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   return (
-    <div 
-      role="status" 
+    <div
+      role="status"
       aria-label="Ładowanie zawartości"
       className="space-y-[var(--spacing-2xl)] animate-[fadeIn_300ms_ease-out]"
     >
@@ -48,7 +48,10 @@ export function LoadingIndicator() {
             </thead>
             <tbody>
               {Array.from({ length: 5 }).map((_, index) => (
-                <tr key={index} className="border-b border-[var(--neutral-30)] hover:bg-[var(--neutral-10)] transition-colors">
+                <tr
+                  key={index}
+                  className="border-b border-[var(--neutral-30)] hover:bg-[var(--neutral-10)] transition-colors"
+                >
                   <td className="p-[var(--spacing-lg)]">
                     <Skeleton className="h-[1rem] w-[5rem]" />
                   </td>
@@ -73,7 +76,10 @@ export function LoadingIndicator() {
         // Cards Skeleton
         <div className="space-y-[var(--spacing-lg)]">
           {Array.from({ length: 5 }).map((_, index) => (
-            <div key={index} className="bg-card p-[var(--spacing-xl)] rounded-[var(--radius-lg)] shadow-[var(--elevation-2)] border border-[var(--neutral-30)]">
+            <div
+              key={index}
+              className="bg-card p-[var(--spacing-xl)] rounded-[var(--radius-lg)] shadow-[var(--elevation-2)] border border-[var(--neutral-30)]"
+            >
               <div className="flex justify-between items-start mb-[var(--spacing-lg)]">
                 <div className="space-y-[var(--spacing-sm)]">
                   <Skeleton className="h-[1.25rem] w-[8rem]" />

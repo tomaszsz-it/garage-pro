@@ -80,9 +80,7 @@ describe("ReservationsFilterPanel", () => {
     fireEvent.click(vehicleSelect);
 
     mockVehicles.forEach((vehicle) => {
-      expect(
-        screen.getByText(`${vehicle.license_plate} - ${vehicle.brand} ${vehicle.model}`)
-      ).toBeInTheDocument();
+      expect(screen.getByText(`${vehicle.license_plate} - ${vehicle.brand} ${vehicle.model}`)).toBeInTheDocument();
     });
   });
 

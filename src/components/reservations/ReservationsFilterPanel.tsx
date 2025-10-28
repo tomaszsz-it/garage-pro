@@ -23,12 +23,7 @@ const RESERVATION_STATUSES: { value: ReservationStatus; label: string }[] = [
 
 const ALL_VALUE = "all";
 
-export function ReservationsFilterPanel({
-  vehicles,
-  services,
-  filters,
-  onFilterChange,
-}: ReservationsFilterPanelProps) {
+export function ReservationsFilterPanel({ vehicles, services, filters, onFilterChange }: ReservationsFilterPanelProps) {
   const handleFilterChange = (key: keyof ReservationFiltersViewModel, value: string | number | null) => {
     const newFilters = {
       ...filters,
@@ -51,11 +46,7 @@ export function ReservationsFilterPanel({
       className="bg-card p-[var(--spacing-2xl)] rounded-[var(--radius-lg)] shadow-[var(--elevation-2)] border border-[var(--neutral-30)] space-y-[var(--spacing-2xl)] animate-[fadeIn_300ms_ease-out]"
       data-testid="filter-panel"
     >
-      <div 
-        className="flex flex-col md:flex-row gap-[var(--spacing-lg)]"
-        role="group"
-        aria-label="Opcje filtrowania"
-      >
+      <div className="flex flex-col md:flex-row gap-[var(--spacing-lg)]" role="group" aria-label="Opcje filtrowania">
         <div className="flex-1">
           <Select
             value={filters.vehicleLicensePlate || ALL_VALUE}
@@ -86,7 +77,9 @@ export function ReservationsFilterPanel({
         <div className="flex-1">
           <Select
             value={filters.serviceId?.toString() || ALL_VALUE}
-            onValueChange={(value) => handleFilterChange("serviceId", value === ALL_VALUE ? null : value ? parseInt(value, 10) : null)}
+            onValueChange={(value) =>
+              handleFilterChange("serviceId", value === ALL_VALUE ? null : value ? parseInt(value, 10) : null)
+            }
             name="service-filter"
             aria-label="Filtruj po usłudze"
           >
@@ -113,7 +106,9 @@ export function ReservationsFilterPanel({
         <div className="flex-1">
           <Select
             value={filters.status || ALL_VALUE}
-            onValueChange={(value) => handleFilterChange("status", value === ALL_VALUE ? null : value as ReservationStatus)}
+            onValueChange={(value) =>
+              handleFilterChange("status", value === ALL_VALUE ? null : (value as ReservationStatus))
+            }
             name="status-filter"
             aria-label="Filtruj po statusie"
           >
@@ -125,11 +120,7 @@ export function ReservationsFilterPanel({
                 Wszystkie statusy
               </SelectItem>
               {RESERVATION_STATUSES.map((status) => (
-                <SelectItem
-                  key={status.value}
-                  value={status.value}
-                  aria-label={`Status: ${status.label}`}
-                >
+                <SelectItem key={status.value} value={status.value} aria-label={`Status: ${status.label}`}>
                   {status.label}
                 </SelectItem>
               ))}
@@ -138,11 +129,7 @@ export function ReservationsFilterPanel({
         </div>
       </div>
 
-      <div 
-        className="flex justify-end gap-[var(--spacing-lg)] flex-wrap"
-        role="group"
-        aria-label="Akcje"
-      >
+      <div className="flex justify-end gap-[var(--spacing-lg)] flex-wrap" role="group" aria-label="Akcje">
         <Button
           variant="outline"
           onClick={handleClearFilters}
@@ -153,7 +140,7 @@ export function ReservationsFilterPanel({
         </Button>
         <Button
           variant="default"
-          onClick={() => window.location.href = "/reservations/new"}
+          onClick={() => (window.location.href = "/reservations/new")}
           disabled={!vehicles?.length}
           aria-label={!vehicles?.length ? "Dodaj pojazd aby móc znaleźć termin" : "Znajdź dostępny termin"}
           className="hover:scale-105 active:scale-95 transition-all duration-150 ease-out"
@@ -163,7 +150,7 @@ export function ReservationsFilterPanel({
         {!vehicles?.length && (
           <Button
             variant="secondary"
-            onClick={() => window.location.href = "/vehicles/new"}
+            onClick={() => (window.location.href = "/vehicles/new")}
             aria-label="Dodaj nowy pojazd"
             className="hover:scale-105 active:scale-95 transition-all duration-150 ease-out"
           >

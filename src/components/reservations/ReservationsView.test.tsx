@@ -9,6 +9,7 @@ jest.mock("./hooks/useReservations");
 const mockReservations: ReservationDto[] = [
   {
     id: "1",
+    user_id: "user-1",
     service_id: 1,
     service_name: "Wymiana oleju",
     service_duration_minutes: 30,
@@ -18,6 +19,9 @@ const mockReservations: ReservationDto[] = [
     start_ts: "2025-10-27T10:00:00Z",
     end_ts: "2025-10-27T10:30:00Z",
     status: "New",
+    created_at: "2025-10-26T09:00:00Z",
+    updated_at: "2025-10-26T09:00:00Z",
+    recommendation_text: "Check brakes soon",
   },
 ];
 
@@ -28,6 +32,8 @@ const mockVehicles: VehicleDto[] = [
     model: "Corolla",
     production_year: 2020,
     created_at: "2025-10-26T10:00:00Z",
+    car_type: null,
+    vin: null,
   },
 ];
 
@@ -66,9 +72,9 @@ describe("ReservationsView", () => {
     });
 
     render(<ReservationsView />);
-    
+
     expect(screen.getByText("Failed to load reservations")).toBeInTheDocument();
-    
+
     const retryButton = screen.getByText("Try Again");
     fireEvent.click(retryButton);
     expect(mockRefetch).toHaveBeenCalled();
@@ -86,10 +92,12 @@ describe("ReservationsView", () => {
     });
 
     render(<ReservationsView />);
-    
+
     expect(screen.getByText("No Reservations Found")).toBeInTheDocument();
-    expect(screen.getByText("You don't have any reservations yet. Would you like to schedule one?")).toBeInTheDocument();
-    
+    expect(
+      screen.getByText("You don't have any reservations yet. Would you like to schedule one?")
+    ).toBeInTheDocument();
+
     const findTimeButton = screen.getByText("Find Available Time");
     expect(findTimeButton).not.toHaveClass("opacity-50");
   });
@@ -106,11 +114,11 @@ describe("ReservationsView", () => {
     });
 
     render(<ReservationsView />);
-    
+
     const findTimeButton = screen.getByText("Find Available Time");
     expect(findTimeButton).toHaveClass("opacity-50");
     expect(findTimeButton).toHaveAttribute("aria-disabled", "true");
-    
+
     const addVehicleButton = screen.getByText("Add Vehicle");
     expect(addVehicleButton).toBeInTheDocument();
   });
@@ -127,14 +135,16 @@ describe("ReservationsView", () => {
     });
 
     render(<ReservationsView />);
-    
+
     // Simulate filter change
     const filterPanel = screen.getByTestId("filter-panel");
     fireEvent.change(filterPanel, {
       target: { value: "nonexistent-vehicle" },
     });
 
-    expect(screen.getByText("No reservations match your filters. Try adjusting your search criteria.")).toBeInTheDocument();
+    expect(
+      screen.getByText("No reservations match your filters. Try adjusting your search criteria.")
+    ).toBeInTheDocument();
   });
 
   it("should handle navigation to reservation details", async () => {
@@ -153,7 +163,7 @@ describe("ReservationsView", () => {
     // Find and click a reservation item
     const reservationItem = screen.getByText("Wymiana oleju").closest("tr, div");
     expect(reservationItem).toBeInTheDocument();
-    
+
     if (reservationItem) {
       fireEvent.click(reservationItem);
       expect(window.location.href).toContain("/reservations/1");

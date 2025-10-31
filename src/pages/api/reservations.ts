@@ -4,6 +4,7 @@ import { createReservationService } from "../../lib/services/reservationService"
 import type { ReservationCreateDto } from "../../types";
 import { DatabaseError } from "../../lib/errors/database.error";
 import { DEFAULT_USER_ID } from "../../db/supabase.client";
+import { createOpenRouterService } from "../../lib/openrouter.service";
 
 export const prerender = false;
 
@@ -27,6 +28,9 @@ export const prerender = false;
 export const GET: APIRoute = async ({ request, locals }) => {
   try {
     const supabase = locals.supabase;
+    
+    // For GET requests, we don't need the OpenRouter service as it's only used for recommendations
+    // during reservation creation
     const url = new URL(request.url);
 
     // Parse and validate query parameters
@@ -125,6 +129,22 @@ export const GET: APIRoute = async ({ request, locals }) => {
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const supabase = locals.supabase;
+    
+    // Create OpenRouter service instance
+    let openRouterService;
+    try {
+      openRouterService = createOpenRouterService({
+        apiKey: import.meta.env.OPENROUTER_API_KEY,
+        defaultModel: "openai/o3-mini",
+        defaultModelParameters: {
+          temperature: 0.7,
+          max_tokens: 150
+        }
+      });
+    } catch (error) {
+      console.error("Failed to initialize OpenRouter service:", error);
+      // Continue without OpenRouter service - will use fallback recommendations
+    }
 
     // Parse and validate request body
     let requestBody: unknown;
@@ -166,8 +186,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     const reservationData: ReservationCreateDto = validationResult.data;
 
-    // Create reservation using service layer
-    const reservationService = createReservationService(supabase);
+    // Create reservation using service layer with OpenRouter integration
+    const reservationService = createReservationService(supabase, openRouterService);
     const createdReservation = await reservationService.createReservation(
       reservationData,
       DEFAULT_USER_ID // Using default user ID for now, will be replaced with actual auth later

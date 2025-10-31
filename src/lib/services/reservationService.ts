@@ -7,6 +7,7 @@ import type {
   ReservationsQueryParams,
 } from "../../types";
 import { DatabaseError } from "../errors/database.error";
+import { OpenRouterService } from "../openrouter.service";
 
 export interface ReservationService {
   createReservation(dto: ReservationCreateDto, userId: string): Promise<ReservationDto>;
@@ -41,7 +42,52 @@ interface ReservationWithRelations {
   employees: EmployeeData;
 }
 
-export function createReservationService(supabase: SupabaseClient): ReservationService {
+/**
+ * Generates a personalized maintenance recommendation using LLM
+ * 
+ * @param openRouter OpenRouter service instance
+ * @param vehicleInfo Vehicle information for personalized recommendation
+ * @param serviceName Service being performed
+ * @returns Promise with the generated recommendation text
+ */
+async function generateRecommendation(
+  openRouter: OpenRouterService | undefined,
+  vehicleInfo: { brand: string; model: string; production_year: number } | null,
+  serviceName: string
+): Promise<string> {
+  // If OpenRouter service is not available, return a default recommendation
+  if (!openRouter) {
+    return `Consider checking other maintenance items during your ${serviceName} service${vehicleInfo ? ` for your ${vehicleInfo.production_year} ${vehicleInfo.brand} ${vehicleInfo.model}` : ""}. Our mechanics can provide a detailed inspection.`;
+  }
+
+  try {
+    // Create a prompt for the LLM
+    const vehicleDescription = vehicleInfo
+      ? `${vehicleInfo.production_year} ${vehicleInfo.brand} ${vehicleInfo.model}`
+      : "your vehicle";
+
+    // Set system message to guide the LLM response
+    openRouter.setSystemMessage(
+      "You are an automotive expert providing personalized maintenance recommendations. " +
+      "Keep your response concise (max 2-3 sentences), professional, and specific to the vehicle and service. " +
+      "Focus on related maintenance items that could be beneficial to check during the current service. " +
+      "Do not include any disclaimers, introductions, or sign-offs."
+    );
+
+    // Set the user message with details about the vehicle and service
+    const userMessage = `Generate a personalized maintenance recommendation for a ${vehicleDescription} that is coming in for ${serviceName} service. Suggest 1-2 related maintenance items that would be worth checking while the vehicle is in the garage.`;
+
+    // Get recommendation from LLM
+    const recommendation = await openRouter.sendChatMessage<string>(userMessage);
+    return recommendation;
+  } catch (error) {
+    console.error("Error generating recommendation with LLM:", error);
+    // Fallback to default recommendation if LLM fails
+    return `Consider checking other maintenance items during your ${serviceName} service${vehicleInfo ? ` for your ${vehicleInfo.production_year} ${vehicleInfo.brand} ${vehicleInfo.model}` : ""}. Our mechanics can provide a detailed inspection.`;
+  }
+}
+
+export function createReservationService(supabase: SupabaseClient, openRouter?: OpenRouterService): ReservationService {
   return {
     async getReservations(
       params: ReservationsQueryParams,
@@ -229,15 +275,16 @@ export function createReservationService(supabase: SupabaseClient): ReservationS
         });
       }
 
-      // TODO: Implement LLM service integration for generating personalized recommendations
-      // The recommendation should be based on:
-      // - Vehicle details (brand, model, year)
-      // - Current service being performed
-      // - Service history (if available)
-      // For now, using a default recommendation text
-      const recommendationText = `Consider checking other maintenance items during your ${service.name} service${
-        vehicle ? ` for your ${vehicle.production_year} ${vehicle.brand} ${vehicle.model}` : ""
-      }. Our mechanics can provide a detailed inspection.`;
+      // Generate personalized recommendation using LLM
+      const recommendationText = await generateRecommendation(
+        openRouter,
+        vehicle ? { 
+          brand: vehicle.brand, 
+          model: vehicle.model, 
+          production_year: vehicle.production_year 
+        } : null,
+        service.name
+      );
 
       // 7. Create reservation
       const { data: reservation, error: insertError } = await supabase

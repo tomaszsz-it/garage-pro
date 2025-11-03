@@ -41,7 +41,7 @@ export function EmptyStateMessage({ hasVehicles, hasFilters }: EmptyStateMessage
           <>
             <Button
               variant="default"
-              onClick={() => (window.location.href = "/reservations/new")}
+              onClick={() => (window.location.href = "/reservations/available")}
               disabled={!hasVehicles}
               className="min-w-[10rem] hover:scale-105 active:scale-95 transition-all duration-150 ease-out"
             >

@@ -140,7 +140,7 @@ export function ReservationsFilterPanel({ vehicles, services, filters, onFilterC
         </Button>
         <Button
           variant="default"
-          onClick={() => (window.location.href = "/reservations/new")}
+          onClick={() => (window.location.href = "/reservations/available")}
           disabled={!vehicles?.length}
           aria-label={!vehicles?.length ? "Dodaj pojazd aby móc znaleźć termin" : "Znajdź dostępny termin"}
           className="hover:scale-105 active:scale-95 transition-all duration-150 ease-out"

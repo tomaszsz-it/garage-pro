@@ -28,7 +28,7 @@ export const prerender = false;
 export const GET: APIRoute = async ({ request, locals }) => {
   try {
     const supabase = locals.supabase;
-    
+
     // For GET requests, we don't need the OpenRouter service as it's only used for recommendations
     // during reservation creation
     const url = new URL(request.url);
@@ -129,17 +129,17 @@ export const GET: APIRoute = async ({ request, locals }) => {
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const supabase = locals.supabase;
-    
+
     // Create OpenRouter service instance
     let openRouterService;
     try {
       openRouterService = createOpenRouterService({
         apiKey: import.meta.env.OPENROUTER_API_KEY,
-        defaultModel: "openai/o3-mini",
+        defaultModel: "openai/gpt-o4-mini",
         defaultModelParameters: {
           temperature: 0.7,
-          max_tokens: 150
-        }
+          max_tokens: 150,
+        },
       });
     } catch (error) {
       console.error("Failed to initialize OpenRouter service:", error);

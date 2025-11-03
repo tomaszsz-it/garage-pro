@@ -1,0 +1,21 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="Dostępne terminy rezerwacji">
+  <main class="container mx-auto px-4 py-8">
+    <div id="reservations-available-root"></div>
+  </main>
+</Layout>
+
+<script>
+  import { createRoot } from "react-dom/client";
+  import ReservationsAvailableView from "../../components/reservations/available/ReservationsAvailableView";
+
+  // Mount React component
+  const container = document.getElementById("reservations-available-root");
+  if (container) {
+    const root = createRoot(container);
+    root.render(ReservationsAvailableView());
+  }
+</script>

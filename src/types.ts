@@ -147,7 +147,24 @@ export interface AvailableReservationsResponseDto {
 }
 
 // ------------------------------------------------------------------------------------------------
-// 13. Query Parameters DTOs
+// 13. Service DTO
+//     Represents a service for the frontend (ensures description is never null)
+// ------------------------------------------------------------------------------------------------
+export type ServiceDto = Omit<Service, 'description'> & {
+  description: string;
+};
+
+// ------------------------------------------------------------------------------------------------
+// 14. Available Reservation ViewModel
+//     Extended AvailableReservationDto with formatted display fields for the frontend
+// ------------------------------------------------------------------------------------------------
+export interface AvailableReservationViewModel extends AvailableReservationDto {
+  displayDate: string; // formatted date (DD.MM.YYYY)
+  displayTime: string; // time range (HH:MM - HH:MM)
+}
+
+// ------------------------------------------------------------------------------------------------
+// 15. Query Parameters DTOs
 //     Type definitions for query parameters used in various endpoints
 // ------------------------------------------------------------------------------------------------
 export type VehiclesQueryParams = PaginationDto;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import type { ServiceDto, AvailableReservationViewModel } from "../../../types";
 import ServiceSelectionForm from "./ServiceSelectionForm";
 import CalendarView from "./CalendarView";
@@ -14,7 +14,7 @@ interface ReservationsAvailableViewState {
   currentStep: "service-selection" | "calendar";
 }
 
-const ReservationsAvailableView: React.FC = () => {
+export const ReservationsAvailableView: React.FC = () => {
   const [state, setState] = useState<ReservationsAvailableViewState>({
     selectedService: null,
     selectedDay: null,
@@ -119,5 +119,3 @@ const ReservationsAvailableView: React.FC = () => {
     </div>
   );
 };
-
-export default ReservationsAvailableView;

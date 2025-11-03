@@ -1,7 +1,7 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import type { ServiceDto } from "../../../types";
 import { AVAILABLE_SERVICES } from "../constants";
-import { Button } from "../../ui/button";
+import { Button } from "@/components/ui/button";
 
 interface ServiceSelectionFormProps {
   onServiceSelect: (service: ServiceDto) => void;

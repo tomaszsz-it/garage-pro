@@ -10,16 +10,29 @@ export const availableReservationsQuerySchema = z
 
     start_ts: z
       .string()
-      .datetime("Start time must be a valid ISO8601 datetime")
-      .transform((val) => new Date(val))
-      .refine((date) => date >= new Date(), "Start time cannot be in the past")
-      .optional(),
+      .optional()
+      .refine((dateStr) => {
+        if (!dateStr) return true;
+        const date = new Date(dateStr);
+        return !isNaN(date.getTime());
+      }, "Start time must be a valid datetime"),
+    // Tymczasowo zakomentowane dla debugowania
+    // .refine((dateStr) => {
+    //   if (!dateStr) return true;
+    //   const date = new Date(dateStr);
+    //   const now = new Date();
+    //   console.log("Validating start_ts:", dateStr, "Parsed:", date, "Now:", now, "Valid:", date >= now);
+    //   return date >= now;
+    // }, "Start time cannot be in the past")
 
     end_ts: z
       .string()
-      .datetime("End time must be a valid ISO8601 datetime")
-      .transform((val) => new Date(val))
-      .optional(),
+      .optional()
+      .refine((dateStr) => {
+        if (!dateStr) return true;
+        const date = new Date(dateStr);
+        return !isNaN(date.getTime());
+      }, "End time must be a valid datetime"),
 
     limit: z.coerce
       .number()
@@ -32,9 +45,11 @@ export const availableReservationsQuerySchema = z
   .refine(
     (data) => {
       if (!data.end_ts) return true;
-      if (!data.start_ts) data.start_ts = new Date();
 
-      const diffDays = (data.end_ts.getTime() - data.start_ts.getTime()) / (1000 * 60 * 60 * 24);
+      const startDate = data.start_ts ? new Date(data.start_ts) : new Date();
+      const endDate = new Date(data.end_ts);
+
+      const diffDays = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
       return diffDays > 0 && diffDays <= MAX_DAYS_RANGE;
     },
     {

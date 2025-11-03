@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import type { ServiceDto, AvailableReservationViewModel } from "../../../types";
-import { Button } from "../../ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronLeft, ChevronRight, ArrowLeft, Clock } from "lucide-react";
 import { useAvailableReservations } from "./hooks/useAvailableReservations";
 import { EmptyStateMessage } from "../EmptyStateMessage";
@@ -70,7 +70,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
       end_ts: endOfWeek.toISOString(),
       limit: 50,
     });
-  }, [selectedService.service_id, currentDate, fetchAvailableReservations]);
+  }, [selectedService.service_id, currentDate]); // Usunięto fetchAvailableReservations
 
   // Group slots by date
   const slotsByDate = React.useMemo(() => {

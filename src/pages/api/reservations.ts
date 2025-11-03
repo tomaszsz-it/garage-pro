@@ -135,7 +135,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     try {
       openRouterService = createOpenRouterService({
         apiKey: import.meta.env.OPENROUTER_API_KEY,
-        defaultModel: "openai/gpt-o4-mini",
+        defaultModel: "openai/gpt-4o-mini",
         defaultModelParameters: {
           temperature: 0.7,
           max_tokens: 150,

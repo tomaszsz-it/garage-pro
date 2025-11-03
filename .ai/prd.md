@@ -55,6 +55,7 @@ W MVP nie uwzględniamy:
   - możliwość filtrowania po pojeżdzie, rodzaju usługi
   - możliwość przejścia do ekranu szczegółów rezerwacji
   - możliwośc przejścia do ekranu przeglądu dostępnych terminów (US-001) w celu utworzenia nowej rezerwacji
+  - funkcjonalność przeglądu i edycji swoich rezerwacji nie jest dostępna bez logowania się do systemu (US-010).
 
 - ID: US-001
   Tytuł: Przegląd dostępnych terminów
@@ -63,8 +64,10 @@ W MVP nie uwzględniamy:
   - wyświetlana lista najbliższych dostępnych terminów (np. kolejne 10) w formacie DD.MM.YYYY, HH:MM
   - możliwość filtrowania po rodzaju usługi
   - brak dostępnych terminów wyświetla odpowiedni komunikat
+  - funkcjonalność przeglądu terminów jest dostępna bez logowania się do systemu (US-004).
+
   <scope_update>
-  Zakładam endpoint GET /reservations/available przy użyciu query parameters: serviceId, from, to.
+  Zakładam endpoint GET /reservations/available przy użyciu query parameters: serviceId, start_ts, end_ts.
   </scope_update>
 
 - ID: US-002
@@ -74,6 +77,7 @@ W MVP nie uwzględniamy:
   - formularz zawiera wymagane i opcjonalne pola
   - walidacja inline z komunikatami o błędach
   - po zatwierdzeniu wyświetlany jest ekran podsumowania z numerem rezerwacji i możliwością skopiowania linku
+  - funkcjonalność rezerwacji nie jest dostępna bez logowania się do systemu (US-010).
   <scope_update>
   Zakładam endpoint POST /reservations z użyciem standardowej walidacji danych wejściowych.
   </scope_update> 
@@ -85,6 +89,7 @@ W MVP nie uwzględniamy:
   - opcja anulowania dostępna na ekranie szczegółów rezerwacji
   - po anulowaniu slot jest natychmiast widoczny w liście dostępnych terminów
   - klient otrzymuje potwierdzenie anulowania
+  - funkcjonalność anulowania rezerwacji nie jest dostępna bez logowania się do systemu (US-010).
    </scope_update> Zakładam, że anulowanie rezerwacji będzie realizowane poprzez aktualizację flagi rezerwacji przy użyciu endpointu PATCH /reservations, ustawiając status na 'Cancelled'.
 </scope_update> 
 
@@ -95,6 +100,14 @@ W MVP nie uwzględniamy:
   - klient może zmienić datę, godzinę i usługę przed terminem rezerwacji
   - walidacja zmian zgodnie z dostępnymi slotami
   - potwierdzenie zmian i aktualizacja daty w systemie
+  - funkcjonalność edycji swoich rezerwacji nie jest dostępna bez logowania się do systemu (US-010).
+
+- ID: US-005
+  Tytuł: CRUD dla pojazdów 
+  Opis: Jako klient chcę przeglądać, dodawać, edytować, usuwać swoje pojazdy dla których będę mógł dokonac rezerwacji.
+  Kryteria akceptacji:
+  - Po dodaniu pojazdu, jest on automatycznie dostepny dla rezerwacji
+  - funkcjonalność przeglądu dodawania i edycji swoich pojazdów  nie jest dostępna bez logowania się do systemu (US-010).
 
 - ID: US-006
   Tytuł: Definiowanie dostępności
@@ -127,6 +140,7 @@ W MVP nie uwzględniamy:
   - widok przedstawia dane w tabeli
   </scope_update> Usunięto to wymaganie z MVP</scope_update> 
 
+
 - ID: US-009
   Tytuł: Logowanie i autoryzacja
   Opis: Jako użytkownik systemu chcę się zalogować i mieć dostęp zgodny z moją rolą, aby zapewnić bezpieczeństwo danych.
@@ -134,6 +148,21 @@ W MVP nie uwzględniamy:
   - możliwy jest login dla klientów oraz pracowników sekretariatu
   - klienci widzą tylko swoje rezerwacje
   - sekretariat ma dostęp do wszystkich danych rezerwacji
+
+- US-010: Bezpieczny dostęp i uwierzytelnianie
+  Tytuł: Bezpieczny dostęp
+  Opis: Jako użytkownik chcę mieć możliwość rejestracji i logowania się do systemu w sposób zapewniający bezpieczeństwo moich danych.
+  Kryteria akceptacji:
+  - Logowanie i rejestracja odbywają się na dedykowanych stronach.
+  - Logowanie wymaga podania adresu email i hasła.
+  - Rejestracja wymaga podania adresu email, hasła i potwierdzenia hasła.
+  - Użytkownik MOŻE korzystać z funkcji wyszukiwania dostepnych terminów bez logowania się do systemu (US-002).
+  - Użytkownik NIE MOŻE korzystać z funkcji przeglądu dodawania i edycji rezerwacji bez logowania się do systemu (US-000, US-002, US-003, US-004).
+  - Użytkownik NIE MOŻE korzystać z funkcji przeglądu dodawania i edycji pojazdów bez logowania się do systemu (US-005).
+  - Użytkownik może logować się do systemu poprzez przycisk w prawym górnym rogu.
+  - Użytkownik może się wylogować z systemu poprzez przycisk w prawym górnym rogu w głównym @Layout.astro.
+  - Nie korzystamy z zewnętrznych serwisów logowania (np. Google, GitHub).
+  - Odzyskiwanie hasła powinno być możliwe.
 
 ## 6. Metryki sukcesu
 

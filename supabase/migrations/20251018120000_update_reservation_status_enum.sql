@@ -3,7 +3,7 @@
 -- affected tables: reservations
 
 -- update existing 'Done' values to 'Completed' (if any exist)
-UPDATE reservations SET status = 'Cancelled' WHERE status = 'Done';
+UPDATE reservations SET status = 'Completed' WHERE status = 'Done';
 
 -- drop the default constraint first
 ALTER TABLE reservations ALTER COLUMN status DROP DEFAULT;

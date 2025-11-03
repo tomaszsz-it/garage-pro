@@ -103,9 +103,14 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     setCurrentDate(newDate);
   };
 
-  const handleMonthYearChange = () => {
+  // Auto-update calendar when month or year changes
+  useEffect(() => {
     const newDate = new Date(selectedYear, selectedMonth, 1);
     setCurrentDate(newDate);
+  }, [selectedMonth, selectedYear]);
+
+  const handleGoToToday = () => {
+    setCurrentDate(new Date());
   };
 
   const formatDate = (date: Date) => {
@@ -195,10 +200,6 @@ const CalendarView: React.FC<CalendarViewProps> = ({
               ))}
             </SelectContent>
           </Select>
-
-          <Button variant="outline" onClick={handleMonthYearChange}>
-            Przejdź
-          </Button>
         </div>
 
         {/* Week Navigation */}
@@ -211,6 +212,9 @@ const CalendarView: React.FC<CalendarViewProps> = ({
           </span>
           <Button variant="outline" size="sm" onClick={handleNextWeek}>
             <ChevronRight className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleGoToToday} className="ml-2">
+            Dzisiaj
           </Button>
         </div>
       </div>

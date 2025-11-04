@@ -15,15 +15,18 @@ export const availableReservationsQuerySchema = z
         if (!dateStr) return true;
         const date = new Date(dateStr);
         return !isNaN(date.getTime());
-      }, "Start time must be a valid datetime"),
-    // Tymczasowo zakomentowane dla debugowania
-    // .refine((dateStr) => {
-    //   if (!dateStr) return true;
-    //   const date = new Date(dateStr);
-    //   const now = new Date();
-    //   console.log("Validating start_ts:", dateStr, "Parsed:", date, "Now:", now, "Valid:", date >= now);
-    //   return date >= now;
-    // }, "Start time cannot be in the past")
+      }, "Start time must be a valid datetime")
+      .refine((dateStr) => {
+        if (!dateStr) return true;
+        const date = new Date(dateStr);
+        const now = new Date();
+        // Allow queries that start from yesterday to accommodate week views
+        // This is for querying available slots, not for actual reservations
+        const yesterday = new Date(now);
+        yesterday.setDate(now.getDate() - 1);
+        yesterday.setHours(0, 0, 0, 0);
+        return date >= yesterday;
+      }, "Start time cannot be more than 1 day in the past"),
 
     end_ts: z
       .string()

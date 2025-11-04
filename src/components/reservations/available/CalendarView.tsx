@@ -29,27 +29,33 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   setLoading,
   setError,
 }) => {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const today = new Date();
+  const [currentDate, setCurrentDate] = useState(today);
+  const [selectedMonth, setSelectedMonth] = useState(today.getMonth());
+  const [selectedYear, setSelectedYear] = useState(today.getFullYear());
 
-  // Get current week dates
+  // Get current week dates (Monday to Sunday)
   const getWeekDates = (date: Date) => {
     const startOfWeek = new Date(date);
     const day = startOfWeek.getDay();
-    const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1); // Monday as first day
-    startOfWeek.setDate(diff);
+
+    // Calculate days to subtract to get to Monday
+    // getDay() returns: Sunday=0, Monday=1, Tuesday=2, ..., Saturday=6
+    const daysToMonday = day === 0 ? 6 : day - 1; // If Sunday, go back 6 days, otherwise go back (day-1) days
+
+    startOfWeek.setDate(startOfWeek.getDate() - daysToMonday);
 
     const weekDates = [];
     for (let i = 0; i < 7; i++) {
-      const date = new Date(startOfWeek);
-      date.setDate(startOfWeek.getDate() + i);
-      weekDates.push(date);
+      const weekDate = new Date(startOfWeek);
+      weekDate.setDate(startOfWeek.getDate() + i);
+      weekDates.push(weekDate);
     }
+
     return weekDates;
   };
 
-  const weekDates = getWeekDates(currentDate);
+  const weekDates = React.useMemo(() => getWeekDates(currentDate), [currentDate]);
   const dayNames = ["Pon", "Wt", "Śr", "Czw", "Pt", "Sob", "Nie"];
 
   // Use custom hook for fetching available reservations
@@ -70,7 +76,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
       end_ts: endOfWeek.toISOString(),
       limit: 50,
     });
-  }, [selectedService.service_id, currentDate]); // Usunięto fetchAvailableReservations
+  }, [selectedService.service_id, currentDate, fetchAvailableReservations, weekDates]);
 
   // Group slots by date
   const slotsByDate = React.useMemo(() => {
@@ -103,10 +109,15 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     setCurrentDate(newDate);
   };
 
-  // Auto-update calendar when month or year changes
+  // Auto-update calendar when month or year changes (but not on initial load)
   useEffect(() => {
-    const newDate = new Date(selectedYear, selectedMonth, 1);
-    setCurrentDate(newDate);
+    // Only update currentDate if month/year was actually changed by user
+    // Don't update on initial component mount
+    const today = new Date();
+    if (selectedMonth !== today.getMonth() || selectedYear !== today.getFullYear()) {
+      const newDate = new Date(selectedYear, selectedMonth, 1);
+      setCurrentDate(newDate);
+    }
   }, [selectedMonth, selectedYear]);
 
   const handleGoToToday = () => {
@@ -282,7 +293,6 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                       >
                         <Clock className="h-3 w-3 mr-1" />
                         {formatTime(slot.start_ts)}
-                        <span className="ml-1 text-gray-500">({slot.employee_name})</span>
                       </Button>
                     ))}
                   </div>

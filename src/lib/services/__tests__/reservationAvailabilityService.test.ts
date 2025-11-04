@@ -164,4 +164,69 @@ describe("reservationAvailabilityService", () => {
     // Verify
     expect(result.length).toBeLessThanOrEqual(2);
   });
+
+  it("should eliminate duplicate time slots from multiple employees", async () => {
+    // Mock multiple employees with same time slots
+    const mockMultipleEmployeeSchedules = [
+      {
+        start_ts: "2025-10-23T09:00:00Z",
+        end_ts: "2025-10-23T17:00:00Z",
+        employee_id: "emp1",
+        employees: { name: "John Doe" },
+      },
+      {
+        start_ts: "2025-10-23T09:00:00Z",
+        end_ts: "2025-10-23T17:00:00Z",
+        employee_id: "emp2",
+        employees: { name: "Jane Smith" },
+      },
+      {
+        start_ts: "2025-10-23T09:00:00Z",
+        end_ts: "2025-10-23T17:00:00Z",
+        employee_id: "emp3",
+        employees: { name: "Bob Wilson" },
+      },
+    ];
+
+    // Setup mocks
+    vi.spyOn(mockSupabase, "single").mockResolvedValueOnce({
+      data: mockService,
+      error: null,
+    });
+
+    vi.spyOn(mockSupabase, "select")
+      .mockResolvedValueOnce({
+        data: mockMultipleEmployeeSchedules,
+        error: null,
+      })
+      .mockResolvedValueOnce({
+        data: [],
+        error: null,
+      });
+
+    // Test params
+    const params = {
+      service_id: 1,
+      start_ts: "2025-10-23T09:00:00Z",
+      end_ts: "2025-10-23T17:00:00Z",
+    };
+
+    // Execute
+    const result = await getAvailableReservations(params, mockSupabase);
+
+    // Verify no duplicate time slots
+    const timeSlots = result.map(slot => slot.start_ts);
+    const uniqueTimeSlots = [...new Set(timeSlots)];
+    
+    expect(timeSlots.length).toBe(uniqueTimeSlots.length);
+    
+    // Verify we get unique time slots (should be 16 slots: 9:00-17:00 with 30min intervals)
+    // But only one slot per time, not 3x duplicates
+    const expectedSlots = 16; // (17:00 - 9:00) * 60 / 30 = 16 slots
+    expect(result.length).toBe(expectedSlots);
+    
+    // Verify first slot is from first available employee (emp1)
+    expect(result[0].employee_id).toBe("emp1");
+    expect(result[0].employee_name).toBe("John Doe");
+  });
 });

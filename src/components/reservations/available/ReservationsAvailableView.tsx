@@ -1,25 +1,34 @@
 import React, { useState } from "react";
-import type { ServiceDto, AvailableReservationViewModel } from "../../../types";
+import type { ServiceDto, AvailableReservationViewModel, VehicleDto, ReservationCreateDto } from "../../../types";
 import ServiceSelectionForm from "./ServiceSelectionForm";
 import CalendarView from "./CalendarView";
+import BookingConfirmationForm from "./BookingConfirmationForm";
 import { LoadingIndicator } from "../LoadingIndicator";
 import { ErrorNotification } from "../ErrorNotification";
 
 interface ReservationsAvailableViewState {
   selectedService: ServiceDto | null;
   selectedDay: string | null;
+  selectedSlot: AvailableReservationViewModel | null;
+  selectedVehicle: VehicleDto | null;
   slots: AvailableReservationViewModel[];
+  vehicles: VehicleDto[];
   isLoading: boolean;
+  isCreatingReservation: boolean;
   error: string | null;
-  currentStep: "service-selection" | "calendar";
+  currentStep: "service-selection" | "calendar" | "booking-confirmation";
 }
 
 export const ReservationsAvailableView: React.FC = () => {
   const [state, setState] = useState<ReservationsAvailableViewState>({
     selectedService: null,
     selectedDay: null,
+    selectedSlot: null,
+    selectedVehicle: null,
     slots: [],
+    vehicles: [],
     isLoading: false,
+    isCreatingReservation: false,
     error: null,
     currentStep: "service-selection",
   });
@@ -39,7 +48,10 @@ export const ReservationsAvailableView: React.FC = () => {
       currentStep: "service-selection",
       selectedService: null,
       selectedDay: null,
+      selectedSlot: null,
+      selectedVehicle: null,
       slots: [],
+      vehicles: [],
       error: null,
     }));
   };
@@ -51,18 +63,39 @@ export const ReservationsAvailableView: React.FC = () => {
     }));
   };
 
-  const handleTimeSelect = (slot: AvailableReservationViewModel) => {
+  const handleTimeSelect = async (slot: AvailableReservationViewModel) => {
     if (!state.selectedService) return;
 
-    const searchParams = new URLSearchParams({
-      service_id: state.selectedService.service_id.toString(),
-      start_ts: slot.start_ts,
-      end_ts: slot.end_ts,
-      employee_id: slot.employee_id,
-    });
+    // Set selected slot and fetch vehicles
+    setState((prev) => ({
+      ...prev,
+      selectedSlot: slot,
+      isLoading: true,
+      error: null,
+    }));
 
-    // In a real app, this would use proper routing
-    window.location.href = `/reservations/new?${searchParams.toString()}`;
+    try {
+      // Fetch user's vehicles
+      const response = await fetch("/api/vehicles");
+      if (!response.ok) {
+        throw new Error("Failed to fetch vehicles");
+      }
+
+      const vehiclesData = await response.json();
+
+      setState((prev) => ({
+        ...prev,
+        vehicles: vehiclesData.data,
+        currentStep: "booking-confirmation",
+        isLoading: false,
+      }));
+    } catch (error) {
+      setState((prev) => ({
+        ...prev,
+        error: error instanceof Error ? error.message : "Failed to load vehicles",
+        isLoading: false,
+      }));
+    }
   };
 
   const setSlots = (slots: AvailableReservationViewModel[]) => {
@@ -80,6 +113,59 @@ export const ReservationsAvailableView: React.FC = () => {
   const handleRetry = () => {
     setError(null);
     // Retry logic would be implemented here
+  };
+
+  const handleBackToCalendar = () => {
+    setState((prev) => ({
+      ...prev,
+      currentStep: "calendar",
+      selectedSlot: null,
+      selectedVehicle: null,
+      vehicles: [],
+      error: null,
+    }));
+  };
+
+  const handleVehicleSelect = (vehicle: VehicleDto) => {
+    setState((prev) => ({
+      ...prev,
+      selectedVehicle: vehicle,
+    }));
+  };
+
+  const handleCreateReservation = async (reservationData: ReservationCreateDto) => {
+    setState((prev) => ({
+      ...prev,
+      isCreatingReservation: true,
+      error: null,
+    }));
+
+
+    try {
+      const response = await fetch("/api/reservations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(reservationData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to create reservation");
+      }
+
+      await response.json(); // Parse response but don't need to use it
+
+      // Redirect to reservations list or show success message
+      window.location.href = "/reservations";
+    } catch (error) {
+      setState((prev) => ({
+        ...prev,
+        error: error instanceof Error ? error.message : "Failed to create reservation",
+        isCreatingReservation: false,
+      }));
+    }
   };
 
   return (
@@ -114,6 +200,19 @@ export const ReservationsAvailableView: React.FC = () => {
           setSlots={setSlots}
           setLoading={setLoading}
           setError={setError}
+        />
+      )}
+
+      {state.currentStep === "booking-confirmation" && state.selectedService && state.selectedSlot && (
+        <BookingConfirmationForm
+          selectedService={state.selectedService}
+          selectedSlot={state.selectedSlot}
+          selectedVehicle={state.selectedVehicle}
+          vehicles={state.vehicles}
+          isCreatingReservation={state.isCreatingReservation}
+          onVehicleSelect={handleVehicleSelect}
+          onCreateReservation={handleCreateReservation}
+          onBack={handleBackToCalendar}
         />
       )}
     </div>

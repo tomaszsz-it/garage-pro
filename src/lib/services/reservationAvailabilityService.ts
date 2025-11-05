@@ -110,10 +110,10 @@ export async function getAvailableReservations(
 
   // 5. Group slots by time to avoid duplicates and return unique time slots
   const uniqueSlots = new Map<string, TimeSlot>();
-  
+
   availableSlots.forEach((slot) => {
     const timeKey = slot.start_ts.toISOString();
-    
+
     // Only keep the first slot for each time (first available employee)
     if (!uniqueSlots.has(timeKey)) {
       uniqueSlots.set(timeKey, slot);
@@ -121,13 +121,14 @@ export async function getAvailableReservations(
   });
 
   // Convert map to array, sort by time, and return limited results
-  const uniqueSlotsArray = Array.from(uniqueSlots.values())
-    .sort((a, b) => a.start_ts.getTime() - b.start_ts.getTime());
+  const uniqueSlotsArray = Array.from(uniqueSlots.values()).sort((a, b) => a.start_ts.getTime() - b.start_ts.getTime());
 
-  return uniqueSlotsArray.slice(0, limit).map((slot) => ({
+  const result = uniqueSlotsArray.slice(0, limit).map((slot) => ({
     start_ts: slot.start_ts.toISOString(),
     end_ts: slot.end_ts.toISOString(),
     employee_id: slot.employee_id,
     employee_name: slot.employee_name,
   }));
+
+  return result;
 }

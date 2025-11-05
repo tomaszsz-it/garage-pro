@@ -44,7 +44,7 @@ interface ReservationWithRelations {
 
 /**
  * Generates a personalized maintenance recommendation using LLM
- * 
+ *
  * @param openRouter OpenRouter service instance
  * @param vehicleInfo Vehicle information for personalized recommendation
  * @param serviceName Service being performed
@@ -69,9 +69,9 @@ async function generateRecommendation(
     // Set system message to guide the LLM response
     openRouter.setSystemMessage(
       "You are an automotive expert providing personalized maintenance recommendations. " +
-      "Keep your response concise (max 2-3 sentences), professional, and specific to the vehicle and service. " +
-      "Focus on related maintenance items that could be beneficial to check during the current service. " +
-      "Do not include any disclaimers, introductions, or sign-offs."
+        "Keep your response concise (max 2-3 sentences), professional, and specific to the vehicle and service. " +
+        "Focus on related maintenance items that could be beneficial to check during the current service. " +
+        "Do not include any disclaimers, introductions, or sign-offs."
     );
 
     // Set the user message with details about the vehicle and service
@@ -81,7 +81,7 @@ async function generateRecommendation(
     const recommendation = await openRouter.sendChatMessage<string>(userMessage);
     return recommendation;
   } catch (error) {
-    console.error("Error generating recommendation with LLM:", error);
+    console.error("LLM recommendation failed:", error);
     // Fallback to default recommendation if LLM fails
     return `Consider checking other maintenance items during your ${serviceName} service${vehicleInfo ? ` for your ${vehicleInfo.production_year} ${vehicleInfo.brand} ${vehicleInfo.model}` : ""}. Our mechanics can provide a detailed inspection.`;
   }
@@ -244,7 +244,8 @@ export function createReservationService(supabase: SupabaseClient, openRouter?: 
         .from("reservations")
         .select("id")
         .eq("employee_id", dto.employee_id)
-        .or(`start_ts.lte.${dto.end_ts},end_ts.gte.${dto.start_ts}`)
+        .lt("start_ts", dto.end_ts)
+        .gt("end_ts", dto.start_ts)
         .not("status", "eq", "Cancelled");
 
       if (conflictsError) {
@@ -278,11 +279,13 @@ export function createReservationService(supabase: SupabaseClient, openRouter?: 
       // Generate personalized recommendation using LLM
       const recommendationText = await generateRecommendation(
         openRouter,
-        vehicle ? { 
-          brand: vehicle.brand, 
-          model: vehicle.model, 
-          production_year: vehicle.production_year 
-        } : null,
+        vehicle
+          ? {
+              brand: vehicle.brand,
+              model: vehicle.model,
+              production_year: vehicle.production_year,
+            }
+          : null,
         service.name
       );
 

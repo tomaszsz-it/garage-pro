@@ -62,7 +62,8 @@ export const ReservationCreateSchema = z
   .refine(
     (data) => {
       const start = new Date(data.start_ts);
-      return start > new Date();
+      const now = new Date();
+      return start > now;
     },
     {
       message: "start_ts cannot be in the past",

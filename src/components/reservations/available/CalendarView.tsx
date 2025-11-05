@@ -69,18 +69,27 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   useEffect(() => {
     const startOfWeek = weekDates[0];
     const endOfWeek = weekDates[6];
+    const now = new Date();
+
+    // Don't query for dates more than 1 day in the past to avoid validation errors
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+    yesterday.setHours(0, 0, 0, 0);
+
+    const queryStartDate = startOfWeek < yesterday ? yesterday : startOfWeek;
 
     fetchAvailableReservations({
       service_id: selectedService.service_id,
-      start_ts: startOfWeek.toISOString(),
+      start_ts: queryStartDate.toISOString(),
       end_ts: endOfWeek.toISOString(),
       limit: 50,
     });
   }, [selectedService.service_id, currentDate, fetchAvailableReservations, weekDates]);
 
-  // Group slots by date
+  // Group slots by date and filter out past slots
   const slotsByDate = React.useMemo(() => {
     const grouped: Record<string, AvailableReservationViewModel[]> = {};
+    const now = new Date();
 
     weekDates.forEach((date) => {
       const dateKey = date.toISOString().split("T")[0];
@@ -89,7 +98,10 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
     availableSlots.forEach((slot) => {
       const slotDate = new Date(slot.start_ts).toISOString().split("T")[0];
-      if (grouped[slotDate]) {
+      const slotTime = new Date(slot.start_ts);
+
+      // Only include slots that are in the future
+      if (grouped[slotDate] && slotTime > now) {
         grouped[slotDate].push(slot);
       }
     });

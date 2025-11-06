@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import type { ServiceDto, AvailableReservationViewModel } from "../../../types";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -33,6 +33,9 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   const [currentDate, setCurrentDate] = useState(today);
   const [selectedMonth, setSelectedMonth] = useState(today.getMonth());
   const [selectedYear, setSelectedYear] = useState(today.getFullYear());
+
+  // Track whether month/year changes are user-initiated to prevent unnecessary currentDate updates
+  const isUserInitiatedChange = useRef(false);
 
   // Get current week dates (Monday to Sunday)
   const getWeekDates = (date: Date) => {
@@ -121,19 +124,34 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     setCurrentDate(newDate);
   };
 
-  // Auto-update calendar when month or year changes (but not on initial load)
+  // Auto-update calendar when month or year changes (only for user-initiated changes)
   useEffect(() => {
-    // Only update currentDate if month/year was actually changed by user
-    // Don't update on initial component mount
-    const today = new Date();
-    if (selectedMonth !== today.getMonth() || selectedYear !== today.getFullYear()) {
+    // Only update currentDate if the change was user-initiated and different from initial today
+    if (isUserInitiatedChange.current) {
       const newDate = new Date(selectedYear, selectedMonth, 1);
       setCurrentDate(newDate);
+      isUserInitiatedChange.current = false; // Reset the flag
     }
   }, [selectedMonth, selectedYear]);
 
+  // Keep month/year selectors in sync with currentDate when changed via week navigation
+  useEffect(() => {
+    const currentMonth = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+
+    // Only update if different and not a user-initiated change
+    if (!isUserInitiatedChange.current && (selectedMonth !== currentMonth || selectedYear !== currentYear)) {
+      setSelectedMonth(currentMonth);
+      setSelectedYear(currentYear);
+    }
+  }, [currentDate, selectedMonth, selectedYear]);
+
   const handleGoToToday = () => {
-    setCurrentDate(new Date());
+    const now = new Date();
+    setCurrentDate(now);
+    // Update month/year selectors to match current date without triggering useEffect
+    setSelectedMonth(now.getMonth());
+    setSelectedYear(now.getFullYear());
   };
 
   const formatDate = (date: Date) => {
@@ -198,7 +216,13 @@ const CalendarView: React.FC<CalendarViewProps> = ({
       {/* Month/Year Selector */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-4">
-          <Select value={selectedMonth.toString()} onValueChange={(value) => setSelectedMonth(parseInt(value))}>
+          <Select
+            value={selectedMonth.toString()}
+            onValueChange={(value) => {
+              isUserInitiatedChange.current = true;
+              setSelectedMonth(parseInt(value));
+            }}
+          >
             <SelectTrigger className="w-40">
               <SelectValue />
             </SelectTrigger>
@@ -211,7 +235,13 @@ const CalendarView: React.FC<CalendarViewProps> = ({
             </SelectContent>
           </Select>
 
-          <Select value={selectedYear.toString()} onValueChange={(value) => setSelectedYear(parseInt(value))}>
+          <Select
+            value={selectedYear.toString()}
+            onValueChange={(value) => {
+              isUserInitiatedChange.current = true;
+              setSelectedYear(parseInt(value));
+            }}
+          >
             <SelectTrigger className="w-24">
               <SelectValue />
             </SelectTrigger>

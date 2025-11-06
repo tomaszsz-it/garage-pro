@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "../../ui/button";
 import { toast } from "sonner";
 
@@ -7,21 +7,28 @@ interface ActionButtonsProps {
   onBackToReservations: () => void;
 }
 
-export const ActionButtons: React.FC<ActionButtonsProps> = ({
-  reservationId,
-  onBackToReservations,
-}) => {
+export const ActionButtons: React.FC<ActionButtonsProps> = ({ reservationId, onBackToReservations }) => {
   const [isCopying, setIsCopying] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleCopyLink = async () => {
     if (!reservationId) return;
 
     setIsCopying(true);
-    
+
     try {
       const reservationUrl = `${window.location.origin}/reservations/${reservationId}`;
-      
+
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(reservationUrl);
       } else {
@@ -34,24 +41,30 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
         document.body.appendChild(textArea);
         textArea.focus();
         textArea.select();
-        document.execCommand('copy');
+        document.execCommand("copy");
         textArea.remove();
       }
-      
+
       setCopySuccess(true);
-      
+
       // Show success toast
       toast.success("Link do rezerwacji został skopiowany do schowka!", {
         description: "Możesz teraz udostępnić go innym osobom.",
         duration: 3000,
       });
-      
+
+      // Clear any existing timeout
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+
       // Reset success state after 3 seconds
-      setTimeout(() => {
+      timeoutRef.current = setTimeout(() => {
         setCopySuccess(false);
+        timeoutRef.current = null;
       }, 3000);
-      
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Failed to copy link:", error);
       // Show error toast
       toast.error("Nie udało się skopiować linku", {
@@ -74,12 +87,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
       >
         {isCopying ? (
           <>
-            <svg
-              className="w-4 h-4 mr-2 animate-spin"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="w-4 h-4 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -91,29 +99,14 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
           </>
         ) : copySuccess ? (
           <>
-            <svg
-              className="w-4 h-4 mr-2 text-green-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
+            <svg className="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
             Skopiowano!
           </>
         ) : (
           <>
-            <svg
-              className="w-4 h-4 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -125,17 +118,9 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
           </>
         )}
       </Button>
-      
-      <Button
-        onClick={onBackToReservations}
-        className="flex-1"
-      >
-        <svg
-          className="w-4 h-4 mr-2"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
+
+      <Button onClick={onBackToReservations} className="flex-1">
+        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"

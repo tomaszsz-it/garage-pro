@@ -75,8 +75,8 @@ async function generateRecommendation(
         "3. Opieraj się na rzeczywistych zależnościach technicznych między elementami pojazdu " +
         "4. Unikaj spekulacji i niepewnych stwierdzeń " +
         "5. Maksymalnie 2 zdania, bez wstępów i zakończeń " +
-        "6. Koncentruj się na elementach, które są fizycznie dostępne podczas danej usługi"+
-        "7. Używaj poprawnej polszczyzny (np. 'Volkswagen Passat z 2020 roku', nie '2020 Volkswagen Passat') " +
+        "6. Koncentruj się na elementach, które są fizycznie dostępne podczas danej usługi" +
+        "7. Używaj poprawnej polszczyzny (np. 'Volkswagen Passat z 2020 roku', nie '2020 Volkswagen Passat') "
     );
 
     // Set the user message with details about the vehicle and service

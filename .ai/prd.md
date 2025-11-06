@@ -64,7 +64,7 @@ W MVP nie uwzględniamy:
   - wyświetlana lista najbliższych dostępnych terminów (np. kolejne 10) w formacie DD.MM.YYYY, HH:MM
   - możliwość filtrowania po rodzaju usługi
   - brak dostępnych terminów wyświetla odpowiedni komunikat
-  - funkcjonalność przeglądu terminów jest dostępna bez logowania się do systemu (US-004).
+  - funkcjonalność przeglądu terminów jest dostępna bez logowania się do systemu (US-009).
 
   <scope_update>
   Zakładam endpoint GET /reservations/available przy użyciu query parameters: serviceId, start_ts, end_ts.

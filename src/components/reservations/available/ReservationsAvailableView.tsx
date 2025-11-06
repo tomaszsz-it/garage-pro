@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import type { ServiceDto, AvailableReservationViewModel, VehicleDto, ReservationCreateDto } from "../../../types";
+import type { ServiceDto, AvailableReservationViewModel, VehicleDto, ReservationCreateDto, ReservationDto } from "../../../types";
 import ServiceSelectionForm from "./ServiceSelectionForm";
 import CalendarView from "./CalendarView";
 import BookingConfirmationForm from "./BookingConfirmationForm";
+import { ReservationConfirmationView } from "./ReservationConfirmationView";
 import { LoadingIndicator } from "../LoadingIndicator";
 import { ErrorNotification } from "../ErrorNotification";
 
@@ -16,7 +17,8 @@ interface ReservationsAvailableViewState {
   isLoading: boolean;
   isCreatingReservation: boolean;
   error: string | null;
-  currentStep: "service-selection" | "calendar" | "booking-confirmation";
+  currentStep: "service-selection" | "calendar" | "booking-confirmation" | "reservation-summary";
+  reservationSummary: ReservationDto | null;
 }
 
 export const ReservationsAvailableView: React.FC = () => {
@@ -31,6 +33,7 @@ export const ReservationsAvailableView: React.FC = () => {
     isCreatingReservation: false,
     error: null,
     currentStep: "service-selection",
+    reservationSummary: null,
   });
 
   const handleServiceSelect = (service: ServiceDto) => {
@@ -140,7 +143,6 @@ export const ReservationsAvailableView: React.FC = () => {
       error: null,
     }));
 
-
     try {
       const response = await fetch("/api/reservations", {
         method: "POST",
@@ -155,10 +157,15 @@ export const ReservationsAvailableView: React.FC = () => {
         throw new Error(errorData.message || "Failed to create reservation");
       }
 
-      await response.json(); // Parse response but don't need to use it
+      const createdReservation = await response.json();
 
-      // Redirect to reservations list or show success message
-      window.location.href = "/reservations";
+      // Set reservation summary and move to summary step
+      setState((prev) => ({
+        ...prev,
+        reservationSummary: createdReservation,
+        currentStep: "reservation-summary",
+        isCreatingReservation: false,
+      }));
     } catch (error) {
       setState((prev) => ({
         ...prev,
@@ -168,12 +175,18 @@ export const ReservationsAvailableView: React.FC = () => {
     }
   };
 
+  const handleBackToReservations = () => {
+    window.location.href = "/reservations";
+  };
+
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Dostępne terminy rezerwacji</h1>
-        <p className="text-gray-600">Wybierz usługę i znajdź dostępny termin dla swojego pojazdu</p>
-      </div>
+      {state.currentStep !== "reservation-summary" && (
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Dostępne terminy rezerwacji</h1>
+          <p className="text-gray-600">Wybierz usługę i znajdź dostępny termin dla swojego pojazdu</p>
+        </div>
+      )}
 
       {state.error && (
         <div className="mb-6">
@@ -213,6 +226,13 @@ export const ReservationsAvailableView: React.FC = () => {
           onVehicleSelect={handleVehicleSelect}
           onCreateReservation={handleCreateReservation}
           onBack={handleBackToCalendar}
+        />
+      )}
+
+      {state.currentStep === "reservation-summary" && state.reservationSummary && (
+        <ReservationConfirmationView
+          reservation={state.reservationSummary}
+          onBackToReservations={handleBackToReservations}
         />
       )}
     </div>

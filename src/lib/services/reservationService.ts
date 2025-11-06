@@ -57,25 +57,30 @@ async function generateRecommendation(
 ): Promise<string> {
   // If OpenRouter service is not available, return a default recommendation
   if (!openRouter) {
-    return `Consider checking other maintenance items during your ${serviceName} service${vehicleInfo ? ` for your ${vehicleInfo.production_year} ${vehicleInfo.brand} ${vehicleInfo.model}` : ""}. Our mechanics can provide a detailed inspection.`;
+    return `Rozważ sprawdzenie innych elementów konserwacyjnych podczas usługi ${serviceName}${vehicleInfo ? ` dla Twojego pojazdu ${vehicleInfo.brand} ${vehicleInfo.model} z ${vehicleInfo.production_year} roku` : ""}. Nasi mechanicy mogą przeprowadzić szczegółową inspekcję.`;
   }
 
   try {
     // Create a prompt for the LLM
     const vehicleDescription = vehicleInfo
-      ? `${vehicleInfo.production_year} ${vehicleInfo.brand} ${vehicleInfo.model}`
-      : "your vehicle";
+      ? `${vehicleInfo.brand} ${vehicleInfo.model} z ${vehicleInfo.production_year} roku`
+      : "pojazd";
 
     // Set system message to guide the LLM response
     openRouter.setSystemMessage(
-      "You are an automotive expert providing personalized maintenance recommendations. " +
-        "Keep your response concise (max 2-3 sentences), professional, and specific to the vehicle and service. " +
-        "Focus on related maintenance items that could be beneficial to check during the current service. " +
-        "Do not include any disclaimers, introductions, or sign-offs."
+      "Jesteś doświadczonym mechanikiem samochodowym z 15-letnim stażem. Udzielasz konkretnych, praktycznych rekomendacji serwisowych. " +
+        "ZASADY: " +
+        "1. Sugeruj TYLKO sprawdzone, logicznie powiązane czynności serwisowe " +
+        "2. Sugeruj TYLKO sprawdzone, logicznie powiązane czynności serwisowe " +
+        "3. Opieraj się na rzeczywistych zależnościach technicznych między elementami pojazdu " +
+        "4. Unikaj spekulacji i niepewnych stwierdzeń " +
+        "5. Maksymalnie 2 zdania, bez wstępów i zakończeń " +
+        "6. Koncentruj się na elementach, które są fizycznie dostępne podczas danej usługi"+
+        "7. Używaj poprawnej polszczyzny (np. 'Volkswagen Passat z 2020 roku', nie '2020 Volkswagen Passat') " +
     );
 
     // Set the user message with details about the vehicle and service
-    const userMessage = `Generate a personalized maintenance recommendation for a ${vehicleDescription} that is coming in for ${serviceName} service. Suggest 1-2 related maintenance items that would be worth checking while the vehicle is in the garage.`;
+    const userMessage = `Dla pojazdu ${vehicleDescription} podczas usługi "${serviceName}" - jakie konkretne, sprawdzone elementy warto dodatkowo sprawdzić? Podaj tylko te, które są logicznie powiązane z wykonywaną usługą i rzeczywiście dostępne podczas pracy.`;
 
     // Get recommendation from LLM
     const recommendation = await openRouter.sendChatMessage<string>(userMessage);
@@ -83,7 +88,7 @@ async function generateRecommendation(
   } catch (error) {
     console.error("LLM recommendation failed:", error);
     // Fallback to default recommendation if LLM fails
-    return `Consider checking other maintenance items during your ${serviceName} service${vehicleInfo ? ` for your ${vehicleInfo.production_year} ${vehicleInfo.brand} ${vehicleInfo.model}` : ""}. Our mechanics can provide a detailed inspection.`;
+    return `Rozważ sprawdzenie innych elementów konserwacyjnych podczas usługi ${serviceName}${vehicleInfo ? ` dla Twojego pojazdu ${vehicleInfo.brand} ${vehicleInfo.model} z ${vehicleInfo.production_year} roku` : ""}. Nasi mechanicy mogą przeprowadzić szczegółową inspekcję.`;
   }
 }
 

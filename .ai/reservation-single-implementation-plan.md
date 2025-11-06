@@ -141,7 +141,6 @@ Oba endpointy implementują autoryzację na poziomie użytkownika - zwykli użyt
 - **Indeksy**: kolumny `id`, `user_id`, `employee_id` w tabeli reservations  
 - **Joiny**: optymalizowane zapytanie z inner join dla wymaganych relacji
 - **Single query**: pobieranie wszystkich danych w jednym zapytaniu zamiast N+1
-- **Caching potencjał**: możliwość cache'owania na poziomie aplikacji dla często odczytywanych rezerwacji
 
 ## 9. Kroki implementacji
 
@@ -172,7 +171,7 @@ Oba endpointy implementują autoryzację na poziomie użytkownika - zwykli użyt
 
 7. **Business Logic Validation Rules**:
    - Przeszłe rezerwacje: tylko zmiana statusu dozwolona
-   - Status transitions: New → Cancelled/Completed, Cancelled → New (tylko sekretariat)
+   - Status transitions: tylko New → Cancelled lub New → Completed (statusy Cancelled i Completed są finalne)
    - Time slots: sprawdzenie dostępności przy zmianie terminu
    - Service duration: nowy termin musi odpowiadać długości nowej usługi
    - Vehicle ownership: nowy pojazd musi należeć do użytkownika

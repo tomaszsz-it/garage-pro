@@ -32,10 +32,7 @@ export const ReservationUpdateSchema = z
         invalid_type_error: "service_id must be a number",
       })
       .optional(),
-    vehicle_license_plate: z
-      .string()
-      .min(1, "vehicle_license_plate cannot be empty")
-      .optional(),
+    vehicle_license_plate: z.string().min(1, "vehicle_license_plate cannot be empty").optional(),
     start_ts: z
       .string()
       .datetime({
@@ -76,27 +73,6 @@ export const ReservationUpdateSchema = z
     },
     {
       message: "At least one field must be provided for update",
-    }
-  )
-  .refine(
-    (data) => {
-      // If start_ts is provided without end_ts, or vice versa, it's invalid
-      // Both should be provided together for time changes
-      const hasStartTs = data.start_ts !== undefined;
-      const hasEndTs = data.end_ts !== undefined;
-      
-      if (hasStartTs && !hasEndTs) {
-        return false;
-      }
-      if (!hasStartTs && hasEndTs) {
-        return false;
-      }
-      
-      return true;
-    },
-    {
-      message: "Both start_ts and end_ts must be provided together when changing time",
-      path: ["start_ts", "end_ts"],
     }
   )
   .refine(

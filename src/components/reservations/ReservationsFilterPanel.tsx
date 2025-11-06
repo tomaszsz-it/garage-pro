@@ -46,7 +46,12 @@ export function ReservationsFilterPanel({ vehicles, services, filters, onFilterC
       className="bg-card p-[var(--spacing-2xl)] rounded-[var(--radius-lg)] shadow-[var(--elevation-2)] border border-[var(--neutral-30)] space-y-[var(--spacing-2xl)] animate-[fadeIn_300ms_ease-out]"
       data-testid="filter-panel"
     >
-      <div className="flex flex-col md:flex-row gap-[var(--spacing-lg)]" role="group" aria-label="Opcje filtrowania">
+      <div
+        className="flex flex-col md:flex-row gap-[var(--spacing-lg)]"
+        role="group"
+        aria-label="Opcje filtrowania"
+        data-testid="filters-container"
+      >
         <div className="flex-1">
           <Select
             value={filters.vehicleLicensePlate || ALL_VALUE}
@@ -129,7 +134,12 @@ export function ReservationsFilterPanel({ vehicles, services, filters, onFilterC
         </div>
       </div>
 
-      <div className="flex justify-end gap-[var(--spacing-lg)] flex-wrap" role="group" aria-label="Akcje">
+      <div
+        className="flex justify-end gap-[var(--spacing-lg)] flex-wrap"
+        role="group"
+        aria-label="Akcje"
+        data-testid="buttons-container"
+      >
         <Button
           variant="outline"
           onClick={handleClearFilters}

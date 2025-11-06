@@ -64,7 +64,10 @@ export function useReservations({ page, filters }: UseReservationsParams): UseRe
     } finally {
       setIsLoading(false);
     }
-  }, [page, vehicles]);
+    // Note: 'vehicles' is intentionally excluded from dependencies to prevent infinite loop
+    // The function checks current vehicles state value when executed
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   useEffect(() => {
     fetchData();

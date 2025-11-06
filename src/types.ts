@@ -110,11 +110,12 @@ export type ReservationDetailDto = Omit<Reservation, "created_by"> & {
 //    Used in the PATCH /reservations/{id} endpoint to update existing reservations.
 //    Validation rules:
 //      - service_id: must exist, duration must match new time range
+//      - vehicle_license_plate: must be owned by user
 //      - start_ts/end_ts: cannot be in the past, must be available slot
 //      - status: must be valid enum value ("New", "Cancelled", "Completed")
 //      - Only future reservations can be modified (except status changes)
 // ------------------------------------------------------------------------------------------------
-export type ReservationUpdateDto = Partial<Pick<ReservationUpdate, "service_id" | "start_ts" | "end_ts" | "status">>;
+export type ReservationUpdateDto = Partial<Pick<ReservationUpdate, "service_id" | "vehicle_license_plate" | "start_ts" | "end_ts" | "status">>;
 
 // ------------------------------------------------------------------------------------------------
 // 10. Vehicles List Response DTO

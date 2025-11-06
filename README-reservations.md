@@ -360,3 +360,313 @@ curl -X GET 'https://api.example.com/reservations/available?service_id=1&start_t
 - Results are sorted chronologically
 - Response is not cached (Cache-Control: no-cache)
 - All times are in UTC (ISO8601 format)
+
+## GET /api/reservations/{id}
+
+Retrieves detailed information about a specific reservation including service details, employee information, and vehicle data.
+
+### Authentication
+
+- Requires a valid authentication token
+- Token must be provided in the Authorization header
+- Users can only access their own reservations unless they have secretariat role
+
+### Path Parameters
+
+| Parameter | Type   | Required | Description                    |
+|-----------|--------|----------|--------------------------------|
+| id        | string | Yes      | UUID of the reservation        |
+
+### Response
+
+#### 200 OK
+
+```json
+{
+  "id": "123e4567-e89b-12d3-a456-426614174000",
+  "user_id": "550e8400-e29b-41d4-a716-446655440001",
+  "service_id": 1,
+  "service_name": "Oil Change",
+  "service_duration_minutes": 30,
+  "vehicle_license_plate": "WAW1234",
+  "vehicle_brand": "VW",
+  "vehicle_model": "Passat",
+  "employee_id": "550e8400-e29b-41d4-a716-446655440000",
+  "employee_name": "Mechanik1",
+  "start_ts": "2024-10-16T09:00:00Z",
+  "end_ts": "2024-10-16T09:30:00Z",
+  "status": "New",
+  "recommendation_text": "Based on your 2010 VW Passat...",
+  "created_at": "2024-10-15T14:30:00Z",
+  "updated_at": "2024-10-15T14:30:00Z"
+}
+```
+
+#### Error Responses
+
+- 400 Bad Request
+  - Invalid UUID format
+
+```json
+{
+  "error": "Bad Request",
+  "message": "Invalid reservation ID",
+  "details": [
+    {
+      "field": "id",
+      "message": "Reservation ID must be a valid UUID"
+    }
+  ]
+}
+```
+
+- 401 Unauthorized
+  - Missing or invalid authentication token
+
+```json
+{
+  "error": "Unauthorized",
+  "message": "Authentication required"
+}
+```
+
+- 403 Forbidden
+  - Access denied to this reservation (user can only access their own reservations)
+
+```json
+{
+  "error": "Access denied to this reservation"
+}
+```
+
+- 404 Not Found
+  - Reservation not found
+
+```json
+{
+  "error": "Reservation not found",
+  "details": {
+    "id": "123e4567-e89b-12d3-a456-426614174000"
+  }
+}
+```
+
+- 500 Internal Server Error
+  - Unexpected server error
+
+```json
+{
+  "error": "Internal Server Error",
+  "message": "An unexpected error occurred"
+}
+```
+
+### Example Usage
+
+```bash
+# Get reservation by ID
+curl -X GET 'https://api.example.com/api/reservations/123e4567-e89b-12d3-a456-426614174000' \
+  -H 'Authorization: Bearer YOUR_TOKEN'
+```
+
+### Notes
+
+- Returns detailed reservation information with joined data from services, employees, and vehicles tables
+- Regular users can only access their own reservations
+- Users with secretariat role can access all reservations
+- All times are in UTC (ISO8601 format)
+
+## PATCH /api/reservations/{id}
+
+Updates an existing reservation. Allows changing service, vehicle, time slot, or status with comprehensive business rule validation.
+
+### Authentication
+
+- Requires a valid authentication token
+- Token must be provided in the Authorization header
+- Users can only modify their own reservations unless they have secretariat role
+
+### Path Parameters
+
+| Parameter | Type   | Required | Description                    |
+|-----------|--------|----------|--------------------------------|
+| id        | string | Yes      | UUID of the reservation        |
+
+### Request Body
+
+All fields are optional - provide only the fields you want to update:
+
+```json
+{
+  "service_id": 2,
+  "vehicle_license_plate": "NEW123",
+  "start_ts": "2024-10-16T10:00:00Z",
+  "end_ts": "2024-10-16T11:00:00Z",
+  "status": "Cancelled"
+}
+```
+
+| Field                 | Type    | Required | Description                                      |
+|----------------------|---------|----------|--------------------------------------------------|
+| service_id           | integer | No       | ID of the new service                            |
+| vehicle_license_plate| string  | No       | License plate of the new vehicle (must be owned by user) |
+| start_ts             | string  | No       | New start time (ISO8601) - must provide with end_ts |
+| end_ts               | string  | No       | New end time (ISO8601) - must provide with start_ts |
+| status               | string  | No       | New status: "New", "Completed", "Cancelled"     |
+
+### Business Rules
+
+- **Past reservations**: Only status changes are allowed for past reservations
+- **Status transitions**: Only "New" status can be changed to "Cancelled" or "Completed"
+- **Completed status**: Only secretariat can mark reservations as "Completed"
+- **Time changes**: Both start_ts and end_ts must be provided together
+- **Service duration**: New time range must match the service duration
+- **Time conflicts**: New time slot must be available (no conflicts with other reservations)
+- **Employee schedule**: New time must be within employee's working hours
+- **Vehicle ownership**: New vehicle must be owned by the user
+
+### Response
+
+#### 200 OK
+
+Returns the updated reservation with the same format as GET /api/reservations/{id}
+
+```json
+{
+  "id": "123e4567-e89b-12d3-a456-426614174000",
+  "user_id": "550e8400-e29b-41d4-a716-446655440001",
+  "service_id": 2,
+  "service_name": "Brake Inspection",
+  "service_duration_minutes": 60,
+  "vehicle_license_plate": "NEW123",
+  "vehicle_brand": "BMW",
+  "vehicle_model": "X5",
+  "employee_id": "550e8400-e29b-41d4-a716-446655440000",
+  "employee_name": "Mechanik1",
+  "start_ts": "2024-10-16T10:00:00Z",
+  "end_ts": "2024-10-16T11:00:00Z",
+  "status": "New",
+  "recommendation_text": "Updated recommendation...",
+  "created_at": "2024-10-15T14:30:00Z",
+  "updated_at": "2024-10-16T08:15:00Z"
+}
+```
+
+#### Error Responses
+
+- 400 Bad Request
+  - Invalid UUID format
+  - Validation errors
+  - Business rule violations
+
+```json
+{
+  "error": "Cannot modify past reservation except status",
+  "details": {
+    "reservation_start": "2024-10-15T09:00:00Z",
+    "current_time": "2024-10-16T10:00:00Z"
+  }
+}
+```
+
+- 401 Unauthorized
+  - Missing or invalid authentication token
+
+```json
+{
+  "error": "Unauthorized",
+  "message": "Authentication required"
+}
+```
+
+- 403 Forbidden
+  - Access denied to this reservation
+  - Insufficient permissions for status change
+
+```json
+{
+  "error": "Only secretariat can mark reservation as completed",
+  "details": {
+    "user_role": "user",
+    "requested_status": "Completed"
+  }
+}
+```
+
+- 404 Not Found
+  - Reservation, service, or vehicle not found
+
+```json
+{
+  "error": "Reservation not found",
+  "details": {
+    "id": "123e4567-e89b-12d3-a456-426614174000"
+  }
+}
+```
+
+- 409 Conflict
+  - Time slot not available
+  - Scheduling conflicts
+
+```json
+{
+  "error": "New time slot not available",
+  "details": {
+    "conflicts": 2,
+    "employee_id": "550e8400-e29b-41d4-a716-446655440000",
+    "requested_start": "2024-10-16T10:00:00Z",
+    "requested_end": "2024-10-16T11:00:00Z"
+  }
+}
+```
+
+- 500 Internal Server Error
+  - Unexpected server error
+
+```json
+{
+  "error": "Internal Server Error",
+  "message": "An unexpected error occurred"
+}
+```
+
+### Example Usage
+
+```bash
+# Cancel a reservation
+curl -X PATCH 'https://api.example.com/api/reservations/123e4567-e89b-12d3-a456-426614174000' \
+  -H 'Authorization: Bearer YOUR_TOKEN' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "status": "Cancelled"
+  }'
+
+# Change service and time
+curl -X PATCH 'https://api.example.com/api/reservations/123e4567-e89b-12d3-a456-426614174000' \
+  -H 'Authorization: Bearer YOUR_TOKEN' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "service_id": 2,
+    "start_ts": "2024-10-16T14:00:00Z",
+    "end_ts": "2024-10-16T15:00:00Z"
+  }'
+
+# Change vehicle
+curl -X PATCH 'https://api.example.com/api/reservations/123e4567-e89b-12d3-a456-426614174000' \
+  -H 'Authorization: Bearer YOUR_TOKEN' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "vehicle_license_plate": "NEW123"
+  }'
+```
+
+### Notes
+
+- All times must be in UTC (ISO8601 format)
+- At least one field must be provided for update
+- Time changes require both start_ts and end_ts to be provided together
+- Service duration validation ensures new time range matches service requirements
+- Comprehensive conflict checking prevents double-booking
+- Status changes follow strict business rules for data integrity
+- Vehicle ownership is verified for security

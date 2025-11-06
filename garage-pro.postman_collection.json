@@ -472,7 +472,85 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"service_id\": 1,\n  \"service_name\": \"Oil Change\",\n  \"service_duration_minutes\": 30,\n  \"vehicle_license_plate\": \"WAW1234\",\n  \"vehicle_brand\": \"VW\",\n  \"vehicle_model\": \"Passat\",\n  \"employee_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"employee_name\": \"John Doe\",\n  \"start_ts\": \"2025-10-23T09:00:00Z\",\n  \"end_ts\": \"2025-10-23T09:30:00Z\",\n  \"status\": \"New\",\n  \"recommendation_text\": \"Based on your 2010 VW Passat, consider checking brake fluid and air filter replacement.\",\n  \"created_at\": \"2025-10-22T15:30:00Z\",\n  \"updated_at\": \"2025-10-22T15:30:00Z\"\n}"
+              "body": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"user_id\": \"550e8400-e29b-41d4-a716-446655440001\",\n  \"service_id\": 1,\n  \"service_name\": \"Oil Change\",\n  \"service_duration_minutes\": 30,\n  \"vehicle_license_plate\": \"WAW1234\",\n  \"vehicle_brand\": \"VW\",\n  \"vehicle_model\": \"Passat\",\n  \"employee_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"employee_name\": \"Mechanik1\",\n  \"start_ts\": \"2024-10-16T09:00:00Z\",\n  \"end_ts\": \"2024-10-16T09:30:00Z\",\n  \"status\": \"New\",\n  \"recommendation_text\": \"Based on your 2010 VW Passat, consider checking brake fluid and air filter replacement.\",\n  \"created_at\": \"2024-10-15T14:30:00Z\",\n  \"updated_at\": \"2024-10-15T14:30:00Z\"\n}"
+            },
+            {
+              "name": "Error - Invalid UUID",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/reservations/invalid-uuid",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "reservations", "invalid-uuid"]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Bad Request\",\n  \"message\": \"Invalid reservation ID\",\n  \"details\": [\n    {\n      \"field\": \"id\",\n      \"message\": \"Reservation ID must be a valid UUID\"\n    }\n  ]\n}"
+            },
+            {
+              "name": "Error - Not Found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/reservations/550e8400-e29b-41d4-a716-446655440999",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "reservations", "550e8400-e29b-41d4-a716-446655440999"]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Reservation not found\",\n  \"details\": {\n    \"id\": \"550e8400-e29b-41d4-a716-446655440999\"\n  }\n}"
+            },
+            {
+              "name": "Error - Access Denied",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{regularUserToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/reservations/123e4567-e89b-12d3-a456-426614174000",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "reservations", "123e4567-e89b-12d3-a456-426614174000"]
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Access denied to this reservation\"\n}"
             }
           ]
         },
@@ -497,7 +575,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"service_id\": 2,\n  \"start_ts\": \"2025-10-23T10:00:00Z\",\n  \"end_ts\": \"2025-10-23T11:00:00Z\",\n  \"status\": \"Cancelled\"\n}"
+              "raw": "{\n  \"status\": \"Cancelled\"\n}"
             },
             "description": "Updates an existing reservation"
           },
@@ -523,7 +601,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"service_id\": 2,\n  \"start_ts\": \"2025-10-23T10:00:00Z\",\n  \"end_ts\": \"2025-10-23T11:00:00Z\",\n  \"status\": \"Cancelled\"\n}"
+                  "raw": "{\n  \"status\": \"Cancelled\"\n}"
                 }
               },
               "status": "OK",
@@ -534,7 +612,143 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"service_id\": 2,\n  \"service_name\": \"Brake Check\",\n  \"service_duration_minutes\": 60,\n  \"vehicle_license_plate\": \"WAW1234\",\n  \"employee_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"employee_name\": \"John Doe\",\n  \"start_ts\": \"2025-10-23T10:00:00Z\",\n  \"end_ts\": \"2025-10-23T11:00:00Z\",\n  \"status\": \"Cancelled\",\n  \"created_at\": \"2025-10-22T15:30:00Z\",\n  \"updated_at\": \"2025-10-22T16:00:00Z\"\n}"
+              "body": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"user_id\": \"550e8400-e29b-41d4-a716-446655440001\",\n  \"service_id\": 1,\n  \"service_name\": \"Oil Change\",\n  \"service_duration_minutes\": 30,\n  \"vehicle_license_plate\": \"WAW1234\",\n  \"vehicle_brand\": \"VW\",\n  \"vehicle_model\": \"Passat\",\n  \"employee_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"employee_name\": \"Mechanik1\",\n  \"start_ts\": \"2024-10-16T09:00:00Z\",\n  \"end_ts\": \"2024-10-16T09:30:00Z\",\n  \"status\": \"Cancelled\",\n  \"recommendation_text\": \"Based on your 2010 VW Passat...\",\n  \"created_at\": \"2024-10-15T14:30:00Z\",\n  \"updated_at\": \"2024-10-16T08:15:00Z\"\n}"
+            },
+            {
+              "name": "Success - Change Service and Time",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/reservations/123e4567-e89b-12d3-a456-426614174000",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "reservations", "123e4567-e89b-12d3-a456-426614174000"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"service_id\": 2,\n  \"start_ts\": \"2024-10-16T14:00:00Z\",\n  \"end_ts\": \"2024-10-16T15:00:00Z\"\n}"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"user_id\": \"550e8400-e29b-41d4-a716-446655440001\",\n  \"service_id\": 2,\n  \"service_name\": \"Brake Inspection\",\n  \"service_duration_minutes\": 60,\n  \"vehicle_license_plate\": \"WAW1234\",\n  \"vehicle_brand\": \"VW\",\n  \"vehicle_model\": \"Passat\",\n  \"employee_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"employee_name\": \"Mechanik1\",\n  \"start_ts\": \"2024-10-16T14:00:00Z\",\n  \"end_ts\": \"2024-10-16T15:00:00Z\",\n  \"status\": \"New\",\n  \"recommendation_text\": \"Updated recommendation...\",\n  \"created_at\": \"2024-10-15T14:30:00Z\",\n  \"updated_at\": \"2024-10-16T08:15:00Z\"\n}"
+            },
+            {
+              "name": "Error - Past Reservation Modification",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/reservations/123e4567-e89b-12d3-a456-426614174000",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "reservations", "123e4567-e89b-12d3-a456-426614174000"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"service_id\": 2,\n  \"start_ts\": \"2024-10-16T14:00:00Z\",\n  \"end_ts\": \"2024-10-16T15:00:00Z\"\n}"
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Cannot modify past reservation except status\",\n  \"details\": {\n    \"reservation_start\": \"2024-10-15T09:00:00Z\",\n    \"current_time\": \"2024-10-16T10:00:00Z\"\n  }\n}"
+            },
+            {
+              "name": "Error - Time Slot Conflict",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{authToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/reservations/123e4567-e89b-12d3-a456-426614174000",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "reservations", "123e4567-e89b-12d3-a456-426614174000"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"start_ts\": \"2024-10-16T10:00:00Z\",\n  \"end_ts\": \"2024-10-16T10:30:00Z\"\n}"
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"New time slot not available\",\n  \"details\": {\n    \"conflicts\": 2,\n    \"employee_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"requested_start\": \"2024-10-16T10:00:00Z\",\n    \"requested_end\": \"2024-10-16T10:30:00Z\"\n  }\n}"
+            },
+            {
+              "name": "Error - Insufficient Permissions",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{regularUserToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/reservations/123e4567-e89b-12d3-a456-426614174000",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "reservations", "123e4567-e89b-12d3-a456-426614174000"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"Completed\"\n}"
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Only secretariat can mark reservation as completed\",\n  \"details\": {\n    \"user_role\": \"user\",\n    \"requested_status\": \"Completed\"\n  }\n}"
             }
           ]
         }
@@ -549,7 +763,12 @@
     },
     {
       "key": "authToken",
-      "value": "YOUR_AUTH_TOKEN",
+      "value": "YOUR_SECRETARIAT_TOKEN",
+      "type": "string"
+    },
+    {
+      "key": "regularUserToken",
+      "value": "YOUR_REGULAR_USER_TOKEN",
       "type": "string"
     }
   ]

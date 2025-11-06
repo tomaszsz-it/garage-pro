@@ -14,6 +14,108 @@ export const getReservationsQuerySchema = z.object({
 });
 
 /**
+ * Schema for validating reservation ID path parameter
+ * Used in GET /reservations/{id} and PATCH /reservations/{id} endpoints
+ */
+export const getReservationByIdParamsSchema = z.object({
+  id: z.string().uuid("Reservation ID must be a valid UUID"),
+});
+
+/**
+ * Schema for validating reservation update requests
+ * Used in PATCH /reservations/{id} endpoint
+ */
+export const ReservationUpdateSchema = z
+  .object({
+    service_id: z
+      .number({
+        invalid_type_error: "service_id must be a number",
+      })
+      .optional(),
+    vehicle_license_plate: z
+      .string()
+      .min(1, "vehicle_license_plate cannot be empty")
+      .optional(),
+    start_ts: z
+      .string()
+      .datetime({
+        message: "start_ts must be a valid ISO8601 datetime string",
+      })
+      .optional(),
+    end_ts: z
+      .string()
+      .datetime({
+        message: "end_ts must be a valid ISO8601 datetime string",
+      })
+      .optional(),
+    status: z
+      .enum(["New", "Completed", "Cancelled"], {
+        errorMap: () => ({ message: "status must be one of: New, Completed, Cancelled" }),
+      })
+      .optional(),
+  })
+  .refine(
+    (data) => {
+      // If both start_ts and end_ts are provided, validate their relationship
+      if (data.start_ts && data.end_ts) {
+        const start = new Date(data.start_ts);
+        const end = new Date(data.end_ts);
+        return start < end;
+      }
+      return true;
+    },
+    {
+      message: "end_ts must be after start_ts",
+      path: ["end_ts"],
+    }
+  )
+  .refine(
+    (data) => {
+      // At least one field must be provided for update
+      return Object.keys(data).length > 0;
+    },
+    {
+      message: "At least one field must be provided for update",
+    }
+  )
+  .refine(
+    (data) => {
+      // If start_ts is provided without end_ts, or vice versa, it's invalid
+      // Both should be provided together for time changes
+      const hasStartTs = data.start_ts !== undefined;
+      const hasEndTs = data.end_ts !== undefined;
+      
+      if (hasStartTs && !hasEndTs) {
+        return false;
+      }
+      if (!hasStartTs && hasEndTs) {
+        return false;
+      }
+      
+      return true;
+    },
+    {
+      message: "Both start_ts and end_ts must be provided together when changing time",
+      path: ["start_ts", "end_ts"],
+    }
+  )
+  .refine(
+    (data) => {
+      // If start_ts is provided, it cannot be in the past
+      if (data.start_ts) {
+        const start = new Date(data.start_ts);
+        const now = new Date();
+        return start > now;
+      }
+      return true;
+    },
+    {
+      message: "start_ts cannot be in the past",
+      path: ["start_ts"],
+    }
+  );
+
+/**
  * Schema for validating reservation creation requests
  * Used in POST /reservations endpoint
  */

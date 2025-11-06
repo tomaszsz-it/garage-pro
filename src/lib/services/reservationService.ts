@@ -2,6 +2,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type {
   ReservationCreateDto,
   ReservationDto,
+  ReservationDetailDto,
+  ReservationUpdateDto,
   ReservationStatus,
   ReservationsListResponseDto,
   ReservationsQueryParams,
@@ -15,6 +17,12 @@ export interface ReservationService {
     params: ReservationsQueryParams,
     user: { id: string; role?: string }
   ): Promise<ReservationsListResponseDto>;
+  getReservationById(id: string, user: { id: string; role?: string }): Promise<ReservationDetailDto>;
+  updateReservation(
+    id: string,
+    data: ReservationUpdateDto,
+    user: { id: string; role?: string }
+  ): Promise<ReservationDetailDto>;
 }
 
 interface ServiceData {
@@ -40,6 +48,15 @@ interface ReservationWithRelations {
   recommendation_text: string;
   services: ServiceData;
   employees: EmployeeData;
+}
+
+interface VehicleData {
+  brand: string | null;
+  model: string | null;
+}
+
+interface ReservationWithDetailedRelations extends ReservationWithRelations {
+  vehicles: VehicleData;
 }
 
 /**
@@ -86,6 +103,7 @@ async function generateRecommendation(
     const recommendation = await openRouter.sendChatMessage<string>(userMessage);
     return recommendation;
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("LLM recommendation failed:", error);
     // Fallback to default recommendation if LLM fails
     return `Rozważ sprawdzenie innych elementów konserwacyjnych podczas usługi ${serviceName}${vehicleInfo ? ` dla Twojego pojazdu ${vehicleInfo.brand} ${vehicleInfo.model} z ${vehicleInfo.production_year} roku` : ""}. Nasi mechanicy mogą przeprowadzić szczegółową inspekcję.`;
@@ -346,6 +364,294 @@ export function createReservationService(supabase: SupabaseClient, openRouter?: 
         service_name: typedReservation.services.name,
         service_duration_minutes: typedReservation.services.duration_minutes,
         vehicle_license_plate: typedReservation.vehicle_license_plate,
+        employee_id: typedReservation.employee_id,
+        employee_name: typedReservation.employees.name,
+        start_ts: typedReservation.start_ts,
+        end_ts: typedReservation.end_ts,
+        status: typedReservation.status,
+        created_at: typedReservation.created_at,
+        updated_at: typedReservation.updated_at,
+        recommendation_text: typedReservation.recommendation_text,
+      };
+    },
+
+    async getReservationById(id: string, user: { id: string; role?: string }): Promise<ReservationDetailDto> {
+      // Query with joins to get detailed reservation data including vehicle info
+      let query = supabase
+        .from("reservations")
+        .select(
+          `
+        id,
+        user_id,
+        service_id,
+        vehicle_license_plate,
+        employee_id,
+        start_ts,
+        end_ts,
+        status,
+        created_at,
+        updated_at,
+        recommendation_text,
+        services!inner (
+          name,
+          duration_minutes
+        ),
+        employees!inner (
+          name
+        ),
+        vehicles!inner (
+          brand,
+          model
+        )
+      `
+        )
+        .eq("id", id);
+
+      // Apply role-based filtering - users can only access their own reservations
+      if (user.role !== "secretariat") {
+        query = query.eq("user_id", user.id);
+      }
+
+      const { data: reservation, error } = await query.single();
+
+      if (error) {
+        if (error.code === "PGRST116") {
+          throw new DatabaseError("Reservation not found", { id });
+        }
+        throw new DatabaseError("Error fetching reservation");
+      }
+
+      if (!reservation) {
+        throw new DatabaseError("Reservation not found", { id });
+      }
+
+      const typedReservation = reservation as unknown as ReservationWithDetailedRelations;
+
+      // Map to ReservationDetailDto
+      return {
+        id: typedReservation.id,
+        user_id: typedReservation.user_id,
+        service_id: typedReservation.service_id,
+        service_name: typedReservation.services.name,
+        service_duration_minutes: typedReservation.services.duration_minutes,
+        vehicle_license_plate: typedReservation.vehicle_license_plate,
+        vehicle_brand: typedReservation.vehicles.brand,
+        vehicle_model: typedReservation.vehicles.model,
+        employee_id: typedReservation.employee_id,
+        employee_name: typedReservation.employees.name,
+        start_ts: typedReservation.start_ts,
+        end_ts: typedReservation.end_ts,
+        status: typedReservation.status,
+        created_at: typedReservation.created_at,
+        updated_at: typedReservation.updated_at,
+        recommendation_text: typedReservation.recommendation_text,
+      };
+    },
+
+    async updateReservation(
+      id: string,
+      data: ReservationUpdateDto,
+      user: { id: string; role?: string }
+    ): Promise<ReservationDetailDto> {
+      // 1. First check if reservation exists and user has access
+      let existingQuery = supabase
+        .from("reservations")
+        .select("id, user_id, start_ts, end_ts, status, employee_id")
+        .eq("id", id);
+
+      // Apply role-based filtering
+      if (user.role !== "secretariat") {
+        existingQuery = existingQuery.eq("user_id", user.id);
+      }
+
+      const { data: existingReservation, error: existingError } = await existingQuery.single();
+
+      if (existingError) {
+        if (existingError.code === "PGRST116") {
+          throw new DatabaseError("Reservation not found", { id });
+        }
+        throw new DatabaseError("Error fetching reservation");
+      }
+
+      if (!existingReservation) {
+        throw new DatabaseError("Reservation not found", { id });
+      }
+
+      // 2. Business logic validations
+      const now = new Date();
+      const reservationStart = new Date(existingReservation.start_ts);
+      const isPastReservation = reservationStart < now;
+
+      // Only allow status changes for past reservations
+      if (isPastReservation && Object.keys(data).some((key) => key !== "status")) {
+        throw new DatabaseError("Cannot modify past reservation except status", {
+          reservation_start: existingReservation.start_ts,
+          current_time: now.toISOString(),
+        });
+      }
+
+      // Validate status transitions
+      if (data.status) {
+        const currentStatus = existingReservation.status;
+        const newStatus = data.status;
+
+        // Status transition rules: only New can be changed, Cancelled and Completed are final
+        if (currentStatus !== "New") {
+          throw new DatabaseError("Cannot change status of completed or cancelled reservation", {
+            current_status: currentStatus,
+            requested_status: newStatus,
+          });
+        }
+
+        // Only secretariat can mark as completed
+        if (newStatus === "Completed" && user.role !== "secretariat") {
+          throw new DatabaseError("Only secretariat can mark reservation as completed", {
+            user_role: user.role,
+            requested_status: newStatus,
+          });
+        }
+      }
+
+      // 3. Validate new service if provided
+      if (data.service_id) {
+        const { data: service } = await supabase
+          .from("services")
+          .select("service_id, name, duration_minutes")
+          .eq("service_id", data.service_id)
+          .single();
+
+        if (!service) {
+          throw new DatabaseError("Service not found", { service_id: data.service_id });
+        }
+
+        // If time is also being updated, validate duration matches
+        const startTs = data.start_ts || existingReservation.start_ts;
+        const endTs = data.end_ts || existingReservation.end_ts;
+        const durationMinutes = Math.round((new Date(endTs).getTime() - new Date(startTs).getTime()) / (1000 * 60));
+
+        if (durationMinutes !== service.duration_minutes) {
+          throw new DatabaseError("Time slot duration does not match service duration", {
+            expected: service.duration_minutes,
+            actual: durationMinutes,
+            service_id: data.service_id,
+            service_name: service.name,
+          });
+        }
+      }
+
+      // 4. Validate new vehicle if provided
+      if (data.vehicle_license_plate) {
+        const { data: vehicle } = await supabase
+          .from("vehicles")
+          .select("user_id")
+          .eq("license_plate", data.vehicle_license_plate)
+          .eq("user_id", user.id)
+          .single();
+
+        if (!vehicle) {
+          throw new DatabaseError("Vehicle not owned by user", {
+            license_plate: data.vehicle_license_plate,
+          });
+        }
+      }
+
+      // 5. Validate new time slot if provided
+      if (data.start_ts || data.end_ts) {
+        const newStartTs = data.start_ts || existingReservation.start_ts;
+        const newEndTs = data.end_ts || existingReservation.end_ts;
+
+        // Check if new time is not in the past
+        if (new Date(newStartTs) < now) {
+          throw new DatabaseError("Cannot schedule reservation in the past", {
+            start_ts: newStartTs,
+          });
+        }
+
+        // Check for conflicts with other reservations (excluding current one)
+        const { data: conflicts } = await supabase
+          .from("reservations")
+          .select("id")
+          .eq("employee_id", existingReservation.employee_id)
+          .lt("start_ts", newEndTs)
+          .gt("end_ts", newStartTs)
+          .not("status", "eq", "Cancelled")
+          .neq("id", id);
+
+        if (conflicts && conflicts.length > 0) {
+          throw new DatabaseError("New time slot not available", {
+            conflicts: conflicts.length,
+            employee_id: existingReservation.employee_id,
+            requested_start: newStartTs,
+            requested_end: newEndTs,
+          });
+        }
+
+        // Check employee schedule
+        const { data: schedule } = await supabase
+          .from("employee_schedules")
+          .select("employee_id")
+          .eq("employee_id", existingReservation.employee_id)
+          .lte("start_ts", newStartTs)
+          .gte("end_ts", newEndTs);
+
+        if (!schedule || schedule.length === 0) {
+          throw new DatabaseError("Employee not available at new time slot", {
+            employee_id: existingReservation.employee_id,
+            requested_start: newStartTs,
+            requested_end: newEndTs,
+          });
+        }
+      }
+
+      // 6. Update reservation
+      const { data: updatedReservation, error: updateError } = await supabase
+        .from("reservations")
+        .update(data)
+        .eq("id", id)
+        .select(
+          `
+          id,
+          user_id,
+          service_id,
+          vehicle_license_plate,
+          employee_id,
+          start_ts,
+          end_ts,
+          status,
+          created_at,
+          updated_at,
+          recommendation_text,
+          services!inner (
+            name,
+            duration_minutes
+          ),
+          employees!inner (
+            name
+          ),
+          vehicles!inner (
+            brand,
+            model
+          )
+        `
+        )
+        .single();
+
+      if (updateError || !updatedReservation) {
+        throw new DatabaseError("Error updating reservation");
+      }
+
+      const typedReservation = updatedReservation as unknown as ReservationWithDetailedRelations;
+
+      // 7. Return updated reservation as ReservationDetailDto
+      return {
+        id: typedReservation.id,
+        user_id: typedReservation.user_id,
+        service_id: typedReservation.service_id,
+        service_name: typedReservation.services.name,
+        service_duration_minutes: typedReservation.services.duration_minutes,
+        vehicle_license_plate: typedReservation.vehicle_license_plate,
+        vehicle_brand: typedReservation.vehicles.brand,
+        vehicle_model: typedReservation.vehicles.model,
         employee_id: typedReservation.employee_id,
         employee_name: typedReservation.employees.name,
         start_ts: typedReservation.start_ts,

@@ -74,7 +74,7 @@ async function generateRecommendation(
 ): Promise<string> {
   // If OpenRouter service is not available, return a default recommendation
   if (!openRouter) {
-    return `Rozważ sprawdzenie innych elementów konserwacyjnych podczas usługi ${serviceName}${vehicleInfo ? ` dla Twojego pojazdu ${vehicleInfo.brand} ${vehicleInfo.model} z ${vehicleInfo.production_year} roku` : ""}. Nasi mechanicy mogą przeprowadzić szczegółową inspekcję.`;
+    return `Podczas wizyty w serwisie rozważ także konserwację innych elementów pojazdu${vehicleInfo ? ` w Twoim ${vehicleInfo.brand} ${vehicleInfo.model} z ${vehicleInfo.production_year} roku` : ""} - np. sprawdzenie filtrów, płynów eksploatacyjnych czy stanu opon. Nasi mechanicy chętnie doradzą w kwestiach konserwacji.`;
   }
 
   try {
@@ -85,19 +85,19 @@ async function generateRecommendation(
 
     // Set system message to guide the LLM response
     openRouter.setSystemMessage(
-      "Jesteś doświadczonym mechanikiem samochodowym z 15-letnim stażem. Udzielasz konkretnych, praktycznych rekomendacji serwisowych. " +
+      "Jesteś doświadczonym mechanikiem samochodowym z 15-letnim stażem. Udzielasz konkretnych, praktycznych rekomendacji konserwacyjnych. " +
         "ZASADY: " +
-        "1. Sugeruj TYLKO sprawdzone, logicznie powiązane czynności serwisowe " +
-        "2. Sugeruj TYLKO sprawdzone, logicznie powiązane czynności serwisowe " +
-        "3. Opieraj się na rzeczywistych zależnościach technicznych między elementami pojazdu " +
+        "1. Używaj poprawnej polszczyzny " +
+        "2. Sugeruj TYLKO sprawdzone elementy pojazdu RÓŻNE od aktualnie serwisowanego " +
+        "3. Opieraj się na rzeczywistych intervalach konserwacyjnych i zależnościach technicznych " +
         "4. Unikaj spekulacji i niepewnych stwierdzeń " +
         "5. Maksymalnie 2 zdania, bez wstępów i zakończeń " +
-        "6. Koncentruj się na elementach, które są fizycznie dostępne podczas danej usługi" +
-        "7. Używaj poprawnej polszczyzny (np. 'Volkswagen Passat z 2020 roku', nie '2020 Volkswagen Passat') "
+        "6. Podawaj konkretne interwały (km/miesiące) dla rekomendowanych czynności " +
+        "7. NIE wspominaj o aktualnie wykonywanej usłudze - skup się na innych elementach"
     );
 
     // Set the user message with details about the vehicle and service
-    const userMessage = `Dla pojazdu ${vehicleDescription} podczas usługi "${serviceName}" - jakie konkretne, sprawdzone elementy warto dodatkowo sprawdzić? Podaj tylko te, które są logicznie powiązane z wykonywaną usługą i rzeczywiście dostępne podczas pracy.`;
+    const userMessage = `Dla pojazdu ${vehicleDescription}, gdy klient będzie w serwisie na usłudze "${serviceName}" - jakie INNE elementy pojazdu warto mu przypomnieć do konserwacji? Podaj konkretne rekomendacje z intervalami, które NIE dotyczą aktualnie wykonywanej usługi.`;
 
     // Get recommendation from LLM
     const recommendation = await openRouter.sendChatMessage<string>(userMessage);
@@ -106,7 +106,7 @@ async function generateRecommendation(
     // eslint-disable-next-line no-console
     console.error("LLM recommendation failed:", error);
     // Fallback to default recommendation if LLM fails
-    return `Rozważ sprawdzenie innych elementów konserwacyjnych podczas usługi ${serviceName}${vehicleInfo ? ` dla Twojego pojazdu ${vehicleInfo.brand} ${vehicleInfo.model} z ${vehicleInfo.production_year} roku` : ""}. Nasi mechanicy mogą przeprowadzić szczegółową inspekcję.`;
+    return `Podczas wizyty w serwisie rozważ także konserwację innych elementów pojazdu${vehicleInfo ? ` w Twoim ${vehicleInfo.brand} ${vehicleInfo.model} z ${vehicleInfo.production_year} roku` : ""} - np. sprawdzenie filtrów, płynów eksploatacyjnych czy stanu opon. Nasi mechanicy chętnie doradzą w kwestiach konserwacji.`;
   }
 }
 

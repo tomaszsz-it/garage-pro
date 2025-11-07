@@ -2,7 +2,7 @@
 
 ## 1. Przegląd
 
-Widok pojedynczej rezerwacji umożliwia użytkownikowi przeglądanie szczegółowych informacji o rezerwacji oraz wykonywanie podstawowych operacji zarządzania: edycji danych rezerwacji (pojazd, usługa/termin) oraz anulowania. Widok jest dostępny pod ścieżką `/reservations/{id}` i stanowi centralny punkt zarządzania pojedynczymi rezerwacjami w systemie.
+Widok pojedynczej rezerwacji umożliwia użytkownikowi przeglądanie szczegółowych informacji o rezerwacji oraz wykonywanie podstawowych operacji zarządzania: edycji danych rezerwacji (status, pojazd, usługa/termin) oraz anulowania. Widok jest dostępny pod ścieżką `/reservations/{id}` i stanowi centralny punkt zarządzania pojedynczymi rezerwacjami w systemie.
 
 ## 2. Routing widoku
 
@@ -359,3 +359,36 @@ Hook będzie obsługiwał:
    - Aktualizacja README
    - Dodanie do kolekcji Postman
    - Testy E2E dla kluczowych ścieżek
+
+9. **Poprawienie filtrowania w widoku listy rezerwacji:**
+   - Modyfikacja hook `useReservations` do pobierania wszystkich danych bez paginacji
+   - Implementacja filtrowania po stronie klienta na całym zbiorze danych
+   - Zachowanie paginacji po przefiltrowanych danych
+
+10. **Dodanie sortowania tabeli rezerwacji:**
+    - Dodanie parametrów sortowania do hook `useReservations`
+    - Implementacja sortowania po dacie, usłudze, pojeździe i statusie
+    - Dodanie interaktywnych nagłówków tabeli z wskaźnikami sortowania
+    - Sortowanie na całym zbiorze danych przed paginacją
+
+11. **Przeprojektowanie ReservationFilterPanel:**
+    - Przeniesienie przycisku "Wyczyść filtry" do linii z filtrami
+    - Ułożenie 4 przycisków filtrowania symetrycznie poziomo
+    - Przeniesienie przycisków "Znajdź termin" i "Zarządzaj pojazdami" nad panel filtrujący
+    - Dodanie ikon: 🚗 dla "Zarządzaj pojazdami" i 🔍 dla "Znajdź termin"
+
+12. **Naprawa buga w /reservations/available:**
+    - **Przyczyna:** Konflikty z istniejącymi rezerwacjami w piątek - sloty pokrywające się z rezerwacjami są odfiltrowane, pozostawiając tylko ostatnie dostępne terminy
+    - Analiza zapytania SQL dla dostępnych terminów
+    - Zidentyfikowanie przyczyny ograniczania do 2 rezerwacji w piątki
+    - Poprawienie logiki generowania dostępnych slotów
+
+13. **Zastosowanie stylu strony głównej dla pozostałych widoków:**
+    - Dodanie gradientowego tła (from-indigo-900 via-purple-900 to-blue-900)
+    - Implementacja szklanego efektu dla kart (backdrop-blur-xl, bg-white/10)
+    - Dodanie dark mode support z automatycznym przełączaniem
+
+14. **Dodanie nawigacji do strony głównej:**
+    - Dodanie przycisku nawigacji w Layout.astro
+    - Konfiguracja obrazka tła `/src/assets/backgrounds/garage-pro.png`
+    - Optymalizacja ładowania obrazka bez pobierania do pamięci

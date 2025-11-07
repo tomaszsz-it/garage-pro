@@ -81,7 +81,7 @@ Widok `/vehicles` ma na celu umożliwienie użytkownikom zarządzania swoimi poj
   - Pole tekstowe dla numeru VIN (opcjonalne, 17 znaków)  
   - Pole tekstowe dla marki (opcjonalne)
   - Pole tekstowe dla modelu (opcjonalne)
-  - Pole numeryczne dla roku produkcji (opcjonalne, 1900-2030)
+  - Pole numeryczne dla roku produkcji (opcjonalne, 1900-2050)
   - Pole tekstowe dla typu pojazdu (opcjonalne)
   - Przyciski: Zapisz, Anuluj
 - **Obsługiwane zdarzenia:** Walidacja pól w czasie rzeczywistym, submit formularza, nawigacja po anulowaniu.
@@ -90,7 +90,7 @@ Widok `/vehicles` ma na celu umożliwienie użytkownikom zarządzania swoimi poj
   - VIN: opcjonalne, dokładnie 17 znaków jeśli podane
   - Marka: opcjonalne, max 50 znaków
   - Model: opcjonalne, max 50 znaków  
-  - Rok produkcji: opcjonalne, liczba całkowita 1900-2030
+  - Rok produkcji: opcjonalne, liczba całkowita 1900-2050
   - Typ pojazdu: opcjonalne, max 200 znaków
 - **Typy:** `VehicleCreateDto`, `VehicleUpdateDto`, `VehicleFormViewModel`.
 - **Propsy:** Tryb formularza (`mode: 'create' | 'edit'`), dane pojazdu do edycji (`vehicle?: VehicleDto`).
@@ -142,7 +142,7 @@ export const vehicleUpdateSchema = z.object({
   vin: z.string().length(17).optional(),
   brand: z.string().max(50).optional(),
   model: z.string().max(50).optional(),
-  production_year: z.number().int().min(1900).max(2030).optional(),
+  production_year: z.number().int().min(1900).max(2050).optional(),
   car_type: z.string().max(200).optional(),
 }).refine(data => Object.keys(data).length > 0, {
   message: "At least one field must be provided for update"
@@ -196,7 +196,7 @@ Stan widoku będzie zarządzany za pomocą hooków React (`useState`, `useEffect
 
 ## 7. Integracja z API
 
-Komponenty widoku komunikują się z następującymi endpointami (z unifikowaną walidacją paginacji):
+**Uwaga:** API dla zarządzania pojazdami jest już w pełni zaimplementowane i dostępne. Komponenty widoku komunikują się z następującymi endpointami (z unifikowaną walidacją paginacji):
 
 1. **Pobieranie listy pojazdów:**
    - **Endpoint:** `GET /api/vehicles`
@@ -261,7 +261,7 @@ Komponenty widoku komunikują się z następującymi endpointami (z unifikowaną
   - Musi być unikalne w systemie jeśli podane
 - **Marka:** Opcjonalne, maksymalnie 50 znaków
 - **Model:** Opcjonalne, maksymalnie 50 znaków  
-- **Rok produkcji:** Opcjonalne, liczba całkowita z zakresu 1900-2030
+- **Rok produkcji:** Opcjonalne, liczba całkowita z zakresu 1900-2050
 - **Typ pojazdu:** Opcjonalne, maksymalnie 200 znaków
 
 ### **Warunki paginacji:** (ujednolicone w całym projekcie)
@@ -296,33 +296,31 @@ Standardowe kody odpowiedzi i ich obsługa w interfejsie:
 3. **Przeniesienie PaginationControls** - z `src/components/reservations/` do `src/components/shared/` dla reużywalności
 4. **Aktualizacja importów** - poprawienie ścieżek w `ReservationsView.tsx` i innych komponentach
 
-### **Faza 2: Rozszerzenie VehicleService i API**
-5. **Rozszerzenie VehicleService** - dodanie metod `getVehicles`, `getVehicleByLicensePlate`, `updateVehicle`, `deleteVehicle`, `hasActiveReservations`
-6. **Aktualizacja GET /api/vehicles** - zastąpienie mock danych rzeczywistymi z bazy, implementacja paginacji
-7. **Implementacja /api/vehicles/[license_plate].ts** - nowy endpoint z metodami GET, PATCH, DELETE
-8. **Aktualizacja schematów vehicles** - dodanie `vehicleUpdateSchema`, `vehiclesQuerySchema`, `vehiclePathParamsSchema`
+### **Faza 2: Unifikacja schematów walidacji**
+5. **Aktualizacja schematów vehicles** - dodanie brakujących schematów `vehicleUpdateSchema`, `vehiclesQuerySchema`, `vehiclePathParamsSchema` jeśli jeszcze nie istnieją
+6. **Sprawdzenie VehicleService** - weryfikacja kompletności metod API (getVehicles, getVehicleByLicensePlate, updateVehicle, deleteVehicle, hasActiveReservations)
 
 ### **Faza 3: Komponenty frontendowe**
-9. **Utworzenie struktury stron** - pliki `.astro` dla `/vehicles`, `/vehicles/new`, `/vehicles/[license_plate]/edit`
-10. **Implementacja custom hooków** - `useVehicles`, `useVehicleForm`, `useVehicleDelete` z ujednoliconą walidacją
-11. **Stworzenie komponentów bazowych** - `LoadingIndicator`, `ErrorNotification`, `EmptyStateMessage` (jeśli nie istnieją)
-12. **Implementacja głównego komponentu** - `VehiclesView` z zarządzaniem stanem i orkiestracją
+7. **Utworzenie struktury stron** - pliki `.astro` dla `/vehicles`, `/vehicles/new`, `/vehicles/[license_plate]/edit`
+8. **Implementacja custom hooków** - `useVehicles`, `useVehicleForm`, `useVehicleDelete` z ujednoliconą walidacją
+9. **Stworzenie komponentów bazowych** - `LoadingIndicator`, `ErrorNotification`, `EmptyStateMessage` (jeśli nie istnieją)
+10. **Implementacja głównego komponentu** - `VehiclesView` z zarządzaniem stanem i orkiestracją
 
 ### **Faza 4: Komponenty szczegółowe**
-13. **Stworzenie komponentu akcji** - `VehiclesActionPanel` z przyciskami głównych akcji
-14. **Implementacja listy pojazdów** - `VehiclesList` i `VehicleListItem` z responsywnym wyświetlaniem
-15. **Implementacja dialogu usuwania** - `DeleteConfirmationDialog` z potwierdzeniem akcji i obsługą aktywnych rezerwacji
-16. **Stworzenie formularza pojazdu** - `VehicleForm` z walidacją inline i obsługą wszystkich kodów błędów
+11. **Stworzenie komponentu akcji** - `VehiclesActionPanel` z przyciskami głównych akcji
+12. **Implementacja listy pojazdów** - `VehiclesList` i `VehicleListItem` z responsywnym wyświetlaniem
+13. **Implementacja dialogu usuwania** - `DeleteConfirmationDialog` z potwierdzeniem akcji i obsługą aktywnych rezerwacji
+14. **Stworzenie formularza pojazdu** - `VehicleForm` z walidacją inline i obsługą wszystkich kodów błędów
 
 ### **Faza 5: Integracja i testy**
-17. **Integracja wszystkich komponentów** - złożenie w głównym widoku z przekazywaniem danych i callbacków
-18. **Testowanie API** - sprawdzenie wszystkich endpointów z różnymi scenariuszami błędów (401, 403, 404, 409, 500)
-19. **Testowanie interakcji** - sprawdzenie wszystkich scenariuszy użytkownika i obsługi stanów brzegowych
-20. **Dostrojenie responsywności** - optymalizacja wyświetlania na różnych urządzeniach
+15. **Integracja wszystkich komponentów** - złożenie w głównym widoku z przekazywaniem danych i callbacków
+16. **Testowanie API** - sprawdzenie wszystkich endpointów z różnymi scenariuszami błędów (401, 403, 404, 409, 500)
+17. **Testowanie interakcji** - sprawdzenie wszystkich scenariuszy użytkownika i obsługi stanów brzegowych
+18. **Dostrojenie responsywności** - optymalizacja wyświetlania na różnych urządzeniach
 
 ### **Faza 6: Finalizacja**
-21. **Testowanie unifikacji paginacji** - upewnienie się, że wszystkie endpointy używają tych samych standardów
-22. **Finalny przegląd** - refaktoryzacja kodu, poprawa dostępności i dokumentacji przed wdrożeniem
+19. **Testowanie unifikacji paginacji** - upewnienie się, że wszystkie endpointy używają tych samych standardów
+20. **Finalny przegląd** - refaktoryzacja kodu, poprawa dostępności i dokumentacji przed wdrożeniem
 
 ### **Kryteria akceptacji dla unifikacji:**
 - [ ] Wszystkie endpointy mają spójną paginację (max 100, default 20)

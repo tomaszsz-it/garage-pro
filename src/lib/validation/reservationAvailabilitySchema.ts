@@ -1,8 +1,7 @@
 import { z } from "zod";
+import { paginationQuerySchema } from "./commonSchemas";
 
 const MAX_DAYS_RANGE = 90;
-const DEFAULT_LIMIT = 32;
-const MAX_LIMIT = 200;
 
 export const availableReservationsQuerySchema = z
   .object({
@@ -41,9 +40,9 @@ export const availableReservationsQuerySchema = z
       .number()
       .int()
       .min(1)
-      .max(MAX_LIMIT, `Limit cannot exceed ${MAX_LIMIT}`)
+      .max(100, "Limit cannot exceed 100")
       .optional()
-      .default(DEFAULT_LIMIT),
+      .default(20),
   })
   .refine(
     (data) => {

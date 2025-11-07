@@ -1,24 +1,19 @@
 import { z } from "zod";
+import { paginationQuerySchema, uuidParamSchema } from "./commonSchemas";
 
 /**
  * Schema for validating GET /reservations query parameters
+ * Uses unified pagination schema from commonSchemas
  */
-export const getReservationsQuerySchema = z.object({
-  page: z.coerce.number().int("page must be an integer").min(1, "page must be greater than 0").default(1),
-  limit: z.coerce
-    .number()
-    .int("limit must be an integer")
-    .min(1, "limit must be greater than 0")
-    .max(100, "limit cannot exceed 100")
-    .default(20),
-});
+export const getReservationsQuerySchema = paginationQuerySchema;
 
 /**
  * Schema for validating reservation ID path parameter
  * Used in GET /reservations/{id} and PATCH /reservations/{id} endpoints
+ * Uses unified UUID schema from commonSchemas
  */
 export const getReservationByIdParamsSchema = z.object({
-  id: z.string().uuid("Reservation ID must be a valid UUID"),
+  id: uuidParamSchema,
 });
 
 /**

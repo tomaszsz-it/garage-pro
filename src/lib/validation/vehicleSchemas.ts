@@ -1,5 +1,6 @@
 // src/lib/validation/vehicleSchemas.ts
 import { z } from "zod";
+import { paginationQuerySchema, licensePlateParamSchema } from "./commonSchemas";
 
 /**
  * Zod schema for validating vehicle creation data
@@ -58,49 +59,33 @@ export const vehicleUpdateSchema = z.object({
   // Optional field: model (max 50 characters)
   model: z.string().max(50, "Model cannot exceed 50 characters").trim().optional(),
 
-  // Optional field: production year (1900-2030)
+  // Optional field: production year (1900-2050 as per plan)
   production_year: z
     .number()
     .int("Production year must be an integer")
     .min(1900, "Production year cannot be earlier than 1900")
-    .max(2030, "Production year cannot be later than 2030")
+    .max(2050, "Production year cannot be later than 2050")
     .optional(),
 
   // Optional field: car type (max 200 characters)
   car_type: z.string().max(200, "Car type cannot exceed 200 characters").trim().optional(),
+}).refine(data => Object.keys(data).length > 0, {
+  message: "At least one field must be provided for update"
 });
 
 /**
  * Zod schema for validating query parameters for GET /vehicles
- * Includes pagination parameters
+ * Uses unified pagination schema from commonSchemas
  */
-export const vehiclesQuerySchema = z.object({
-  page: z
-    .string()
-    .optional()
-    .default("1")
-    .transform((val) => parseInt(val, 10))
-    .refine((val) => val >= 1, "Page must be at least 1"),
-
-  limit: z
-    .string()
-    .optional()
-    .default("20")
-    .transform((val) => parseInt(val, 10))
-    .refine((val) => val >= 1 && val <= 100, "Limit must be between 1 and 100"),
-});
+export const vehiclesQuerySchema = paginationQuerySchema;
 
 /**
  * Zod schema for validating path parameters (license_plate)
  * Used in GET/PATCH/DELETE /vehicles/{license_plate}
+ * Uses unified license plate schema from commonSchemas
  */
 export const vehiclePathParamsSchema = z.object({
-  license_plate: z
-    .string()
-    .min(2, "License plate must be at least 2 characters long")
-    .max(20, "License plate cannot exceed 20 characters")
-    .regex(/^[A-Za-z0-9\s]+$/, "License plate can only contain letters, numbers, and spaces")
-    .trim(),
+  license_plate: licensePlateParamSchema,
 });
 
 /**

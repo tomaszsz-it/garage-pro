@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { ReservationStatus } from "../../types";
 import { ReservationsFilterPanel } from "./ReservationsFilterPanel";
 import { ReservationsList } from "./ReservationsList";
-import { PaginationControls } from "./PaginationControls";
+import { PaginationControls } from "../shared/PaginationControls";
 import { LoadingIndicator } from "./LoadingIndicator";
 import { ErrorNotification } from "./ErrorNotification";
 import { EmptyStateMessage } from "./EmptyStateMessage";

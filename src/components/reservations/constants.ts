@@ -1,6 +1,6 @@
-import type { Service } from "../../types";
+import type { ServiceDto } from "../../types";
 
-export const AVAILABLE_SERVICES: Service[] = [
+export const AVAILABLE_SERVICES: ServiceDto[] = [
   {
     service_id: 1,
     name: "Wymiana oleju",

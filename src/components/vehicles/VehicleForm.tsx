@@ -50,6 +50,9 @@ export function VehicleForm({ mode, licensePlate, initialData }: VehicleFormProp
     }
   }, [mode, licensePlate, initialData]);
 
+  // Don't initialize the form hook until we have vehicle data for edit mode
+  const shouldInitializeForm = mode === "create" || (mode === "edit" && (vehicleData || loadError));
+  
   const {
     formData,
     errors,

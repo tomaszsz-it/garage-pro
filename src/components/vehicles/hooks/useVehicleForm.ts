@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import type { VehicleDto, VehicleCreateDto, VehicleUpdateDto } from "../../../types";
 
 interface VehicleFormData {
@@ -72,6 +72,21 @@ export function useVehicleForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
 
+  // Update form data when initialData changes (for edit mode)
+  useEffect(() => {
+    if (initialData && mode === "edit") {
+      setFormData({
+        license_plate: initialData.license_plate,
+        brand: initialData.brand || "",
+        model: initialData.model || "",
+        production_year: initialData.production_year?.toString() || "",
+        vin: initialData.vin || "",
+        car_type: initialData.car_type || "",
+      });
+      setIsDirty(false); // Reset dirty state when loading initial data
+    }
+  }, [initialData, mode]);
+
   const updateField = useCallback((field: keyof VehicleFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setIsDirty(true);
@@ -87,6 +102,8 @@ export function useVehicleForm({
 
     switch (field) {
       case "license_plate":
+        // In edit mode, license plate is disabled and not validated
+        if (mode === "edit") return undefined;
         if (!value) return "Numer rejestracyjny jest wymagany";
         if (value.length < 2) return "Numer rejestracyjny musi mieć co najmniej 2 znaki";
         if (value.length > 20) return "Numer rejestracyjny nie może przekraczać 20 znaków";
@@ -120,7 +137,7 @@ export function useVehicleForm({
     }
 
     return undefined;
-  }, [formData]);
+  }, [formData, mode]);
 
   const validateForm = useCallback((): boolean => {
     const newErrors: VehicleFormErrors = {};

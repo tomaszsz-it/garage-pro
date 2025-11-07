@@ -88,6 +88,14 @@ export function VehiclesView() {
 
   return (
     <div className="space-y-6">
+      {/* Page Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Pojazdy</h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-2">
+          Zarządzaj swoimi pojazdami - dodawaj, edytuj i usuwaj pojazdy z systemu.
+        </p>
+      </div>
+
       {/* Action Panel */}
       <VehiclesActionPanel onRefresh={refetch} isRefreshing={isLoading} />
 

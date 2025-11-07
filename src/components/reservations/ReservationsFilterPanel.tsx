@@ -157,7 +157,16 @@ export function ReservationsFilterPanel({ vehicles, services, filters, onFilterC
         >
           Znajdź termin
         </Button>
-        {!vehicles?.length && (
+        {vehicles?.length ? (
+          <Button
+            variant="outline"
+            onClick={() => (window.location.href = "/vehicles")}
+            aria-label="Zarządzaj swoimi pojazdami"
+            className="hover:scale-105 active:scale-95 transition-all duration-150 ease-out"
+          >
+            Zarządzaj pojazdami
+          </Button>
+        ) : (
           <Button
             variant="secondary"
             onClick={() => (window.location.href = "/vehicles/new")}

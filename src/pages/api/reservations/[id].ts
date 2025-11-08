@@ -3,7 +3,6 @@ import { getReservationByIdParamsSchema, ReservationUpdateSchema } from "../../.
 import { createReservationService } from "../../../lib/services/reservationService";
 import type { ReservationUpdateDto } from "../../../types";
 import { DatabaseError } from "../../../lib/errors/database.error";
-import { DEFAULT_USER_ID } from "../../../db/supabase.client";
 
 export const prerender = false;
 
@@ -54,15 +53,29 @@ export const GET: APIRoute = async ({ params, locals }) => {
     const { id } = validationResult.data;
 
     // Get user from context (from middleware)
-    // For now using default user with secretariat role for testing
-    const user = {
-      id: DEFAULT_USER_ID,
-      role: "secretariat", // In real app, this would come from context.locals.user
+    const user = locals.user;
+    if (!user) {
+      return new Response(
+        JSON.stringify({
+          error: "Unauthorized",
+          message: "Authentication required",
+        }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // Add role for service layer - assume regular user unless specified otherwise
+    const userWithRole = {
+      ...user,
+      role: user.role || "user", // Default to "user" role if not specified
     };
 
     // Fetch reservation using service layer
     const reservationService = createReservationService(supabase);
-    const reservation = await reservationService.getReservationById(id, user);
+    const reservation = await reservationService.getReservationById(id, userWithRole);
 
     // Return success response
     return new Response(JSON.stringify(reservation), {
@@ -202,15 +215,29 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
     const updateData: ReservationUpdateDto = bodyValidationResult.data;
 
     // Get user from context (from middleware)
-    // For now using default user with secretariat role for testing
-    const user = {
-      id: DEFAULT_USER_ID,
-      role: "secretariat", // In real app, this would come from context.locals.user
+    const user = locals.user;
+    if (!user) {
+      return new Response(
+        JSON.stringify({
+          error: "Unauthorized",
+          message: "Authentication required",
+        }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // Add role for service layer - assume regular user unless specified otherwise
+    const userWithRole = {
+      ...user,
+      role: user.role || "user", // Default to "user" role if not specified
     };
 
     // Update reservation using service layer
     const reservationService = createReservationService(supabase);
-    const updatedReservation = await reservationService.updateReservation(id, updateData, user);
+    const updatedReservation = await reservationService.updateReservation(id, updateData, userWithRole);
 
     // Return success response
     return new Response(JSON.stringify(updatedReservation), {

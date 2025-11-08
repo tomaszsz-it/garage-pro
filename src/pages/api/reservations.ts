@@ -3,7 +3,6 @@ import { ReservationCreateSchema, getReservationsQuerySchema } from "../../lib/v
 import { createReservationService } from "../../lib/services/reservationService";
 import type { ReservationCreateDto } from "../../types";
 import { DatabaseError } from "../../lib/errors/database.error";
-import { DEFAULT_USER_ID } from "../../db/supabase.client";
 import { createOpenRouterService } from "../../lib/openrouter.service";
 
 export const prerender = false;
@@ -59,10 +58,24 @@ export const GET: APIRoute = async ({ request, locals }) => {
     const params = validationResult.data;
 
     // Get user from context (from middleware)
-    // For now using default user with secretariat role for testing
-    const user = {
-      id: DEFAULT_USER_ID,
-      role: "secretariat", // In real app, this would come from context.locals.user
+    const user = locals.user;
+    if (!user) {
+      return new Response(
+        JSON.stringify({
+          error: "Unauthorized",
+          message: "Authentication required",
+        }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // Add role for service layer - assume regular user unless specified otherwise
+    const userWithRole = {
+      ...user,
+      role: user.role || "user", // Default to "user" role if not specified
     };
 
     // Add total to params to satisfy PaginationDto type requirement
@@ -73,7 +86,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
     // Fetch reservations using service layer
     const reservationService = createReservationService(supabase);
-    const reservationsResponse = await reservationService.getReservations(paramsWithTotal, user);
+    const reservationsResponse = await reservationService.getReservations(paramsWithTotal, userWithRole);
 
     // Return success response
     return new Response(JSON.stringify(reservationsResponse), {
@@ -188,9 +201,24 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     // Create reservation using service layer with OpenRouter integration
     const reservationService = createReservationService(supabase, openRouterService);
+    // Get user from context (from middleware)
+    const user = locals.user;
+    if (!user) {
+      return new Response(
+        JSON.stringify({
+          error: "Unauthorized",
+          message: "Authentication required",
+        }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
     const createdReservation = await reservationService.createReservation(
       reservationData,
-      DEFAULT_USER_ID // Using default user ID for now, will be replaced with actual auth later
+      user.id
     );
 
     // Return success response

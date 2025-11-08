@@ -186,7 +186,7 @@ Serwer będzie dostępny pod adresem: `http://localhost:3000`
 
 ## Uwagi techniczne
 
-- Endpoint używa `DEFAULT_USER_ID` do przypisania pojazdu do użytkownika
+- Endpoint używa ID zalogowanego użytkownika z kontekstu sesji do przypisania pojazdu
 - RLS (Row Level Security) jest tymczasowo wyłączony dla tabeli `vehicles`
 - Walidacja odbywa się za pomocą biblioteki Zod
 - Wszystkie pola tekstowe są automatycznie przycinane (trim)

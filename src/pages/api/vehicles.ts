@@ -2,7 +2,6 @@
 import type { APIRoute } from "astro";
 import { vehicleCreateSchema, vehiclesQuerySchema } from "../../lib/validation/vehicleSchemas";
 import { createVehicleService } from "../../lib/services/vehicleService";
-import { DEFAULT_USER_ID } from "../../db/supabase.client";
 import type { VehicleCreateDto, VehiclesListResponseDto } from "../../types";
 import { DatabaseError } from "../../lib/errors/database.error";
 

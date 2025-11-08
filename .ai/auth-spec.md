@@ -52,6 +52,15 @@ W katalogu `src/components/auth/` zostaną utworzone komponenty klienckie do obs
     -   Błędy walidacji będą wyświetlane bezpośrednio pod polami formularza.
     -   Błędy zwracane z API (np. "Użytkownik o tym e-mailu już istnieje", "Nieprawidłowe hasło") będą wyświetlane w formie globalnego komunikatu (`Sonner`) nad formularzem.
 
+### 1.6. Inicjalizacja Stanu Uwierzytelnienia po Stronie Klienta
+
+Aby zapewnić spójny stan uwierzytelnienia po stronie klienta i uniknąć "mignięcia" interfejsu (FOUC), zostanie wdrożony następujący mechanizm:
+
+1.  **Przekazanie Danych z Serwera**: Główny layout aplikacji (`src/layouts/Layout.astro`) odczyta dane użytkownika z `Astro.locals.user`.
+2.  **Komponent Dostawcy (Provider)**: Dane te (`user` lub `null`) zostaną przekazane jako `prop` do głównego komponentu React, który będzie opakowywał całą zawartość strony, np. `<AppProvider user={user}><slot /></AppProvider>`.
+3.  **Kliencki Store (Zustand/Context)**: Wewnątrz `AppProvider.tsx`, przekazany obiekt użytkownika posłuży do zainicjowania klienckiego "store'a" (przy użyciu np. React Context lub Zustand).
+4.  **Dostęp w Komponentach**: Wszystkie inne komponenty klienckie (np. `AuthNav.tsx`) będą mogły odczytać stan zalogowania bezpośrednio z tego store'a, zapewniając natychmiastową i spójną reakcję interfejsu na stan sesji.
+
 ## 2. Logika Backendowa
 
 ### 2.1. Middleware (`src/middleware/index.ts`)
@@ -96,6 +105,22 @@ Endpointy zostaną zaimplementowane jako Astro API Routes w pliku `src/pages/api
 ### 2.3. Walidacja Danych (Zod)
 
 Każdy endpoint API będzie walidował przychodzące dane za pomocą schematów `zod`, zapewniając, że przetwarzane są tylko poprawne i bezpieczne dane.
+
+### 2.4. Obsługa Błędów i Wyjątków
+
+Backend będzie zwracał spójne i przewidywalne odpowiedzi, zwłaszcza w przypadku błędów.
+
+-   **Struktura Odpowiedzi**:
+    -   Sukces: `{ success: true, data: { ... } }`
+    -   Błąd: `{ success: false, error: { message: 'Czytelny komunikat błędu' } }`
+-   **Kody Statusu HTTP**:
+    -   `200 OK` / `201 Created`: Operacja zakończona sukcesem.
+    -   `400 Bad Request`: Błąd walidacji danych wejściowych (np. niepoprawny e-mail). Odpowiedź będzie zawierać szczegóły błędu.
+    -   `401 Unauthorized`: Nieprawidłowe dane logowania.
+    -   `403 Forbidden`: Użytkownik nie ma uprawnień do wykonania akcji.
+    -   `409 Conflict`: Próba utworzenia zasobu, który już istnieje (np. rejestracja na zajęty e-mail).
+    -   `500 Internal Server Error`: Niespodziewany błąd serwera. W środowisku produkcyjnym szczegóły błędu nie będą ujawniane klientowi, ale zostaną zarejestrowane (logged).
+-   **Implementacja**: Logika każdego endpointu zostanie opakowana w blok `try...catch`, aby przechwytywać wyjątki z Supabase lub innych operacji i zwracać odpowiednio sformatowaną odpowiedź błędu.
 
 ## 3. System Autentykacji (Supabase Auth)
 

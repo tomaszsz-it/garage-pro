@@ -100,7 +100,7 @@ Endpointy zostaną zaimplementowane jako Astro API Routes w pliku `src/pages/api
     -   Zwraca: `200 OK` (nawet jeśli e-mail nie istnieje, ze względów bezpieczeństwa).
 
 -   `GET /api/auth/callback`:
-    -   Endpoint wymagany przez Supabase do sfinalizowania autentykacji po kliknięciu linku weryfikacyjnego lub przy logowaniu przez dostawców OAuth (nawet jeśli nie są używani, jego obecność jest dobrą praktyką).
+    -   Endpoint wymagany przez Supabase do sfinalizowania autentykacji po kliknięciu linku weryfikacyjnego lub przy logowaniu przez dostawców OAuth (nawet jeśli nie są używani, jego obecność jest dobrą praktyką). brak definicji roli sekretariatu blokuje pełną autoryzację więc endpoint /api/auth/callback bez OAuth bedzie nieużyty.
 
 ### 2.3. Walidacja Danych (Zod)
 

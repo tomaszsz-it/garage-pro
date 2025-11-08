@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import type { ReservationStatus } from "../../types";
 import type { SortField, SortDirection } from "./hooks/useReservations";
 import { ReservationsFilterPanel } from "./ReservationsFilterPanel";
@@ -30,6 +30,13 @@ export function ReservationsView() {
     field: 'date',
     direction: 'asc',
   });
+  
+  // Hydration-safe state to prevent mismatch
+  const [isHydrated, setIsHydrated] = useState(false);
+  
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   // Custom hook for data fetching and state management
   const { reservations, vehicles, services, isLoading, error, pagination, refetch } = useReservations({
@@ -38,13 +45,13 @@ export function ReservationsView() {
     sorting,
   });
 
-  // Event handlers
-  const handleFilterChange = (newFilters: ReservationFiltersViewModel) => {
+  // Memoized event handlers
+  const handleFilterChange = useCallback((newFilters: ReservationFiltersViewModel) => {
     setCurrentPage(1); // Reset page on filter change
     setFilters(newFilters);
-  };
+  }, []);
 
-  const handleSortChange = (field: SortField) => {
+  const handleSortChange = useCallback((field: SortField) => {
     setSorting(prev => {
       // If clicking the same field, toggle direction
       if (prev.field === field) {
@@ -60,7 +67,36 @@ export function ReservationsView() {
       };
     });
     setCurrentPage(1); // Reset page on sort change
-  };
+  }, []);
+
+  const handlePageChange = useCallback((page: number) => {
+    setCurrentPage(page);
+  }, []);
+
+  // Memoize main content to prevent unnecessary re-renders - MUST be after all hooks
+  const mainContent = useMemo(() => (
+    <div className="space-y-6">
+      <ReservationsFilterPanel
+        vehicles={vehicles}
+        services={services}
+        filters={filters}
+        onFilterChange={handleFilterChange}
+      />
+      {reservations && (
+        <ReservationsList 
+          reservations={reservations} 
+          sorting={sorting}
+          onSortChange={handleSortChange}
+        />
+      )}
+      {pagination && <PaginationControls pagination={pagination} onPageChange={handlePageChange} />}
+    </div>
+  ), [vehicles, services, filters, reservations, sorting, pagination, handleFilterChange, handleSortChange, handlePageChange]);
+
+  // Show loading during hydration to prevent mismatch
+  if (!isHydrated) {
+    return <LoadingIndicator />;
+  }
 
   // Error handling
   if (error) {
@@ -78,22 +114,5 @@ export function ReservationsView() {
     return <EmptyStateMessage hasVehicles={Boolean(vehicles?.length)} hasFilters={hasFilters} />;
   }
 
-  return (
-    <div className="space-y-6">
-      <ReservationsFilterPanel
-        vehicles={vehicles}
-        services={services}
-        filters={filters}
-        onFilterChange={handleFilterChange}
-      />
-      {reservations && (
-        <ReservationsList 
-          reservations={reservations} 
-          sorting={sorting}
-          onSortChange={handleSortChange}
-        />
-      )}
-      {pagination && <PaginationControls pagination={pagination} onPageChange={setCurrentPage} />}
-    </div>
-  );
+  return mainContent;
 }

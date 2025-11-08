@@ -1,6 +1,7 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
+import { useMemo, useCallback } from "react";
 import type { VehicleDto, Service, ReservationStatus } from "../../types";
 
 interface ReservationFiltersViewModel {
@@ -25,21 +26,43 @@ const RESERVATION_STATUSES: { value: ReservationStatus; label: string }[] = [
 const ALL_VALUE = "all";
 
 export function ReservationsFilterPanel({ vehicles, services, filters, onFilterChange }: ReservationsFilterPanelProps) {
-  const handleFilterChange = (key: keyof ReservationFiltersViewModel, value: string | number | null) => {
-    const newFilters = {
-      ...filters,
-      [key]: value,
-    };
-    onFilterChange(newFilters);
-  };
+  const handleFilterChange = useCallback(
+    (key: keyof ReservationFiltersViewModel, value: string | number | null) => {
+      const newFilters = {
+        ...filters,
+        [key]: value,
+      };
+      onFilterChange(newFilters);
+    },
+    [filters, onFilterChange]
+  );
 
-  const handleClearFilters = () => {
+  const handleClearFilters = useCallback(() => {
     onFilterChange({
       vehicleLicensePlate: null,
       serviceId: null,
       status: null,
     });
-  };
+  }, [onFilterChange]);
+
+  // Memoize vehicle options to prevent re-renders
+  const vehicleOptions = useMemo(() => {
+    if (!vehicles) return [];
+    return vehicles.map((vehicle) => ({
+      value: vehicle.license_plate,
+      label: `${vehicle.license_plate} - ${vehicle.brand} ${vehicle.model}`,
+      ariaLabel: `${vehicle.brand} ${vehicle.model}, numer rejestracyjny ${vehicle.license_plate}`,
+    }));
+  }, [vehicles]);
+
+  // Memoize service options to prevent re-renders
+  const serviceOptions = useMemo(() => {
+    return services.map((service) => ({
+      value: service.service_id.toString(),
+      label: service.name,
+      ariaLabel: `${service.name}, czas trwania ${service.duration_minutes} minut`,
+    }));
+  }, [services]);
 
   return (
     <section
@@ -67,13 +90,9 @@ export function ReservationsFilterPanel({ vehicles, services, filters, onFilterC
               <SelectItem value={ALL_VALUE} aria-label="Pokaż wszystkie pojazdy">
                 Wszystkie pojazdy
               </SelectItem>
-              {vehicles?.map((vehicle) => (
-                <SelectItem
-                  key={vehicle.license_plate}
-                  value={vehicle.license_plate}
-                  aria-label={`${vehicle.brand} ${vehicle.model}, numer rejestracyjny ${vehicle.license_plate}`}
-                >
-                  {vehicle.license_plate} - {vehicle.brand} {vehicle.model}
+              {vehicleOptions.map((vehicle) => (
+                <SelectItem key={vehicle.value} value={vehicle.value} aria-label={vehicle.ariaLabel}>
+                  {vehicle.label}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -96,13 +115,9 @@ export function ReservationsFilterPanel({ vehicles, services, filters, onFilterC
               <SelectItem value={ALL_VALUE} aria-label="Pokaż wszystkie usługi">
                 Wszystkie usługi
               </SelectItem>
-              {services.map((service) => (
-                <SelectItem
-                  key={service.service_id}
-                  value={service.service_id.toString()}
-                  aria-label={`${service.name}, czas trwania ${service.duration_minutes} minut`}
-                >
-                  {service.name}
+              {serviceOptions.map((service) => (
+                <SelectItem key={service.value} value={service.value} aria-label={service.ariaLabel}>
+                  {service.label}
                 </SelectItem>
               ))}
             </SelectContent>

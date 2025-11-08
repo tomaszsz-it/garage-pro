@@ -59,11 +59,12 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Generate employee schedules for 2025-2026
+-- FIXED: Use explicit timezone to ensure consistent interpretation
 INSERT INTO employee_schedules (employee_id, start_ts, end_ts)
 SELECT 
   e.id as employee_id,
-  (d.work_date + '08:00:00'::time)::timestamptz as start_ts,
-  (d.work_date + '16:00:00'::time)::timestamptz as end_ts
+  (d.work_date + '08:00:00'::time) AT TIME ZONE 'Europe/Warsaw' as start_ts,
+  (d.work_date + '16:00:00'::time) AT TIME ZONE 'Europe/Warsaw' as end_ts
 FROM 
   employees e
 CROSS JOIN 

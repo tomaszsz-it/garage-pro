@@ -40,6 +40,9 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   // Get current week dates (Monday to Sunday)
   const getWeekDates = (date: Date) => {
     const startOfWeek = new Date(date);
+    // Normalize to start of day to avoid timezone issues
+    startOfWeek.setHours(0, 0, 0, 0);
+    
     const day = startOfWeek.getDay();
 
     // Calculate days to subtract to get to Monday
@@ -52,6 +55,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     for (let i = 0; i < 7; i++) {
       const weekDate = new Date(startOfWeek);
       weekDate.setDate(startOfWeek.getDate() + i);
+      // Ensure each date is at start of day
+      weekDate.setHours(0, 0, 0, 0);
       weekDates.push(weekDate);
     }
 
@@ -60,6 +65,20 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
   const weekDates = React.useMemo(() => getWeekDates(currentDate), [currentDate]);
   const dayNames = ["Pon", "Wt", "Śr", "Czw", "Pt", "Sob", "Nie"];
+
+  // Check if we can navigate to previous week
+  const canGoToPreviousWeek = React.useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const previousWeekDate = new Date(currentDate);
+    previousWeekDate.setDate(currentDate.getDate() - 7);
+    
+    const previousWeekStart = getWeekDates(previousWeekDate)[0];
+    previousWeekStart.setHours(0, 0, 0, 0);
+    
+    return previousWeekStart >= today;
+  }, [currentDate]);
 
   // Use custom hook for fetching available reservations
   const { fetchAvailableReservations } = useAvailableReservations({
@@ -70,8 +89,12 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
   // Fetch slots when service or week changes
   useEffect(() => {
-    const startOfWeek = weekDates[0];
-    const endOfWeek = weekDates[6];
+    const startOfWeek = new Date(weekDates[0]);
+    const endOfWeek = new Date(weekDates[6]);
+    
+    // Set end of week to end of Sunday (23:59:59)
+    endOfWeek.setHours(23, 59, 59, 999);
+    
     const now = new Date();
 
     // Don't query for dates more than 1 day in the past to avoid validation errors
@@ -85,7 +108,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
       service_id: selectedService.service_id,
       start_ts: queryStartDate.toISOString(),
       end_ts: endOfWeek.toISOString(),
-      limit: 50,
+      limit: 200, // Increased from 50 to handle full week with multiple mechanics
     });
   }, [selectedService.service_id, currentDate, fetchAvailableReservations, weekDates]);
 
@@ -95,16 +118,20 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     const now = new Date();
 
     weekDates.forEach((date) => {
-      const dateKey = date.toISOString().split("T")[0];
+      // FIXED: Use local date string instead of UTC to avoid timezone shift
+      const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
       grouped[dateKey] = [];
     });
 
     availableSlots.forEach((slot) => {
-      const slotDate = new Date(slot.start_ts).toISOString().split("T")[0];
+      const slotDateTime = new Date(slot.start_ts);
+      // FIXED: Use local date string instead of UTC to avoid timezone shift
+      const slotDate = `${slotDateTime.getFullYear()}-${String(slotDateTime.getMonth() + 1).padStart(2, '0')}-${String(slotDateTime.getDate()).padStart(2, '0')}`;
       const slotTime = new Date(slot.start_ts);
 
-      // Only include slots that are in the future
-      if (grouped[slotDate] && slotTime > now) {
+      // Only include slots that are in the future (with 5 minute buffer to avoid edge cases)
+      const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
+      if (grouped[slotDate] && slotTime > fiveMinutesAgo) {
         grouped[slotDate].push(slot);
       }
     });
@@ -115,7 +142,17 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   const handlePreviousWeek = () => {
     const newDate = new Date(currentDate);
     newDate.setDate(currentDate.getDate() - 7);
-    setCurrentDate(newDate);
+    
+    // Don't allow navigation to weeks that start before today
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Start of today
+    
+    const newWeekStart = getWeekDates(newDate)[0];
+    newWeekStart.setHours(0, 0, 0, 0); // Start of week
+    
+    if (newWeekStart >= today) {
+      setCurrentDate(newDate);
+    }
   };
 
   const handleNextWeek = () => {
@@ -257,7 +294,12 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
         {/* Week Navigation */}
         <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm" onClick={handlePreviousWeek}>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handlePreviousWeek}
+            disabled={!canGoToPreviousWeek}
+          >
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <span className="text-sm font-medium text-gray-700 min-w-[120px] text-center">
@@ -275,7 +317,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({
       {/* Calendar Grid */}
       <div className="grid grid-cols-7 gap-4">
         {weekDates.map((date, index) => {
-          const dateKey = date.toISOString().split("T")[0];
+          // FIXED: Use local date string instead of UTC to avoid timezone shift
+          const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
           const daySlots = slotsByDate[dateKey] || [];
           const hasSlots = daySlots.length > 0;
           const isSelectedDay = selectedDay === dateKey;

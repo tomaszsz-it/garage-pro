@@ -40,7 +40,7 @@ export const availableReservationsQuerySchema = z
       .number()
       .int()
       .min(1)
-      .max(100, "Limit cannot exceed 100")
+      .max(300, "Limit cannot exceed 300")
       .optional()
       .default(20),
   })

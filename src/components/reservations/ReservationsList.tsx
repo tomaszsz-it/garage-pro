@@ -1,14 +1,56 @@
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
 import type { ReservationDto } from "../../types";
+import type { SortField, SortDirection } from "./hooks/useReservations";
 import { ReservationListItem } from "./ReservationListItem";
 
 interface ReservationsListProps {
   reservations: ReservationDto[];
+  sorting?: {
+    field: SortField | null;
+    direction: SortDirection;
+  };
+  onSortChange?: (field: SortField) => void;
 }
 
-export function ReservationsList({ reservations }: ReservationsListProps) {
+export function ReservationsList({ reservations, sorting, onSortChange }: ReservationsListProps) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const view = isDesktop ? "table" : "card";
+
+  // Helper function to get sort icon
+  const getSortIcon = (field: SortField) => {
+    if (sorting?.field !== field) {
+      return <ChevronsUpDown className="h-4 w-4" />;
+    }
+    return sorting.direction === 'asc' 
+      ? <ChevronUp className="h-4 w-4" />
+      : <ChevronDown className="h-4 w-4" />;
+  };
+
+  // Helper function to handle sort click
+  const handleSortClick = (field: SortField) => {
+    if (onSortChange) {
+      onSortChange(field);
+    }
+  };
+
+  // Helper function to handle keyboard navigation
+  const handleSortKeyDown = (event: React.KeyboardEvent, field: SortField) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      handleSortClick(field);
+    }
+  };
+
+  // Helper function to get ARIA label for sort button
+  const getSortAriaLabel = (field: SortField, fieldName: string) => {
+    if (sorting?.field !== field) {
+      return `Sortuj według ${fieldName}`;
+    }
+    const direction = sorting.direction === 'asc' ? 'rosnąco' : 'malejąco';
+    const nextDirection = sorting.direction === 'asc' ? 'malejąco' : 'rosnąco';
+    return `Obecnie sortowane ${direction} według ${fieldName}. Kliknij aby sortować ${nextDirection}`;
+  };
 
   if (view === "table") {
     return (
@@ -17,19 +59,55 @@ export function ReservationsList({ reservations }: ReservationsListProps) {
           <thead>
             <tr className="border-b">
               <th className="p-4 text-left font-medium" scope="col">
-                Data
+                <button
+                  type="button"
+                  className="flex items-center gap-1 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
+                  onClick={() => handleSortClick('date')}
+                  onKeyDown={(e) => handleSortKeyDown(e, 'date')}
+                  aria-label={getSortAriaLabel('date', 'daty')}
+                >
+                  Data
+                  {getSortIcon('date')}
+                </button>
               </th>
               <th className="p-4 text-left font-medium" scope="col">
                 Godzina
               </th>
               <th className="p-4 text-left font-medium" scope="col">
-                Usługa
+                <button
+                  type="button"
+                  className="flex items-center gap-1 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
+                  onClick={() => handleSortClick('service')}
+                  onKeyDown={(e) => handleSortKeyDown(e, 'service')}
+                  aria-label={getSortAriaLabel('service', 'usługi')}
+                >
+                  Usługa
+                  {getSortIcon('service')}
+                </button>
               </th>
               <th className="p-4 text-left font-medium" scope="col">
-                Pojazd
+                <button
+                  type="button"
+                  className="flex items-center gap-1 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
+                  onClick={() => handleSortClick('vehicle')}
+                  onKeyDown={(e) => handleSortKeyDown(e, 'vehicle')}
+                  aria-label={getSortAriaLabel('vehicle', 'pojazdu')}
+                >
+                  Pojazd
+                  {getSortIcon('vehicle')}
+                </button>
               </th>
               <th className="p-4 text-left font-medium" scope="col">
-                Status
+                <button
+                  type="button"
+                  className="flex items-center gap-1 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
+                  onClick={() => handleSortClick('status')}
+                  onKeyDown={(e) => handleSortKeyDown(e, 'status')}
+                  aria-label={getSortAriaLabel('status', 'statusu')}
+                >
+                  Status
+                  {getSortIcon('status')}
+                </button>
               </th>
             </tr>
           </thead>

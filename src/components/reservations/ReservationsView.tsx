@@ -38,11 +38,12 @@ export function ReservationsView() {
     setIsHydrated(true);
   }, []);
 
-  // Custom hook for data fetching and state management
+  // Custom hook for data fetching and state management - only after hydration
   const { reservations, vehicles, services, isLoading, error, pagination, refetch } = useReservations({
     page: currentPage,
     filters,
     sorting,
+    enabled: isHydrated, // Only fetch data after hydration
   });
 
   // Memoized event handlers
@@ -93,9 +94,13 @@ export function ReservationsView() {
     </div>
   ), [vehicles, services, filters, reservations, sorting, pagination, handleFilterChange, handleSortChange, handlePageChange]);
 
-  // Show loading during hydration to prevent mismatch
-  if (!isHydrated) {
-    return <LoadingIndicator />;
+  // Show loading during hydration and data fetching
+  if (!isHydrated || isLoading) {
+    return (
+      <div className="space-y-6">
+        <LoadingIndicator />
+      </div>
+    );
   }
 
   // Error handling
@@ -103,10 +108,7 @@ export function ReservationsView() {
     return <ErrorNotification onRetry={refetch} />;
   }
 
-  // Loading state
-  if (isLoading) {
-    return <LoadingIndicator />;
-  }
+  // Loading state is now handled above with hydration
 
   // Empty state
   if (!isLoading && (!reservations || reservations.length === 0)) {

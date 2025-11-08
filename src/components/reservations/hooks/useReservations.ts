@@ -26,6 +26,7 @@ interface UseReservationsParams {
     field: SortField | null;
     direction: SortDirection;
   };
+  enabled?: boolean;
 }
 
 interface UseReservationsResult {
@@ -43,7 +44,8 @@ export function useReservations({
   page, 
   limit = 10, 
   filters, 
-  sorting 
+  sorting,
+  enabled = true
 }: UseReservationsParams): UseReservationsResult {
   const [allReservations, setAllReservations] = useState<ReservationDto[] | null>(null);
   const [vehicles, setVehicles] = useState<VehicleDto[] | null>(null);
@@ -87,8 +89,10 @@ export function useReservations({
   }, []);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    if (enabled) {
+      fetchData();
+    }
+  }, [fetchData, enabled]);
 
   // Client-side filtering, sorting, and pagination
   const processedReservations = useMemo(() => {

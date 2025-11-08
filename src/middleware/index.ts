@@ -21,11 +21,6 @@ const PUBLIC_PATHS = [
 
 export const onRequest = defineMiddleware(
   async ({ locals, cookies, url, request, redirect }, next) => {
-    // Skip auth check for public paths
-    if (PUBLIC_PATHS.includes(url.pathname)) {
-      return next();
-    }
-
     const supabase = createSupabaseServerInstance({
       cookies,
       headers: request.headers,
@@ -36,13 +31,16 @@ export const onRequest = defineMiddleware(
       data: { user },
     } = await supabase.auth.getUser();
 
+    // Always set user context if session exists
     if (user) {
       locals.user = {
         email: user.email,
         id: user.id,
       };
-    } else if (!PUBLIC_PATHS.includes(url.pathname)) {
-      // Redirect to login for protected routes
+    }
+
+    // Only redirect to login for protected routes when user is not authenticated
+    if (!user && !PUBLIC_PATHS.includes(url.pathname)) {
       return redirect('/auth/login');
     }
 

@@ -44,17 +44,29 @@ export default function ForgotPasswordForm() {
     setErrors({});
 
     try {
-      // TODO: Implement API call to /api/auth/forgot-password
-      console.log('Forgot password attempt:', formData);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      const response = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        setErrors({
+          general: result.error?.message || 'Wystąpił błąd podczas wysyłania e-maila'
+        });
+        return;
+      }
+
       setIsSuccess(true);
       
     } catch (error) {
+      console.error('Forgot password error:', error);
       setErrors({
-        general: 'Wystąpił błąd podczas wysyłania e-maila. Spróbuj ponownie.'
+        general: 'Wystąpił błąd połączenia. Spróbuj ponownie.'
       });
     } finally {
       setIsLoading(false);

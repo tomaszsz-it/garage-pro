@@ -52,17 +52,30 @@ export default function LoginForm() {
     setErrors({});
 
     try {
-      // TODO: Implement API call to /api/auth/login
-      console.log('Login attempt:', formData);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // TODO: Handle successful login (redirect, update state, etc.)
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        setErrors({
+          general: result.error?.message || 'Wystąpił błąd podczas logowania'
+        });
+        return;
+      }
+
+      // Successful login - redirect to dashboard or previous page
+      window.location.href = '/reservations';
       
     } catch (error) {
+      console.error('Login error:', error);
       setErrors({
-        general: 'Nieprawidłowy adres e-mail lub hasło'
+        general: 'Wystąpił błąd połączenia. Spróbuj ponownie.'
       });
     } finally {
       setIsLoading(false);

@@ -17,17 +17,26 @@ export default function AuthNav({ user }: AuthNavProps) {
     setIsLoading(true);
     
     try {
-      // TODO: Implement API call to /api/auth/logout
-      console.log('Logout attempt');
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // TODO: Clear auth state and redirect
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        console.error('Logout failed:', result.error?.message);
+      }
+
+      // Redirect to home page after logout (successful or not)
       window.location.href = '/';
       
     } catch (error) {
       console.error('Logout failed:', error);
+      // Still redirect even if logout API fails
+      window.location.href = '/';
     } finally {
       setIsLoading(false);
     }

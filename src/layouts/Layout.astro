@@ -9,8 +9,8 @@ interface Props {
 
 const { title = "Garage Pro" } = Astro.props;
 
-// TODO: Get user from Astro.locals.user when middleware is implemented
-const user = null; // Astro.locals.user || null;
+// Get user from middleware
+const user = Astro.locals.user || null;
 ---
 
 <!doctype html>

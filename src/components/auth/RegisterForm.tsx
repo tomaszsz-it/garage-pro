@@ -68,17 +68,32 @@ export default function RegisterForm() {
     setErrors({});
 
     try {
-      // TODO: Implement API call to /api/auth/register
-      console.log('Register attempt:', { email: formData.email, password: formData.password });
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        setErrors({
+          general: result.error?.message || 'Wystąpił błąd podczas rejestracji'
+        });
+        return;
+      }
+
       setIsSuccess(true);
       
     } catch (error) {
+      console.error('Registration error:', error);
       setErrors({
-        general: 'Wystąpił błąd podczas rejestracji. Spróbuj ponownie.'
+        general: 'Wystąpił błąd połączenia. Spróbuj ponownie.'
       });
     } finally {
       setIsLoading(false);

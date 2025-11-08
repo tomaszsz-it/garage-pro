@@ -1,0 +1,46 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import LoginForm from "../../components/auth/LoginForm";
+---
+
+<Layout title="Logowanie - Garage Pro">
+  <div class="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-blue-900 flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+      <div class="bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/10 p-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+          <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 mb-2">
+            Logowanie
+          </h1>
+          <p class="text-blue-100/80 text-sm">
+            Zaloguj się do swojego konta Garage Pro
+          </p>
+        </div>
+
+        <!-- Login Form -->
+        <LoginForm client:load />
+
+        <!-- Footer Links -->
+        <div class="mt-6 text-center space-y-2">
+          <p class="text-blue-100/70 text-sm">
+            Nie masz konta?{" "}
+            <a 
+              href="/auth/register" 
+              class="text-blue-200 hover:text-white transition-colors font-medium"
+            >
+              Zarejestruj się
+            </a>
+          </p>
+          <p class="text-blue-100/70 text-sm">
+            <a 
+              href="/auth/forgot-password" 
+              class="text-blue-200 hover:text-white transition-colors font-medium"
+            >
+              Zapomniałeś hasła?
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>

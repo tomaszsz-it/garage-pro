@@ -8,6 +8,9 @@ interface Props {
 }
 
 const { title = "Garage Pro" } = Astro.props;
+
+// TODO: Get user from Astro.locals.user when middleware is implemented
+const user = null; // Astro.locals.user || null;
 ---
 
 <!doctype html>
@@ -20,7 +23,7 @@ const { title = "Garage Pro" } = Astro.props;
     <title>{title}</title>
   </head>
   <body>
-    <Navigation />
+    <Navigation user={user} />
     <slot />
     <Toaster client:load />
   </body>

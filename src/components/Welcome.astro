@@ -1,12 +1,6 @@
 ---
-import { Calendar, Wrench, Car, House } from "lucide-react";
+import { House } from "lucide-react";
 import garageBg from "../assets/backgrounds/garage-pro.png";
-
-const navItems = [
-  { href: "/reservations/available", label: "Dostępne terminy", icon: Calendar },
-  { href: "/reservations", label: "Rezerwacje", icon: Wrench },
-  { href: "/vehicles", label: "Pojazdy", icon: Car },
-];
 ---
 
 <div
@@ -16,50 +10,70 @@ const navItems = [
   <div
     class="relative h-[50vh] flex flex-col md:flex-row rounded-2xl shadow-2xl overflow-hidden border border-white/10 bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-xl"
   >
-    <!-- Lewa strona - Panel nawigacyjny -->
+    <!-- Lewa strona - Panel informacyjny -->
     <div
-      class="w-full md:w-auto md:min-w-[200px] bg-gradient-to-b from-white/10 to-white/5 backdrop-blur-xl p-4 md:p-6 flex flex-col justify-center"
+      class="w-full md:w-auto md:min-w-[300px] bg-gradient-to-b from-white/10 to-white/5 backdrop-blur-xl p-6 md:p-8 flex flex-col justify-center"
     >
-      <div class="space-y-4">
+      <div class="space-y-6">
         <!-- Logo/Brand -->
-        <div class="mb-8">
-          <a
-            href="/"
-            class="text-lg font-bold text-white hover:text-blue-200 transition-colors flex items-center gap-2"
-          >
-            <House size={20} className="text-blue-200" />
-            <span class="bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 text-transparent bg-clip-text">
-              Twój Garaż
+        <div class="text-center md:text-left">
+          <div class="flex items-center justify-center md:justify-start gap-3 mb-4">
+            <House size={32} className="text-blue-200" />
+            <span
+              class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 text-transparent bg-clip-text"
+            >
+              Garage Pro
             </span>
-          </a>
+          </div>
+          <p class="text-blue-100/80 text-sm leading-relaxed">
+            Profesjonalny system zarządzania warsztatem samochodowym
+          </p>
         </div>
 
-        <!-- Pionowa nawigacja -->
-        <nav class="flex flex-col md:flex-col space-y-2 md:space-y-3">
-          {
-            navItems.map((item) => {
-              const IconComponent = item.icon;
-              return (
-                <a
-                  href={item.href}
-                  class="px-3 md:px-4 py-2 md:py-3 rounded-xl text-xs md:text-sm font-medium transition-all duration-150 ease-out flex items-center gap-2 md:gap-3 text-blue-100/90 hover:text-white hover:bg-white/10 backdrop-blur-sm group"
-                >
-                  <IconComponent size={16} className="md:size-[18px] text-blue-300 group-hover:text-blue-200" />
-                  <span class="block">{item.label}</span>
-                </a>
-              );
-            })
-          }
-        </nav>
-
-        <!-- Dodatkowy tekst powitalny -->
-        <div class="mt-4 md:mt-8 pt-4 md:pt-6 border-t border-white/10">
+        <!-- Opis funkcjonalności -->
+        <div class="space-y-4">
           <h2
-            class="text-base md:text-lg font-semibold mb-1 md:mb-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-purple-200"
+            class="text-lg md:text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-purple-200"
           >
-            Witaj w Garage Pro
+            Co oferujemy?
           </h2>
-          <p class="text-xs text-blue-100/80 leading-relaxed">System zarządzania warsztatem samochodowym</p>
+          <ul class="space-y-2 text-blue-100/80 text-sm">
+            <li class="flex items-start gap-2">
+              <span class="text-blue-300 mt-1">•</span>
+              <span>Śledzenie historii napraw</span>
+              <li class="flex items-start gap-2">
+                <span class="text-blue-300 mt-1">•</span>
+                <span>Zarządzanie flotą pojazdów</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-blue-300 mt-1">•</span>
+                <span>Rezerwacja terminów serwisowych</span>
+              </li>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-blue-300 mt-1">•</span>
+              <span>Naprawy mechaniczne różnych typów pojazdów</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="pt-4 border-t border-white/10">
+          <p class="text-blue-100/70 text-sm mb-3">Rozpocznij zarządzanie swoim warsztatem już dziś</p>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <a
+              href="/auth/register"
+              class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-sm font-medium rounded-xl transition-all duration-200 text-center"
+            >
+              Załóż konto
+            </a>
+            <a
+              href="/reservations/available"
+              class="px-4 py-2 bg-white/10 hover:bg-white/20 text-blue-100 text-sm font-medium rounded-xl transition-all duration-200 text-center backdrop-blur-sm border border-white/10"
+            >
+              Zobacz terminy
+            </a>
+          </div>
         </div>
       </div>
     </div>

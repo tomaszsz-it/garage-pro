@@ -2,6 +2,7 @@ import type { APIRoute } from "astro";
 import { DatabaseError } from "../../../lib/errors/database.error";
 import { availableReservationsQuerySchema } from "../../../lib/validation/reservationAvailabilitySchema";
 import { getAvailableReservations } from "../../../lib/services/reservationAvailabilityService";
+import { DEFAULT_USER_ID } from "../../../db/supabase.client.ts";
 import type { AvailableReservationsQueryParams } from "../../../types";
 
 export const prerender = false;

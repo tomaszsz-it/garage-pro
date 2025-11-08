@@ -7,6 +7,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { useMemo, useCallback } from "react";
 import type { PaginationDto } from "../../types";
 
 interface PaginationControlsProps {
@@ -18,12 +19,8 @@ export function PaginationControls({ pagination, onPageChange }: PaginationContr
   const { page, limit, total } = pagination;
   const totalPages = Math.ceil(total / limit);
 
-  if (totalPages <= 1) {
-    return null;
-  }
-
-  // Generate array of page numbers to show
-  const getPageNumbers = () => {
+  // Memoize page numbers calculation
+  const pageNumbers = useMemo(() => {
     const pages: (number | "ellipsis")[] = [];
     const maxVisiblePages = 5;
 
@@ -49,10 +46,32 @@ export function PaginationControls({ pagination, onPageChange }: PaginationContr
     }
 
     // Always show last page
-    pages.push(totalPages);
+    if (totalPages > 1) {
+      pages.push(totalPages);
+    }
 
     return pages;
-  };
+  }, [page, totalPages]);
+
+  // Memoize click handlers
+  const handlePrevious = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    if (page > 1) onPageChange(page - 1);
+  }, [page, onPageChange]);
+
+  const handleNext = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    if (page < totalPages) onPageChange(page + 1);
+  }, [page, totalPages, onPageChange]);
+
+  const handlePageClick = useCallback((pageNum: number) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    onPageChange(pageNum);
+  }, [onPageChange]);
+
+  if (totalPages <= 1) {
+    return null;
+  }
 
   return (
     <Pagination>
@@ -60,16 +79,13 @@ export function PaginationControls({ pagination, onPageChange }: PaginationContr
         <PaginationItem>
           <PaginationPrevious
             href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              if (page > 1) onPageChange(page - 1);
-            }}
+            onClick={handlePrevious}
             aria-disabled={page === 1}
             className={page === 1 ? "pointer-events-none opacity-50" : ""}
           />
         </PaginationItem>
 
-        {getPageNumbers().map((pageNum, index) =>
+        {pageNumbers.map((pageNum, index) =>
           pageNum === "ellipsis" ? (
             <PaginationItem key={`ellipsis-${index}`}>
               <PaginationEllipsis />
@@ -78,10 +94,7 @@ export function PaginationControls({ pagination, onPageChange }: PaginationContr
             <PaginationItem key={pageNum}>
               <PaginationLink
                 href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  onPageChange(pageNum);
-                }}
+                onClick={handlePageClick(pageNum)}
                 isActive={pageNum === page}
               >
                 {pageNum}
@@ -93,10 +106,7 @@ export function PaginationControls({ pagination, onPageChange }: PaginationContr
         <PaginationItem>
           <PaginationNext
             href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              if (page < totalPages) onPageChange(page + 1);
-            }}
+            onClick={handleNext}
             aria-disabled={page === totalPages}
             className={page === totalPages ? "pointer-events-none opacity-50" : ""}
           />

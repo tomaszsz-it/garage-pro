@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import type {
   ReservationDto,
   VehicleDto,
@@ -49,6 +49,9 @@ export function useReservations({
   const [vehicles, setVehicles] = useState<VehicleDto[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  
+  // Use ref to prevent unnecessary re-fetches when vehicles are already loaded
+  const vehiclesLoadedRef = useRef(false);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -64,13 +67,14 @@ export function useReservations({
       setAllReservations(reservationsData.data);
 
       // Fetch vehicles if not already loaded
-      if (!vehicles) {
+      if (!vehiclesLoadedRef.current) {
         const vehiclesResponse = await fetch("/api/vehicles");
         if (!vehiclesResponse.ok) {
           throw new Error("Failed to fetch vehicles");
         }
         const vehiclesData: VehiclesListResponseDto = await vehiclesResponse.json();
         setVehicles(vehiclesData.data);
+        vehiclesLoadedRef.current = true;
       }
     } catch (err) {
       setError(err instanceof Error ? err : new Error("An error occurred"));

@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 
 export function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(false);
+  // Initialize with undefined to prevent hydration mismatch
+  const [matches, setMatches] = useState<boolean | undefined>(undefined);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia(query);
@@ -15,5 +16,6 @@ export function useMediaQuery(query: string): boolean {
     return () => mediaQuery.removeEventListener("change", handler);
   }, [query]);
 
-  return matches;
+  // Return false during SSR/initial render to prevent hydration mismatch
+  return matches ?? false;
 }

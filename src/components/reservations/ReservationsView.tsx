@@ -27,7 +27,7 @@ export function ReservationsView() {
     field: SortField | null;
     direction: SortDirection;
   }>({
-    field: null,
+    field: 'date',
     direction: 'asc',
   });
 

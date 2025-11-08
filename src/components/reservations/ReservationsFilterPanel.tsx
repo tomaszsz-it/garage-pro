@@ -1,5 +1,6 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 import type { VehicleDto, Service, ReservationStatus } from "../../types";
 
 interface ReservationFiltersViewModel {
@@ -43,11 +44,11 @@ export function ReservationsFilterPanel({ vehicles, services, filters, onFilterC
   return (
     <section
       aria-label="Filtry rezerwacji"
-      className="bg-card p-[var(--spacing-2xl)] rounded-[var(--radius-lg)] shadow-[var(--elevation-2)] border border-[var(--neutral-30)] space-y-[var(--spacing-2xl)] animate-[fadeIn_300ms_ease-out]"
+      className="bg-card p-[var(--spacing-2xl)] rounded-[var(--radius-lg)] shadow-[var(--elevation-2)] border border-[var(--neutral-30)] space-y-[var(--spacing-2xl)]"
       data-testid="filter-panel"
     >
       <div
-        className="flex flex-col md:flex-row gap-[var(--spacing-lg)]"
+        className="flex flex-col md:flex-row gap-[var(--spacing-lg)] items-end"
         role="group"
         aria-label="Opcje filtrowania"
         data-testid="filters-container"
@@ -132,50 +133,18 @@ export function ReservationsFilterPanel({ vehicles, services, filters, onFilterC
             </SelectContent>
           </Select>
         </div>
-      </div>
 
-      <div
-        className="flex justify-end gap-[var(--spacing-lg)] flex-wrap"
-        role="group"
-        aria-label="Akcje"
-        data-testid="buttons-container"
-      >
-        <Button
-          variant="outline"
-          onClick={handleClearFilters}
-          aria-label="Wyczyść wszystkie filtry"
-          className="hover:scale-105 active:scale-95 transition-all duration-150 ease-out"
-        >
-          Wyczyść filtry
-        </Button>
-        <Button
-          variant="default"
-          onClick={() => (window.location.href = "/reservations/available")}
-          disabled={!vehicles?.length}
-          aria-label={!vehicles?.length ? "Dodaj pojazd aby móc znaleźć termin" : "Znajdź dostępny termin"}
-          className="hover:scale-105 active:scale-95 transition-all duration-150 ease-out"
-        >
-          Znajdź termin
-        </Button>
-        {vehicles?.length ? (
+        <div className="flex-shrink-0">
           <Button
             variant="outline"
-            onClick={() => (window.location.href = "/vehicles")}
-            aria-label="Zarządzaj swoimi pojazdami"
+            onClick={handleClearFilters}
+            aria-label="Wyczyść wszystkie filtry"
             className="hover:scale-105 active:scale-95 transition-all duration-150 ease-out"
           >
-            Zarządzaj pojazdami
+            <X className="w-4 h-4 mr-2" />
+            Wyczyść filtry
           </Button>
-        ) : (
-          <Button
-            variant="secondary"
-            onClick={() => (window.location.href = "/vehicles/new")}
-            aria-label="Dodaj nowy pojazd"
-            className="hover:scale-105 active:scale-95 transition-all duration-150 ease-out"
-          >
-            Dodaj pojazd
-          </Button>
-        )}
+        </div>
       </div>
     </section>
   );

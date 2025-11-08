@@ -11,7 +11,7 @@ export function EmptyStateMessage({ hasVehicles, hasFilters }: EmptyStateMessage
     <div
       role="status"
       aria-live="polite"
-      className="text-center py-[var(--spacing-5xl)] px-[var(--spacing-xl)] animate-[fadeIn_400ms_ease-out]"
+      className="text-center py-[var(--spacing-5xl)] px-[var(--spacing-xl)]"
     >
       <div className="flex justify-center mb-[var(--spacing-2xl)] p-[var(--spacing-xl)] bg-[var(--neutral-10)] rounded-full w-fit mx-auto shadow-[var(--elevation-2)]">
         {hasFilters ? (

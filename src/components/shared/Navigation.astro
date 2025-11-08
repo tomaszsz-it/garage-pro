@@ -1,46 +1,59 @@
 ---
 // src/components/shared/Navigation.astro
+import { Calendar, Wrench, Car, House } from "lucide-react";
+
 const currentPath = Astro.url.pathname;
 
 const navItems = [
-  { href: "/reservations", label: "Rezerwacje", icon: "📅" },
-  { href: "/vehicles", label: "Pojazdy", icon: "🚗" },
-  { href: "/reservations/available", label: "Dostępne terminy", icon: "🔍" },
+  { href: "/reservations/available", label: "Dostępne terminy", icon: Calendar },
+  { href: "/reservations", label: "Rezerwacje", icon: Wrench },
+  { href: "/vehicles", label: "Pojazdy", icon: Car },
 ];
 ---
 
-<nav class="bg-card border-b border-[var(--neutral-30)] shadow-[var(--elevation-2)] sticky top-0 z-40">
+<nav
+  class="bg-gradient-to-r from-indigo-900 via-purple-900 to-blue-900 border-b border-white/10 shadow-2xl sticky top-0 z-40 backdrop-blur-xl"
+>
   <div class="container mx-auto px-4">
     <div class="flex items-center justify-between h-16">
       <!-- Logo/Brand -->
       <div class="flex items-center space-x-4">
-        <a href="/" class="text-[var(--font-size-title-3)] font-[var(--font-weight-semibold)] text-foreground hover:text-primary transition-colors">
-          🏠 Garage Pro
+        <a href="/" class="text-xl font-bold text-white hover:text-blue-200 transition-colors flex items-center gap-3">
+          <House size={24} className="text-blue-200" />
+          <span class="bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 text-transparent bg-clip-text">
+            Garage Pro
+          </span>
         </a>
       </div>
 
       <!-- Navigation Links -->
       <div class="hidden md:flex items-center space-x-1">
-        {navItems.map((item) => (
-          <a
-            href={item.href}
-            class={`px-4 py-2 rounded-[var(--radius-md)] text-[var(--font-size-body)] font-[var(--font-weight-medium)] transition-all duration-150 ease-out flex items-center gap-2 ${
-              currentPath === item.href || currentPath.startsWith(item.href + '/')
-                ? 'bg-primary text-primary-foreground shadow-[var(--elevation-2)]'
-                : 'text-[var(--neutral-70)] hover:text-foreground hover:bg-[var(--neutral-10)]'
-            }`}
-          >
-            <span class="text-lg">{item.icon}</span>
-            {item.label}
-          </a>
-        ))}
+        {
+          navItems.map((item) => {
+            const IconComponent = item.icon;
+            const isActive = currentPath === item.href || currentPath.startsWith(item.href + "/");
+            return (
+              <a
+                href={item.href}
+                class={`px-4 py-2 rounded-xl text-base font-medium transition-all duration-150 ease-out flex items-center gap-3 ${
+                  isActive
+                    ? "bg-gradient-to-r from-white/20 to-white/10 text-white shadow-lg backdrop-blur-sm border border-white/20"
+                    : "text-blue-100/90 hover:text-white hover:bg-white/10 backdrop-blur-sm"
+                }`}
+              >
+                <IconComponent size={20} className={isActive ? "text-blue-200" : "text-blue-300"} />
+                {item.label}
+              </a>
+            );
+          })
+        }
       </div>
 
       <!-- Mobile Menu Button -->
       <div class="md:hidden">
         <button
           id="mobile-menu-button"
-          class="p-2 rounded-[var(--radius-md)] text-[var(--neutral-70)] hover:text-foreground hover:bg-[var(--neutral-10)] transition-colors"
+          class="p-2 rounded-xl text-blue-100/90 hover:text-white hover:bg-white/10 transition-colors backdrop-blur-sm"
           aria-label="Toggle mobile menu"
         >
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -53,32 +66,39 @@ const navItems = [
     <!-- Mobile Menu -->
     <div id="mobile-menu" class="md:hidden hidden pb-4">
       <div class="space-y-2">
-        {navItems.map((item) => (
-          <a
-            href={item.href}
-            class={`block px-4 py-3 rounded-[var(--radius-md)] text-[var(--font-size-body)] font-[var(--font-weight-medium)] transition-all duration-150 ease-out flex items-center gap-3 ${
-              currentPath === item.href || currentPath.startsWith(item.href + '/')
-                ? 'bg-primary text-primary-foreground shadow-[var(--elevation-2)]'
-                : 'text-[var(--neutral-70)] hover:text-foreground hover:bg-[var(--neutral-10)]'
-            }`}
-          >
-            <span class="text-xl">{item.icon}</span>
-            {item.label}
-          </a>
-        ))}
+        {
+          navItems.map((item) => {
+            const IconComponent = item.icon;
+            const isActive = currentPath === item.href || currentPath.startsWith(item.href + "/");
+            return (
+              <a
+                href={item.href}
+                class={`block px-4 py-3 rounded-xl text-base font-medium transition-all duration-150 ease-out flex items-center gap-3 ${
+                  isActive
+                    ? "bg-gradient-to-r from-white/20 to-white/10 text-white shadow-lg backdrop-blur-sm border border-white/20"
+                    : "text-blue-100/90 hover:text-white hover:bg-white/10 backdrop-blur-sm"
+                }`}
+              >
+                <IconComponent size={22} className={isActive ? "text-blue-200" : "text-blue-300"} />
+                {item.label}
+              </a>
+            );
+          })
+        }
       </div>
     </div>
   </div>
 </nav>
 
-<script>
-  // Mobile menu toggle
-  const mobileMenuButton = document.getElementById('mobile-menu-button');
-  const mobileMenu = document.getElementById('mobile-menu');
+<script is:inline>
+  document.addEventListener("DOMContentLoaded", function () {
+    const mobileMenuButton = document.getElementById("mobile-menu-button");
+    const mobileMenu = document.getElementById("mobile-menu");
 
-  if (mobileMenuButton && mobileMenu) {
-    mobileMenuButton.addEventListener('click', () => {
-      mobileMenu.classList.toggle('hidden');
-    });
-  }
+    if (mobileMenuButton && mobileMenu) {
+      mobileMenuButton.addEventListener("click", function () {
+        mobileMenu.classList.toggle("hidden");
+      });
+    }
+  });
 </script>

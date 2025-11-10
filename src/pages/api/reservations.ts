@@ -242,9 +242,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
 
-    // In production, log unexpected errors to a proper logging service
-    // For now, errors will be handled silently
-
     // Handle unexpected errors
     return new Response(
       JSON.stringify({

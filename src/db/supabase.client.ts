@@ -30,14 +30,23 @@ function parseCookieHeader(cookieHeader: string): { name: string; value: string 
 
 // Server-side Supabase client for SSR
 export const createSupabaseServerInstance = (context: { headers: Headers; cookies: AstroCookies }) => {
+  const cookieHeader = context.headers.get("Cookie") ?? "";
+  const parsedCookies = parseCookieHeader(cookieHeader);
+
   const supabase = createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
     cookieOptions,
     cookies: {
       getAll() {
-        return parseCookieHeader(context.headers.get("Cookie") ?? "");
+        return parsedCookies;
       },
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value, options }) => context.cookies.set(name, value, options));
+      },
+    },
+    global: {
+      headers: {
+        // Ensure Authorization header is set from session
+        // This will be populated by the auth methods
       },
     },
   });

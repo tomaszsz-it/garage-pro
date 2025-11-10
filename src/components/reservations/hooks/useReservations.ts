@@ -63,7 +63,9 @@ export function useReservations({
       // Fetch ALL reservations (limit=100 to get all data for client-side processing)
       const reservationsResponse = await fetch(`/api/reservations?page=1&limit=100`);
       if (!reservationsResponse.ok) {
-        throw new Error("Failed to fetch reservations");
+        const errorText = await reservationsResponse.text();
+        console.error("Reservations API error:", reservationsResponse.status, errorText);
+        throw new Error(`Failed to fetch reservations: ${reservationsResponse.status} ${errorText}`);
       }
       const reservationsData: ReservationsListResponseDto = await reservationsResponse.json();
       setAllReservations(reservationsData.data);

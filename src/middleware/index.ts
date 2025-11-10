@@ -39,6 +39,7 @@ export const onRequest = defineMiddleware(
     // IMPORTANT: Always get user session first before any other operations
     const {
       data: { user },
+      error: authError,
     } = await supabase.auth.getUser();
 
     // Always set user context if session exists

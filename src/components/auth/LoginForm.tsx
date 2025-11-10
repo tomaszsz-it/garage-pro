@@ -69,8 +69,15 @@ export default function LoginForm() {
         return;
       }
 
-      // Successful login - redirect to dashboard or previous page
-      window.location.href = '/reservations';
+      // Successful login - check for pending booking or redirect to dashboard
+      const pendingBooking = sessionStorage.getItem("pendingBooking");
+      if (pendingBooking) {
+        // User was in the middle of booking process, redirect back to continue
+        window.location.href = '/reservations/available';
+      } else {
+        // Normal login, redirect to dashboard
+        window.location.href = '/reservations';
+      }
       
     } catch (error) {
       console.error('Login error:', error);

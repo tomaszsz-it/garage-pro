@@ -217,34 +217,34 @@ export function createReservationService(supabase: SupabaseClient, openRouter?: 
 
     async createReservation(dto: ReservationCreateDto, userId: string): Promise<ReservationDto> {
       // 1. Verify vehicle ownership
-      const { data: vehicle } = await supabase
+      const { data: vehicle, error: vehicleError } = await supabase
         .from("vehicles")
         .select("user_id, brand, model, production_year")
         .eq("license_plate", dto.vehicle_license_plate)
         .eq("user_id", userId)
         .single();
 
-      if (!vehicle) {
+      if (vehicleError || !vehicle) {
         throw new DatabaseError("Vehicle not owned by user", {
           license_plate: dto.vehicle_license_plate,
         });
       }
 
       // 2. Verify service exists and get duration
-      const { data: service } = await supabase
+      const { data: service, error: serviceError } = await supabase
         .from("services")
         .select("service_id, name, duration_minutes")
         .eq("service_id", dto.service_id)
         .single();
 
-      if (!service) {
+      if (serviceError || !service) {
         throw new DatabaseError("Service not found in the garage", { service_id: dto.service_id });
       }
 
       // 3. Verify employee exists
-      const { data: employee } = await supabase.from("employees").select("id, name").eq("id", dto.employee_id).single();
+      const { data: employee, error: employeeError } = await supabase.from("employees").select("id, name").eq("id", dto.employee_id).single();
 
-      if (!employee) {
+      if (employeeError || !employee) {
         throw new DatabaseError("Employee not found", { employee_id: dto.employee_id });
       }
 
@@ -265,7 +265,7 @@ export function createReservationService(supabase: SupabaseClient, openRouter?: 
       // 5. Check for time slot availability (no conflicts)
       const { data: conflicts, error: conflictsError } = await supabase
         .from("reservations")
-        .select("id")
+        .select("id, start_ts, end_ts, status")
         .eq("employee_id", dto.employee_id)
         .lt("start_ts", dto.end_ts)
         .gt("end_ts", dto.start_ts)

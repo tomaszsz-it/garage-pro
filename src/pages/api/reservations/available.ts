@@ -32,9 +32,6 @@ export const GET: APIRoute = async ({ request, locals }) => {
     const url = new URL(request.url);
     const rawParams = Object.fromEntries(url.searchParams);
     
-    // Debug logging
-    console.log("Raw params:", rawParams);
-    
     const validationResult = availableReservationsQuerySchema.safeParse(rawParams);
     if (!validationResult.success) {
       const errors = validationResult.error.errors.map((err) => ({

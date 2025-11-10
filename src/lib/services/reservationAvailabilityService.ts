@@ -97,7 +97,7 @@ export async function getAvailableReservations(
     .lt("start_ts", endTs.toISOString())     // Reservation starts before our end time
     .gt("end_ts", startTs.toISOString())     // Reservation ends after our start time
     .neq("status", "Cancelled");
-
+  
   if (reservationsError) {
     throw new DatabaseError("Failed to fetch existing reservations", reservationsError);
   }
@@ -112,8 +112,6 @@ export async function getAvailableReservations(
       const sameEmployee = reservation.employee_id === slot.employee_id;
       // FIXED: Proper overlap logic - slots that touch at endpoints don't overlap
       const overlaps = slot.start_ts < reservationEnd && slot.end_ts > reservationStart;
-      
-      // Conflict detected - slot overlaps with existing reservation
 
       return sameEmployee && overlaps;
     });

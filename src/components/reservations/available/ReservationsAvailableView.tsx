@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import type { ServiceDto, AvailableReservationViewModel, VehicleDto, ReservationCreateDto, ReservationDto } from "../../../types";
+import type {
+  ServiceDto,
+  AvailableReservationViewModel,
+  VehicleDto,
+  ReservationCreateDto,
+  ReservationDto,
+} from "../../../types";
 import ServiceSelectionForm from "./ServiceSelectionForm";
 import CalendarView from "./CalendarView";
 import BookingConfirmationForm from "./BookingConfirmationForm";
@@ -35,6 +41,53 @@ export const ReservationsAvailableView: React.FC = () => {
     currentStep: "service-selection",
     reservationSummary: null,
   });
+
+  // Check for pending booking state after login
+  React.useEffect(() => {
+    const pendingBooking = sessionStorage.getItem("pendingBooking");
+    if (pendingBooking) {
+      try {
+        const bookingState = JSON.parse(pendingBooking);
+        if (bookingState.selectedService && bookingState.selectedSlot) {
+          setState((prev) => ({
+            ...prev,
+            selectedService: bookingState.selectedService,
+            selectedSlot: bookingState.selectedSlot,
+            currentStep: "booking-confirmation",
+            isLoading: true,
+          }));
+
+          // Clear the saved state
+          sessionStorage.removeItem("pendingBooking");
+
+          // Fetch vehicles to continue the booking process
+          const fetchVehiclesForBooking = async () => {
+            try {
+              const response = await fetch("/api/vehicles");
+              if (response.ok) {
+                const vehiclesData = await response.json();
+                setState((prev) => ({
+                  ...prev,
+                  vehicles: vehiclesData.data,
+                  isLoading: false,
+                }));
+              }
+            } catch {
+              setState((prev) => ({
+                ...prev,
+                error: "Failed to load vehicles",
+                isLoading: false,
+              }));
+            }
+          };
+
+          fetchVehiclesForBooking();
+        }
+      } catch {
+        sessionStorage.removeItem("pendingBooking");
+      }
+    }
+  }, []);
 
   const handleServiceSelect = (service: ServiceDto) => {
     setState((prev) => ({
@@ -80,8 +133,40 @@ export const ReservationsAvailableView: React.FC = () => {
     try {
       // Fetch user's vehicles
       const response = await fetch("/api/vehicles");
+
+      // If user is not authenticated, fetch follows redirect to login page
+      // Check if we were redirected to login page
+      if (response.url.includes("/auth/login") || response.status === 401) {
+        // Save current state to continue booking process after login
+        const bookingState = {
+          selectedService: state.selectedService,
+          selectedSlot: slot,
+          returnUrl: "/reservations/available",
+          step: "booking-confirmation",
+        };
+        sessionStorage.setItem("pendingBooking", JSON.stringify(bookingState));
+        window.location.href = "/auth/login";
+        return;
+      }
+
       if (!response.ok) {
         throw new Error("Failed to fetch vehicles");
+      }
+
+      // Check if response is HTML (login page) instead of JSON
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        // We got HTML instead of JSON, probably redirected to login
+        // Save current state to continue booking process after login
+        const bookingState = {
+          selectedService: state.selectedService,
+          selectedSlot: slot,
+          returnUrl: "/reservations/available",
+          step: "booking-confirmation",
+        };
+        sessionStorage.setItem("pendingBooking", JSON.stringify(bookingState));
+        window.location.href = "/auth/login";
+        return;
       }
 
       const vehiclesData = await response.json();
@@ -152,9 +237,24 @@ export const ReservationsAvailableView: React.FC = () => {
         body: JSON.stringify(reservationData),
       });
 
+      // If user is not authenticated, fetch follows redirect to login page
+      // Check if we were redirected to login page
+      if (response.url.includes("/auth/login") || response.status === 401) {
+        window.location.href = "/auth/login";
+        return;
+      }
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Failed to create reservation");
+      }
+
+      // Check if response is HTML (login page) instead of JSON
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        // We got HTML instead of JSON, probably redirected to login
+        window.location.href = "/auth/login";
+        return;
       }
 
       const createdReservation = await response.json();

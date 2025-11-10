@@ -2,6 +2,7 @@
 // src/components/shared/Navigation.astro
 import { Calendar, Wrench, Car, House } from "lucide-react";
 import AuthNav from "../auth/AuthNav";
+import DarkModeToggle from "./DarkModeToggle";
 
 interface Props {
   user?: {
@@ -67,6 +68,11 @@ const navItems = user ? [...publicNavItems, ...protectedNavItems] : publicNavIte
 
       <!-- Auth Navigation -->
       <div class="flex items-center space-x-4">
+        <!-- Dark Mode Toggle -->
+        <div class="hidden md:block">
+          <DarkModeToggle client:load />
+        </div>
+
         <AuthNav user={user} client:load />
 
         <!-- Mobile Menu Button -->
@@ -86,6 +92,14 @@ const navItems = user ? [...publicNavItems, ...protectedNavItems] : publicNavIte
 
     <!-- Mobile Menu -->
     <div id="mobile-menu" class="md:hidden hidden pb-4">
+      <!-- Dark Mode Toggle for Mobile -->
+      <div class="px-4 py-2 mb-3">
+        <div class="flex items-center justify-between">
+          <span class="text-blue-100/90 text-sm font-medium">Tryb ciemny</span>
+          <DarkModeToggle client:load />
+        </div>
+      </div>
+
       <div class="space-y-2">
         {
           navItems.map((item) => {

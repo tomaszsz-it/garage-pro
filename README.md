@@ -20,6 +20,15 @@ A web application for automotive workshops that enables customers to quickly fin
 ### AI
 - **Openrouter.ai** - Access to various AI models (OpenAI, Anthropic, Google, etc.) for maintenance recommendations
 
+### Testing
+- **Vitest** - Modern testing framework with native TypeScript support for unit tests
+- **React Testing Library** - Testing utilities for React 19 components
+- **@testing-library/user-event** - User interaction simulation for component testing
+- **@astro/test** - Dedicated testing tools for Astro components
+- **Playwright** - Cross-browser end-to-end testing (Chrome, Firefox, Safari, Edge)
+- **MSW (Mock Service Worker)** - API mocking at network level
+- **Storybook + Chromatic** - Visual regression testing and component documentation
+
 ### CI/CD & Hosting
 - **GitHub Actions** - CI/CD pipelines
 - **DigitalOcean** - Hosting via Docker containers
@@ -63,6 +72,14 @@ A web application for automotive workshops that enables customers to quickly fin
 - `npm run lint` - Run ESLint
 - `npm run lint:fix` - Fix ESLint issues automatically
 - `npm run format` - Format code with Prettier
+### Testing Scripts
+- `npm run test` - Run unit tests with Vitest
+- `npm run test:ui` - Run tests with Vitest UI
+- `npm run test:coverage` - Run tests with coverage report
+- `npm run test:e2e` - Run end-to-end tests with Playwright
+- `npm run test:e2e:ui` - Run E2E tests with Playwright UI
+- `npm run storybook` - Start Storybook development server
+- `npm run build-storybook` - Build Storybook for production
 
 ## Project Scope
 

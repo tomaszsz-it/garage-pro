@@ -42,11 +42,15 @@ const ServiceSelectionForm: React.FC<ServiceSelectionFormProps> = ({ onServiceSe
   };
 
   return (
-    <div className={`rounded-xl p-6 ${
-      isDarkMode 
-        ? 'bg-gradient-to-r from-indigo-900 via-purple-900 to-blue-900 border border-white/10 shadow-2xl backdrop-blur-xl' 
-        : 'bg-white border border-gray-200 shadow-sm'
-    }`}>
+    <>
+      {/* Full page background */}
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-indigo-900 via-purple-900 to-blue-900" />
+      
+      <div className={`rounded-xl p-6 ${
+        isDarkMode 
+          ? 'bg-white/5 border border-white/10 shadow-2xl backdrop-blur-xl' 
+          : 'bg-white border border-gray-200 shadow-sm'
+      }`}>
       <div className="flex justify-between items-center mb-6">
         <h2 className={`text-2xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
           Wybierz usługę
@@ -85,10 +89,10 @@ const ServiceSelectionForm: React.FC<ServiceSelectionFormProps> = ({ onServiceSe
                 ${
                   selectedServiceId === service.service_id
                     ? isDarkMode 
-                      ? "bg-gradient-to-r from-white/20 to-white/10 text-white shadow-lg backdrop-blur-sm border border-white/20"
+                      ? "bg-gradient-to-r from-indigo-900 via-purple-900 to-blue-900 text-white shadow-2xl backdrop-blur-xl border border-white/10"
                       : "border-blue-500 bg-blue-50 ring-2 ring-blue-200"
                     : isDarkMode
-                      ? "border-white/10 hover:border-white/20 hover:bg-white/10 backdrop-blur-sm"
+                      ? "bg-white/5 border border-white/10 shadow-2xl backdrop-blur-xl hover:border-white/20 hover:bg-white/10"
                       : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
                 }
               `}
@@ -170,7 +174,8 @@ const ServiceSelectionForm: React.FC<ServiceSelectionFormProps> = ({ onServiceSe
           </Button>
         </div>
       </form>
-    </div>
+      </div>
+    </>
   );
 };
 

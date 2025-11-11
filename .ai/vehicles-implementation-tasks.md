@@ -158,7 +158,6 @@ export const vehiclePathParamsSchema = z.object({
 - [ ] VehicleService obsługuje wszystkie operacje CRUD
 - [ ] API endpoints zwracają poprawne kody statusu
 - [ ] Walidacja działa zgodnie ze specyfikacją
-- [ ] Testy jednostkowe przechodzą
 - [ ] Brak duplikacji kodu walidacji
 
 ## 🚨 Uwagi dla Agenta

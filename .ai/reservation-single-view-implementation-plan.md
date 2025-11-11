@@ -350,7 +350,6 @@ Hook będzie obsługiwał:
    - Toast notifications dla feedbacku
 
 7. **Testowanie i optymalizacja:**
-   - Testy jednostkowe komponentów
    - Testy integracyjne z API
    - Optymalizacja wydajności
    - Responsywność i dostępność

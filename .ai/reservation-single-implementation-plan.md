@@ -161,7 +161,6 @@ Oba endpointy implementują autoryzację na poziomie użytkownika - zwykli użyt
    - Rozszerzenie istniejącego ReservationWithRelations o dane vehicles
 
 5. **Testowanie**:
-   - Unit testy dla validation schemas
    - Integracyjne testy endpointów
    - Testy autoryzacji i business logic
 

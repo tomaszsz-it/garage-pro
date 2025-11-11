@@ -1,0 +1,12 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { ReservationsAvailableView } from "../../components/reservations/available/ReservationsAvailableView";
+
+export const prerender = false;
+---
+
+<Layout title="Dostępne terminy rezerwacji">
+  <main class="container mx-auto px-4 py-8">
+    <ReservationsAvailableView client:load />
+  </main>
+</Layout>

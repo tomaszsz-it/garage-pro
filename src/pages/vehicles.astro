@@ -1,0 +1,24 @@
+---
+// src/pages/vehicles.astro
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Pojazdy - Garage Pro">
+  <main class="container mx-auto px-4 py-8">
+    <!-- VehiclesView component will be rendered here -->
+    <div id="vehicles-view"></div>
+  </main>
+</Layout>
+
+<script>
+  // Import and render the VehiclesView React component
+  import { VehiclesView } from "../components/vehicles/VehiclesView";
+  import { createRoot } from "react-dom/client";
+  import { createElement } from "react";
+
+  const container = document.getElementById("vehicles-view");
+  if (container) {
+    const root = createRoot(container);
+    root.render(createElement(VehiclesView));
+  }
+</script>

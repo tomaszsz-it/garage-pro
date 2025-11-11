@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { GET } from "../reservations/available";
 import type { APIContext } from "astro";
+import { createMockSupabaseClient } from "../../../test/supabase-mocks";
 
 describe("GET /reservations/available", () => {
   // Mock data
@@ -13,20 +14,28 @@ describe("GET /reservations/available", () => {
   };
 
   // Mock Supabase client
-  const mockSupabase = {
-    auth: {
-      getSession: vi.fn().mockResolvedValue(mockSession),
-    },
-    from: vi.fn().mockReturnThis(),
-    select: vi.fn().mockReturnThis(),
-    eq: vi.fn().mockReturnThis(),
-    gte: vi.fn().mockReturnThis(),
-    lte: vi.fn().mockReturnThis(),
-    neq: vi.fn().mockReturnThis(),
-    single: vi.fn(),
-  };
+  let mockSupabase: any;
+  let mockQueryBuilder: any;
 
   beforeEach(() => {
+    mockSupabase = createMockSupabaseClient();
+
+    // Create a mock query builder that can be reused
+    mockQueryBuilder = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      gte: vi.fn().mockReturnThis(),
+      lte: vi.fn().mockReturnThis(),
+      neq: vi.fn().mockReturnThis(),
+      gt: vi.fn().mockReturnThis(),
+      lt: vi.fn().mockReturnThis(),
+      single: vi.fn(),
+    };
+
+    // Mock auth methods
+    mockSupabase.auth.getSession = vi.fn().mockResolvedValue(mockSession);
+    vi.mocked(mockSupabase.from).mockReturnValue(mockQueryBuilder);
+
     vi.clearAllMocks();
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2025-10-23T08:00:00Z"));
@@ -37,15 +46,13 @@ describe("GET /reservations/available", () => {
   });
 
   it("should return available slots for a valid service", async () => {
-    // Mock successful service lookup
-    vi.spyOn(mockSupabase, "single").mockResolvedValueOnce({
-      data: { duration_minutes: 30 },
-      error: null,
-    });
-
-    // Mock successful schedules and reservations lookup
-    vi.spyOn(mockSupabase, "select")
-      .mockResolvedValueOnce({
+    // Mock successful queries - single() calls in order: service, schedules, reservations
+    mockQueryBuilder.single
+      .mockResolvedValueOnce({ // Service lookup
+        data: { duration_minutes: 30 },
+        error: null,
+      })
+      .mockResolvedValueOnce({ // Schedules lookup
         data: [
           {
             start_ts: "2025-10-23T09:00:00Z",
@@ -56,7 +63,7 @@ describe("GET /reservations/available", () => {
         ],
         error: null,
       })
-      .mockResolvedValueOnce({
+      .mockResolvedValueOnce({ // Reservations lookup (empty)
         data: [],
         error: null,
       });

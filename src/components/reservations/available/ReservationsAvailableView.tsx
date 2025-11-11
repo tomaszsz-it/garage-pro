@@ -48,8 +48,8 @@ const ReservationsAvailableView: React.FC = React.memo(() => {
           if (response) {
             const vehiclesData = await response.json();
             setVehicles(vehiclesData.data);
-            setLoading(false);
           }
+          setLoading(false);
         } catch (error) {
           setError(error instanceof Error ? error.message : "Failed to load vehicles");
           setLoading(false);
@@ -100,8 +100,8 @@ const ReservationsAvailableView: React.FC = React.memo(() => {
         if (response) {
           const vehiclesData = await response.json();
           setVehicles(vehiclesData.data);
-          setLoading(false);
         }
+        setLoading(false);
       } catch (error) {
         setError(error instanceof Error ? error.message : "Failed to load vehicles");
         setLoading(false);
@@ -143,8 +143,8 @@ const ReservationsAvailableView: React.FC = React.memo(() => {
         if (response) {
           const createdReservation = await response.json();
           setReservationSummary(createdReservation);
-          setCreatingReservation(false);
         }
+        setCreatingReservation(false);
       } catch (error) {
         setError(error instanceof Error ? error.message : "Failed to create reservation");
         setCreatingReservation(false);

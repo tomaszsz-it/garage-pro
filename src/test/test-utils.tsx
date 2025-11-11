@@ -52,32 +52,71 @@ export const createMockUserEvent = () => {
 
 // Mock data factories
 export const createMockVehicle = (overrides = {}) => ({
-  id: '1',
+  license_plate: 'ABC-123',
   brand: 'Toyota',
   model: 'Camry',
-  year: 2023,
-  license_plate: 'ABC-123',
+  production_year: 2023,
   vin: '1234567890ABCDEFG',
-  owner_name: 'Jan Kowalski',
-  owner_phone: '+48123456789',
-  owner_email: 'jan.kowalski@example.com',
+  car_type: 'Sedan',
   created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString(),
+  ...overrides,
+});
+
+export const createMockService = (overrides = {}) => ({
+  id: 1,
+  name: 'Oil Change',
+  description: 'Regular oil change service',
+  duration_minutes: 30,
+  price: 50.00,
+  is_active: true,
+  ...overrides,
+});
+
+export const createMockAvailableSlot = (overrides = {}) => ({
+  start_ts: '2025-11-15T10:00:00Z',
+  end_ts: '2025-11-15T10:30:00Z',
+  employee_id: 'emp1',
+  employee_name: 'John Mechanic',
   ...overrides,
 });
 
 export const createMockReservation = (overrides = {}) => ({
-  id: '1',
-  vehicle_id: '1',
-  customer_name: 'Jan Kowalski',
-  customer_phone: '+48123456789',
-  customer_email: 'jan.kowalski@example.com',
-  service_type: 'oil_change',
-  scheduled_date: new Date().toISOString(),
-  status: 'scheduled',
-  notes: 'Regular maintenance',
+  id: 'res1',
+  service_id: 1,
+  vehicle_license_plate: 'ABC-123',
+  employee_id: 'emp1',
+  start_ts: '2025-11-15T10:00:00Z',
+  end_ts: '2025-11-15T10:30:00Z',
+  status: 'scheduled' as const,
   created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString(),
+  service_name: 'Oil Change',
+  service_duration_minutes: 30,
+  employee_name: 'John Mechanic',
+  recommendation_text: 'Regular maintenance',
+  ...overrides,
+});
+
+export const createMockReservationCreateDto = (overrides = {}) => ({
+  service_id: 1,
+  vehicle_license_plate: 'ABC-123',
+  employee_id: 'emp1',
+  start_ts: '2025-11-15T10:00:00Z',
+  end_ts: '2025-11-15T10:30:00Z',
+  ...overrides,
+});
+
+export const createMockBookingState = (overrides = {}) => ({
+  selectedService: null,
+  selectedDay: null,
+  selectedSlot: null,
+  selectedVehicle: null,
+  slots: [],
+  vehicles: [],
+  isLoading: false,
+  isCreatingReservation: false,
+  error: null,
+  currentStep: 'service-selection' as const,
+  reservationSummary: null,
   ...overrides,
 });
 

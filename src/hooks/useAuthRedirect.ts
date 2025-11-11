@@ -15,7 +15,11 @@ export const useAuthRedirect = () => {
     // Check if we were redirected to login page
     if (response.url.includes("/auth/login") || response.status === 401) {
       if (pendingBookingState) {
-        sessionStorage.setItem("pendingBooking", JSON.stringify(pendingBookingState));
+        try {
+          sessionStorage.setItem("pendingBooking", JSON.stringify(pendingBookingState));
+        } catch {
+          // Ignore sessionStorage errors (e.g., quota exceeded)
+        }
       }
       window.location.href = "/auth/login";
       return true;
@@ -25,7 +29,11 @@ export const useAuthRedirect = () => {
     const contentType = response.headers.get("content-type");
     if (!contentType || !contentType.includes("application/json")) {
       if (pendingBookingState) {
-        sessionStorage.setItem("pendingBooking", JSON.stringify(pendingBookingState));
+        try {
+          sessionStorage.setItem("pendingBooking", JSON.stringify(pendingBookingState));
+        } catch {
+          // Ignore sessionStorage errors (e.g., quota exceeded)
+        }
       }
       window.location.href = "/auth/login";
       return true;

@@ -1,12 +1,16 @@
-import '@testing-library/jest-dom';
-import { expect, beforeAll, afterEach, vi } from 'vitest';
-import { cleanup } from '@testing-library/react';
+import "@testing-library/jest-dom";
+import { expect, beforeAll, afterEach, vi } from "vitest";
+import { cleanup } from "@testing-library/react";
 
 // Extend expect with jest-dom matchers
 expect.extend({});
 
 // Global test setup
 beforeAll(() => {
+  // Setup environment variables for tests
+  process.env.SUPABASE_URL = "https://fake.supabase.co";
+  process.env.SUPABASE_KEY = "fake-test-anon-key";
+
   // Setup global mocks
   setupGlobalMocks();
 });
@@ -20,7 +24,7 @@ afterEach(() => {
 // Global mocks setup
 function setupGlobalMocks() {
   // Mock window.matchMedia
-  Object.defineProperty(window, 'matchMedia', {
+  Object.defineProperty(window, "matchMedia", {
     writable: true,
     value: vi.fn().mockImplementation((query) => ({
       matches: false,
@@ -72,7 +76,7 @@ function setupGlobalMocks() {
     key: vi.fn(),
     length: 0,
   };
-  Object.defineProperty(window, 'localStorage', {
+  Object.defineProperty(window, "localStorage", {
     value: localStorageMock,
   });
 
@@ -85,7 +89,7 @@ function setupGlobalMocks() {
     key: vi.fn(),
     length: 0,
   };
-  Object.defineProperty(window, 'sessionStorage', {
+  Object.defineProperty(window, "sessionStorage", {
     value: sessionStorageMock,
   });
 }
@@ -93,21 +97,21 @@ function setupGlobalMocks() {
 // Custom matchers
 expect.extend({
   toHaveNoConsoleErrors() {
-    const consoleSpy = vi.spyOn(console, 'error');
+    const consoleSpy = vi.spyOn(console, "error");
     const pass = consoleSpy.mock.calls.length === 0;
-    
+
     return {
       pass,
-      message: () => 
-        pass 
-          ? 'Expected console.error to be called'
+      message: () =>
+        pass
+          ? "Expected console.error to be called"
           : `Expected no console.error calls, but got ${consoleSpy.mock.calls.length}`,
     };
   },
 });
 
 // Type declarations for custom matchers
-declare module 'vitest' {
+declare module "vitest" {
   interface Assertion<T = any> {
     toHaveNoConsoleErrors(): T;
   }

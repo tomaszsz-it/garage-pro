@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getAvailableReservations } from "../reservationAvailabilityService";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { DatabaseError } from "../../errors/database.error";
@@ -29,47 +29,73 @@ describe("reservationAvailabilityService", () => {
 
   // Create mock Supabase client for each test
   let mockSupabase: SupabaseClient;
-  let mockQueryBuilder: any;
 
   beforeEach(() => {
     mockSupabase = createMockSupabaseClient() as SupabaseClient;
-
-    // Create a mock query builder that can be reused
-    mockQueryBuilder = {
-      select: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-      gte: vi.fn().mockReturnThis(),
-      lte: vi.fn().mockReturnThis(),
-      neq: vi.fn().mockReturnThis(),
-      gt: vi.fn().mockReturnThis(),
-      lt: vi.fn().mockReturnThis(),
-      single: vi.fn(),
-    };
-
-    // Mock the from method to return our reusable query builder
-    vi.mocked(mockSupabase.from).mockReturnValue(mockQueryBuilder);
-
     vi.clearAllMocks();
   });
 
   it("should return available slots when service exists", async () => {
-    // Setup mocks - single() calls in order: service, schedules, reservations
-    mockQueryBuilder.single
-      .mockResolvedValueOnce({
-        // Service lookup
-        data: mockService,
-        error: null,
-      })
-      .mockResolvedValueOnce({
-        // Schedules lookup
-        data: mockEmployeeSchedules,
-        error: null,
-      })
-      .mockResolvedValueOnce({
-        // Reservations lookup
-        data: mockReservations,
-        error: null,
-      });
+    // Mock the from method to return different promises for different tables
+    vi.mocked(mockSupabase.from).mockImplementation((table: string) => {
+      if (table === "services") {
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          single: vi.fn().mockResolvedValue({
+            data: mockService,
+            error: null,
+          }),
+        } as any;
+      }
+
+      if (table === "employee_schedules") {
+        const query = {
+          select: vi.fn().mockReturnThis(),
+          gte: vi.fn().mockReturnThis(),
+          lte: vi.fn().mockReturnThis(),
+        };
+        // Add promise methods to make it awaitable
+        Object.assign(query, {
+          then: (onResolve: any) =>
+            Promise.resolve({
+              data: mockEmployeeSchedules,
+              error: null,
+            }).then(onResolve),
+          catch: (onReject: any) =>
+            Promise.resolve({
+              data: mockEmployeeSchedules,
+              error: null,
+            }).catch(onReject),
+        });
+        return query as any;
+      }
+
+      if (table === "reservations") {
+        const query = {
+          select: vi.fn().mockReturnThis(),
+          lt: vi.fn().mockReturnThis(),
+          gt: vi.fn().mockReturnThis(),
+          neq: vi.fn().mockReturnThis(),
+        };
+        // Add promise methods to make it awaitable
+        Object.assign(query, {
+          then: (onResolve: any) =>
+            Promise.resolve({
+              data: mockReservations,
+              error: null,
+            }).then(onResolve),
+          catch: (onReject: any) =>
+            Promise.resolve({
+              data: mockReservations,
+              error: null,
+            }).catch(onReject),
+        });
+        return query as any;
+      }
+
+      return {} as any;
+    });
 
     // Test params
     const params = {
@@ -80,10 +106,6 @@ describe("reservationAvailabilityService", () => {
 
     // Execute
     const result = await getAvailableReservations(params, mockSupabase);
-
-    // Debug logging
-    console.log("Result:", result);
-    console.log("Result length:", result.length);
 
     // Verify
     expect(result).toBeInstanceOf(Array);
@@ -102,9 +124,18 @@ describe("reservationAvailabilityService", () => {
 
   it("should throw DatabaseError when service not found", async () => {
     // Setup mocks - only service lookup fails
-    mockQueryBuilder.single.mockResolvedValueOnce({
-      data: null,
-      error: { message: "Service not found" },
+    vi.mocked(mockSupabase.from).mockImplementation((table: string) => {
+      if (table === "services") {
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          single: vi.fn().mockResolvedValue({
+            data: null,
+            error: { message: "Service not found" },
+          }),
+        } as any;
+      }
+      return {} as any;
     });
 
     // Test params
@@ -119,23 +150,66 @@ describe("reservationAvailabilityService", () => {
   });
 
   it("should handle empty schedules", async () => {
-    // Setup mocks - single() calls in order: service, schedules, reservations
-    mockQueryBuilder.single
-      .mockResolvedValueOnce({
-        // Service lookup
-        data: mockService,
-        error: null,
-      })
-      .mockResolvedValueOnce({
-        // Schedules lookup (empty)
-        data: [],
-        error: null,
-      })
-      .mockResolvedValueOnce({
-        // Reservations lookup (empty)
-        data: [],
-        error: null,
-      });
+    // Mock the from method to return different promises for different tables
+    vi.mocked(mockSupabase.from).mockImplementation((table: string) => {
+      if (table === "services") {
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          single: vi.fn().mockResolvedValue({
+            data: mockService,
+            error: null,
+          }),
+        } as any;
+      }
+
+      if (table === "employee_schedules") {
+        const query = {
+          select: vi.fn().mockReturnThis(),
+          gte: vi.fn().mockReturnThis(),
+          lte: vi.fn().mockReturnThis(),
+        };
+        // Add promise methods to make it awaitable
+        Object.assign(query, {
+          then: (onResolve: any) =>
+            Promise.resolve({
+              data: [], // Empty schedules
+              error: null,
+            }).then(onResolve),
+          catch: (onReject: any) =>
+            Promise.resolve({
+              data: [], // Empty schedules
+              error: null,
+            }).catch(onReject),
+        });
+        return query as any;
+      }
+
+      if (table === "reservations") {
+        const query = {
+          select: vi.fn().mockReturnThis(),
+          lt: vi.fn().mockReturnThis(),
+          gt: vi.fn().mockReturnThis(),
+          neq: vi.fn().mockReturnThis(),
+        };
+        // Add promise methods to make it awaitable
+        Object.assign(query, {
+          then: (onResolve: any) =>
+            Promise.resolve({
+              data: [], // Empty reservations
+              error: null,
+            }).then(onResolve),
+          catch: (onReject: any) =>
+            Promise.resolve({
+              data: [], // Empty reservations
+              error: null,
+            }).catch(onReject),
+        });
+        return query as any;
+      }
+
+      return {} as any;
+    });
 
     // Test params
     const params = {
@@ -152,23 +226,66 @@ describe("reservationAvailabilityService", () => {
   });
 
   it("should respect the limit parameter", async () => {
-    // Setup mocks - single() calls in order: service, schedules, reservations
-    mockQueryBuilder.single
-      .mockResolvedValueOnce({
-        // Service lookup
-        data: mockService,
-        error: null,
-      })
-      .mockResolvedValueOnce({
-        // Schedules lookup
-        data: mockEmployeeSchedules,
-        error: null,
-      })
-      .mockResolvedValueOnce({
-        // Reservations lookup (empty)
-        data: [],
-        error: null,
-      });
+    // Mock the from method to return different promises for different tables
+    vi.mocked(mockSupabase.from).mockImplementation((table: string) => {
+      if (table === "services") {
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          single: vi.fn().mockResolvedValue({
+            data: mockService,
+            error: null,
+          }),
+        } as any;
+      }
+
+      if (table === "employee_schedules") {
+        const query = {
+          select: vi.fn().mockReturnThis(),
+          gte: vi.fn().mockReturnThis(),
+          lte: vi.fn().mockReturnThis(),
+        };
+        // Add promise methods to make it awaitable
+        Object.assign(query, {
+          then: (onResolve: any) =>
+            Promise.resolve({
+              data: mockEmployeeSchedules,
+              error: null,
+            }).then(onResolve),
+          catch: (onReject: any) =>
+            Promise.resolve({
+              data: mockEmployeeSchedules,
+              error: null,
+            }).catch(onReject),
+        });
+        return query as any;
+      }
+
+      if (table === "reservations") {
+        const query = {
+          select: vi.fn().mockReturnThis(),
+          lt: vi.fn().mockReturnThis(),
+          gt: vi.fn().mockReturnThis(),
+          neq: vi.fn().mockReturnThis(),
+        };
+        // Add promise methods to make it awaitable
+        Object.assign(query, {
+          then: (onResolve: any) =>
+            Promise.resolve({
+              data: [], // Empty reservations
+              error: null,
+            }).then(onResolve),
+          catch: (onReject: any) =>
+            Promise.resolve({
+              data: [], // Empty reservations
+              error: null,
+            }).catch(onReject),
+        });
+        return query as any;
+      }
+
+      return {} as any;
+    });
 
     // Test params with limit
     const params = {
@@ -208,23 +325,66 @@ describe("reservationAvailabilityService", () => {
       },
     ];
 
-    // Setup mocks - single() calls in order: service, schedules, reservations
-    mockQueryBuilder.single
-      .mockResolvedValueOnce({
-        // Service lookup
-        data: mockService,
-        error: null,
-      })
-      .mockResolvedValueOnce({
-        // Schedules lookup (multiple employees)
-        data: mockMultipleEmployeeSchedules,
-        error: null,
-      })
-      .mockResolvedValueOnce({
-        // Reservations lookup (empty)
-        data: [],
-        error: null,
-      });
+    // Mock the from method to return different promises for different tables
+    vi.mocked(mockSupabase.from).mockImplementation((table: string) => {
+      if (table === "services") {
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          single: vi.fn().mockResolvedValue({
+            data: mockService,
+            error: null,
+          }),
+        } as any;
+      }
+
+      if (table === "employee_schedules") {
+        const query = {
+          select: vi.fn().mockReturnThis(),
+          gte: vi.fn().mockReturnThis(),
+          lte: vi.fn().mockReturnThis(),
+        };
+        // Add promise methods to make it awaitable
+        Object.assign(query, {
+          then: (onResolve: any) =>
+            Promise.resolve({
+              data: mockMultipleEmployeeSchedules,
+              error: null,
+            }).then(onResolve),
+          catch: (onReject: any) =>
+            Promise.resolve({
+              data: mockMultipleEmployeeSchedules,
+              error: null,
+            }).catch(onReject),
+        });
+        return query as any;
+      }
+
+      if (table === "reservations") {
+        const query = {
+          select: vi.fn().mockReturnThis(),
+          lt: vi.fn().mockReturnThis(),
+          gt: vi.fn().mockReturnThis(),
+          neq: vi.fn().mockReturnThis(),
+        };
+        // Add promise methods to make it awaitable
+        Object.assign(query, {
+          then: (onResolve: any) =>
+            Promise.resolve({
+              data: [], // Empty reservations
+              error: null,
+            }).then(onResolve),
+          catch: (onReject: any) =>
+            Promise.resolve({
+              data: [], // Empty reservations
+              error: null,
+            }).catch(onReject),
+        });
+        return query as any;
+      }
+
+      return {} as any;
+    });
 
     // Test params
     const params = {

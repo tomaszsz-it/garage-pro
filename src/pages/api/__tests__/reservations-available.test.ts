@@ -1,7 +1,27 @@
-import { describe, it, expect, vi } from "vitest";
-import { GET } from "../reservations/available";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import type { APIContext } from "astro";
 import { createMockSupabaseClient } from "../../../test/supabase-mocks";
+
+// Mock the Supabase client module
+vi.mock("../../../db/supabase.client.ts", () => ({
+  DEFAULT_USER_ID: "test-user-id",
+  supabaseClient: createMockSupabaseClient(),
+  createSupabaseServerInstance: vi.fn(() => createMockSupabaseClient()),
+}));
+
+// Mock the service before importing the API route
+vi.mock("../../../lib/services/reservationAvailabilityService", () => ({
+  getAvailableReservations: vi.fn(),
+}));
+
+// Mock the validation schema
+vi.mock("../../../lib/validation/reservationAvailabilitySchema", () => ({
+  availableReservationsQuerySchema: {
+    safeParse: vi.fn(),
+  },
+}));
+
+const { GET } = await import("../reservations/available");
 
 describe("GET /reservations/available", () => {
   // Mock data
@@ -46,27 +66,29 @@ describe("GET /reservations/available", () => {
   });
 
   it("should return available slots for a valid service", async () => {
-    // Mock successful queries - single() calls in order: service, schedules, reservations
-    mockQueryBuilder.single
-      .mockResolvedValueOnce({ // Service lookup
-        data: { duration_minutes: 30 },
-        error: null,
-      })
-      .mockResolvedValueOnce({ // Schedules lookup
-        data: [
-          {
-            start_ts: "2025-10-23T09:00:00Z",
-            end_ts: "2025-10-23T17:00:00Z",
-            employee_id: "emp1",
-            employees: { name: "John Doe" },
-          },
-        ],
-        error: null,
-      })
-      .mockResolvedValueOnce({ // Reservations lookup (empty)
-        data: [],
-        error: null,
-      });
+    // Import the mocked functions
+    const { getAvailableReservations } = await import("../../../lib/services/reservationAvailabilityService");
+    const { availableReservationsQuerySchema } = await import("../../../lib/validation/reservationAvailabilitySchema");
+
+    // Mock validation success
+    vi.mocked(availableReservationsQuerySchema.safeParse).mockReturnValue({
+      success: true,
+      data: {
+        service_id: 1,
+        start_ts: "2025-10-23T09:00:00Z",
+        end_ts: "2025-10-23T17:00:00Z",
+      },
+    });
+
+    // Mock service response
+    vi.mocked(getAvailableReservations).mockResolvedValue([
+      {
+        start_ts: "2025-10-23T09:00:00Z",
+        end_ts: "2025-10-23T09:30:00Z",
+        employee_id: "emp1",
+        employee_name: "John Doe",
+      },
+    ]);
 
     const context = {
       request: new Request("http://localhost/api/reservations/available?service_id=1"),

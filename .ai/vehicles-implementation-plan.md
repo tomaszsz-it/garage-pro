@@ -238,11 +238,6 @@ Rozszerzyć `src/middleware/index.ts`:
 - Ustawić `context.locals.user` z danymi użytkownika
 - Obsługa błędów 401 Unauthorized
 
-### 6. Testy jednostkowe
-- Testy dla VehicleService w `src/lib/services/__tests__/vehicleService.test.ts`
-- Testy dla schematów walidacji
-- Testy integracyjne dla route handlers
-
 ### 7. Aktualizacja dokumentacji
 - Aktualizacja README-vehicles.md z przykładami użycia
 - Aktualizacja kolekcji Postman w `garage-pro.postman_collection.json`

@@ -1,11 +1,5 @@
-import React, { useState } from "react";
-import type {
-  ServiceDto,
-  AvailableReservationViewModel,
-  VehicleDto,
-  ReservationCreateDto,
-  ReservationDto,
-} from "../../../types";
+import React, { useCallback, useEffect } from "react";
+import type { ServiceDto, AvailableReservationViewModel, VehicleDto, ReservationCreateDto } from "../../../types";
 import ServiceSelectionForm from "./ServiceSelectionForm";
 import CalendarView from "./CalendarView";
 import BookingConfirmationForm from "./BookingConfirmationForm";
@@ -14,278 +8,154 @@ import { LoadingIndicator } from "../LoadingIndicator";
 import { ErrorNotification } from "../ErrorNotification";
 import { Switch } from "@/components/ui/switch";
 import { Moon, Sun } from "lucide-react";
+import { useBookingState } from "../../../hooks/useBookingState";
+import { useAuthRedirect } from "../../../hooks/useAuthRedirect";
+import { useDarkMode } from "../../../hooks/useDarkMode";
+import { useApiWithRetry } from "../../../hooks/useApiWithRetry";
 
-interface ReservationsAvailableViewState {
-  selectedService: ServiceDto | null;
-  selectedDay: string | null;
-  selectedSlot: AvailableReservationViewModel | null;
-  selectedVehicle: VehicleDto | null;
-  slots: AvailableReservationViewModel[];
-  vehicles: VehicleDto[];
-  isLoading: boolean;
-  isCreatingReservation: boolean;
-  error: string | null;
-  currentStep: "service-selection" | "calendar" | "booking-confirmation" | "reservation-summary";
-  reservationSummary: ReservationDto | null;
-}
+const ReservationsAvailableView: React.FC = React.memo(() => {
+  const {
+    state,
+    setSelectedService,
+    setSelectedDay,
+    setSelectedSlot,
+    setSelectedVehicle,
+    setSlots,
+    setVehicles,
+    setLoading,
+    setCreatingReservation,
+    setError,
+    setReservationSummary,
+    resetToServiceSelection,
+    resetToCalendar,
+    restoreBookingState,
+  } = useBookingState();
 
-export const ReservationsAvailableView: React.FC = () => {
-  const [state, setState] = useState<ReservationsAvailableViewState>({
-    selectedService: null,
-    selectedDay: null,
-    selectedSlot: null,
-    selectedVehicle: null,
-    slots: [],
-    vehicles: [],
-    isLoading: false,
-    isCreatingReservation: false,
-    error: null,
-    currentStep: "service-selection",
-    reservationSummary: null,
-  });
-
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  const handleDarkModeToggle = (checked: boolean) => {
-    setIsDarkMode(checked);
-  };
+  const { getPendingBooking } = useAuthRedirect();
+  const { isDarkMode, toggleDarkMode } = useDarkMode();
+  const { makeApiCall } = useApiWithRetry();
 
   // Check for pending booking state after login
-  React.useEffect(() => {
-    const pendingBooking = sessionStorage.getItem("pendingBooking");
-    if (pendingBooking) {
-      try {
-        const bookingState = JSON.parse(pendingBooking);
-        if (bookingState.selectedService && bookingState.selectedSlot) {
-          setState((prev) => ({
-            ...prev,
-            selectedService: bookingState.selectedService,
-            selectedSlot: bookingState.selectedSlot,
-            currentStep: "booking-confirmation",
-            isLoading: true,
-          }));
+  useEffect(() => {
+    const bookingState = getPendingBooking();
+    if (bookingState?.selectedService && bookingState?.selectedSlot) {
+      restoreBookingState(bookingState);
 
-          // Clear the saved state
-          sessionStorage.removeItem("pendingBooking");
-
-          // Fetch vehicles to continue the booking process
-          const fetchVehiclesForBooking = async () => {
-            try {
-              const response = await fetch("/api/vehicles");
-              if (response.ok) {
-                const vehiclesData = await response.json();
-                setState((prev) => ({
-                  ...prev,
-                  vehicles: vehiclesData.data,
-                  isLoading: false,
-                }));
-              }
-            } catch {
-              setState((prev) => ({
-                ...prev,
-                error: "Failed to load vehicles",
-                isLoading: false,
-              }));
-            }
-          };
-
-          fetchVehiclesForBooking();
+      // Fetch vehicles to continue the booking process
+      const fetchVehiclesForBooking = async () => {
+        try {
+          const response = await makeApiCall("/api/vehicles");
+          if (response) {
+            const vehiclesData = await response.json();
+            setVehicles(vehiclesData.data);
+            setLoading(false);
+          }
+        } catch (error) {
+          setError(error instanceof Error ? error.message : "Failed to load vehicles");
+          setLoading(false);
         }
-      } catch {
-        sessionStorage.removeItem("pendingBooking");
-      }
+      };
+
+      fetchVehiclesForBooking();
     }
-  }, []);
+  }, [getPendingBooking, restoreBookingState, makeApiCall, setVehicles, setLoading, setError]);
 
-  const handleServiceSelect = (service: ServiceDto) => {
-    setState((prev) => ({
-      ...prev,
-      selectedService: service,
-      currentStep: "calendar",
-      error: null,
-    }));
-  };
+  const handleServiceSelect = useCallback(
+    (service: ServiceDto) => {
+      setSelectedService(service);
+    },
+    [setSelectedService]
+  );
 
-  const handleBackToServiceSelection = () => {
-    setState((prev) => ({
-      ...prev,
-      currentStep: "service-selection",
-      selectedService: null,
-      selectedDay: null,
-      selectedSlot: null,
-      selectedVehicle: null,
-      slots: [],
-      vehicles: [],
-      error: null,
-    }));
-  };
+  const handleBackToServiceSelection = useCallback(() => {
+    resetToServiceSelection();
+  }, [resetToServiceSelection]);
 
-  const handleDaySelect = (day: string) => {
-    setState((prev) => ({
-      ...prev,
-      selectedDay: day,
-    }));
-  };
+  const handleDaySelect = useCallback(
+    (day: string) => {
+      setSelectedDay(day);
+    },
+    [setSelectedDay]
+  );
 
-  const handleTimeSelect = async (slot: AvailableReservationViewModel) => {
-    if (!state.selectedService) return;
+  const handleTimeSelect = useCallback(
+    async (slot: AvailableReservationViewModel) => {
+      if (!state.selectedService) return;
 
-    // Set selected slot and fetch vehicles
-    setState((prev) => ({
-      ...prev,
-      selectedSlot: slot,
-      isLoading: true,
-      error: null,
-    }));
+      // Set selected slot and fetch vehicles
+      setSelectedSlot(slot);
+      setLoading(true);
+      setError(null);
 
-    try {
-      // Fetch user's vehicles
-      const response = await fetch("/api/vehicles");
-
-      // If user is not authenticated, fetch follows redirect to login page
-      // Check if we were redirected to login page
-      if (response.url.includes("/auth/login") || response.status === 401) {
-        // Save current state to continue booking process after login
-        const bookingState = {
+      try {
+        const pendingBookingState = {
           selectedService: state.selectedService,
           selectedSlot: slot,
           returnUrl: "/reservations/available",
           step: "booking-confirmation",
         };
-        sessionStorage.setItem("pendingBooking", JSON.stringify(bookingState));
-        window.location.href = "/auth/login";
-        return;
+
+        const response = await makeApiCall("/api/vehicles", {}, pendingBookingState);
+
+        if (response) {
+          const vehiclesData = await response.json();
+          setVehicles(vehiclesData.data);
+          setLoading(false);
+        }
+      } catch (error) {
+        setError(error instanceof Error ? error.message : "Failed to load vehicles");
+        setLoading(false);
       }
+    },
+    [state.selectedService, setSelectedSlot, setLoading, setError, makeApiCall, setVehicles]
+  );
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch vehicles");
-      }
-
-      // Check if response is HTML (login page) instead of JSON
-      const contentType = response.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        // We got HTML instead of JSON, probably redirected to login
-        // Save current state to continue booking process after login
-        const bookingState = {
-          selectedService: state.selectedService,
-          selectedSlot: slot,
-          returnUrl: "/reservations/available",
-          step: "booking-confirmation",
-        };
-        sessionStorage.setItem("pendingBooking", JSON.stringify(bookingState));
-        window.location.href = "/auth/login";
-        return;
-      }
-
-      const vehiclesData = await response.json();
-
-      setState((prev) => ({
-        ...prev,
-        vehicles: vehiclesData.data,
-        currentStep: "booking-confirmation",
-        isLoading: false,
-      }));
-    } catch (error) {
-      setState((prev) => ({
-        ...prev,
-        error: error instanceof Error ? error.message : "Failed to load vehicles",
-        isLoading: false,
-      }));
-    }
-  };
-
-  const setSlots = (slots: AvailableReservationViewModel[]) => {
-    setState((prev) => ({ ...prev, slots }));
-  };
-
-  const setLoading = (isLoading: boolean) => {
-    setState((prev) => ({ ...prev, isLoading }));
-  };
-
-  const setError = (error: string | null) => {
-    setState((prev) => ({ ...prev, error }));
-  };
-
-  const handleRetry = () => {
+  const handleRetry = useCallback(async () => {
     setError(null);
-    // Retry logic would be implemented here
-  };
-
-  const handleBackToCalendar = () => {
-    setState((prev) => ({
-      ...prev,
-      currentStep: "calendar",
-      selectedSlot: null,
-      selectedVehicle: null,
-      vehicles: [],
-      error: null,
-    }));
-  };
-
-  const handleVehicleSelect = (vehicle: VehicleDto) => {
-    setState((prev) => ({
-      ...prev,
-      selectedVehicle: vehicle,
-    }));
-  };
-
-  const handleCreateReservation = async (reservationData: ReservationCreateDto) => {
-    setState((prev) => ({
-      ...prev,
-      isCreatingReservation: true,
-      error: null,
-    }));
-
-    try {
-      const response = await fetch("/api/reservations", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(reservationData),
-      });
-
-      // If user is not authenticated, fetch follows redirect to login page
-      // Check if we were redirected to login page
-      if (response.url.includes("/auth/login") || response.status === 401) {
-        window.location.href = "/auth/login";
-        return;
-      }
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to create reservation");
-      }
-
-      // Check if response is HTML (login page) instead of JSON
-      const contentType = response.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        // We got HTML instead of JSON, probably redirected to login
-        window.location.href = "/auth/login";
-        return;
-      }
-
-      const createdReservation = await response.json();
-
-      // Set reservation summary and move to summary step
-      setState((prev) => ({
-        ...prev,
-        reservationSummary: createdReservation,
-        currentStep: "reservation-summary",
-        isCreatingReservation: false,
-      }));
-    } catch (error) {
-      setState((prev) => ({
-        ...prev,
-        error: error instanceof Error ? error.message : "Failed to create reservation",
-        isCreatingReservation: false,
-      }));
+    // Retry the last failed operation based on current step
+    if (state.currentStep === "booking-confirmation" && state.selectedService && state.selectedSlot) {
+      await handleTimeSelect(state.selectedSlot);
     }
-  };
+  }, [setError, state.currentStep, state.selectedService, state.selectedSlot, handleTimeSelect]);
 
-  const handleBackToReservations = () => {
+  const handleBackToCalendar = useCallback(() => {
+    resetToCalendar();
+  }, [resetToCalendar]);
+
+  const handleVehicleSelect = useCallback(
+    (vehicle: VehicleDto) => {
+      setSelectedVehicle(vehicle);
+    },
+    [setSelectedVehicle]
+  );
+
+  const handleCreateReservation = useCallback(
+    async (reservationData: ReservationCreateDto) => {
+      setCreatingReservation(true);
+      setError(null);
+
+      try {
+        const response = await makeApiCall("/api/reservations", {
+          method: "POST",
+          body: JSON.stringify(reservationData),
+        });
+
+        if (response) {
+          const createdReservation = await response.json();
+          setReservationSummary(createdReservation);
+          setCreatingReservation(false);
+        }
+      } catch (error) {
+        setError(error instanceof Error ? error.message : "Failed to create reservation");
+        setCreatingReservation(false);
+      }
+    },
+    [setCreatingReservation, setError, makeApiCall, setReservationSummary]
+  );
+
+  const handleBackToReservations = useCallback(() => {
     window.location.href = "/reservations";
-  };
+  }, []);
 
   return (
     <>
@@ -319,7 +189,7 @@ export const ReservationsAvailableView: React.FC = () => {
                 />
                 <Switch
                   checked={isDarkMode}
-                  onCheckedChange={handleDarkModeToggle}
+                  onCheckedChange={toggleDarkMode}
                   className="data-[state=checked]:bg-blue-200 data-[state=unchecked]:bg-white/20"
                   aria-label="Toggle dark mode"
                 />
@@ -382,4 +252,8 @@ export const ReservationsAvailableView: React.FC = () => {
       </div>
     </>
   );
-};
+});
+
+ReservationsAvailableView.displayName = "ReservationsAvailableView";
+
+export { ReservationsAvailableView };

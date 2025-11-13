@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator } from "@playwright/test";
 
 export class BookingConfirmationPage {
   readonly page: Page;
@@ -17,10 +17,10 @@ export class BookingConfirmationPage {
     this.confirmReservationButton = page.locator('[data-test-id="confirm-reservation"]');
     this.cancelButton = page.locator('button:has-text("Anuluj")');
     this.backToCalendarButton = page.locator('button:has-text("Wróć do kalendarza")');
-    this.selectedVehicleInfo = page.locator('text=Wybrany pojazd:');
-    this.serviceDetails = page.locator('text=Szczegóły usługi');
-    this.appointmentDetails = page.locator('text=Szczegóły terminu');
-    this.validationError = page.locator('.text-red-600');
+    this.selectedVehicleInfo = page.locator("text=Wybrany pojazd:");
+    this.serviceDetails = page.locator("text=Szczegóły usługi");
+    this.appointmentDetails = page.locator("text=Szczegóły terminu");
+    this.validationError = page.locator(".text-red-600");
   }
 
   async selectVehicle(licensePlate: string) {
@@ -31,8 +31,8 @@ export class BookingConfirmationPage {
   async selectFirstVehicle() {
     await this.vehicleSelect.click();
     // Select the first available option (excluding placeholder)
-    const firstOption = this.page.locator('select option').nth(1);
-    const licensePlate = await firstOption.getAttribute('value');
+    const firstOption = this.page.locator("select option").nth(1);
+    const licensePlate = await firstOption.getAttribute("value");
     if (licensePlate) {
       await this.page.locator(`[value="${licensePlate}"]`).click();
     }
@@ -51,26 +51,25 @@ export class BookingConfirmationPage {
   }
 
   async expectToBeLoaded() {
-    await this.vehicleSelect.waitFor({ state: 'visible' });
-    await this.confirmReservationButton.waitFor({ state: 'visible' });
-    await this.serviceDetails.waitFor({ state: 'visible' });
-    await this.appointmentDetails.waitFor({ state: 'visible' });
+    await this.vehicleSelect.waitFor({ state: "visible" });
+    await this.confirmReservationButton.waitFor({ state: "visible" });
+    await this.serviceDetails.waitFor({ state: "visible" });
+    await this.appointmentDetails.waitFor({ state: "visible" });
   }
 
   async expectVehicleSelected(licensePlate: string) {
-    await this.selectedVehicleInfo.waitFor({ state: 'visible' });
-    await this.page.locator(`text=${licensePlate}`).waitFor({ state: 'visible' });
+    await this.selectedVehicleInfo.waitFor({ state: "visible" });
+    await this.page.locator(`text=${licensePlate}`).waitFor({ state: "visible" });
   }
 
   async expectValidationError(message?: string) {
-    await this.validationError.waitFor({ state: 'visible' });
+    await this.validationError.waitFor({ state: "visible" });
     if (message) {
-      await this.page.locator(`text=${message}`).waitFor({ state: 'visible' });
+      await this.page.locator(`text=${message}`).waitFor({ state: "visible" });
     }
   }
 
   async expectNoVehiclesMessage() {
-    await this.page.locator('text=Nie masz żadnych pojazdów').waitFor({ state: 'visible' });
+    await this.page.locator("text=Nie masz żadnych pojazdów").waitFor({ state: "visible" });
   }
 }
-

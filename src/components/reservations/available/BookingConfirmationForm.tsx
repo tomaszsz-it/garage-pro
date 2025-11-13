@@ -44,7 +44,7 @@ const BookingConfirmationForm: React.FC<BookingConfirmationFormProps> = ({
   };
 
   const handleVehicleChange = (licensePlate: string) => {
-    const vehicle = vehicles.find(v => v.license_plate === licensePlate);
+    const vehicle = vehicles.find((v) => v.license_plate === licensePlate);
     if (vehicle) {
       onVehicleSelect(vehicle);
       setValidationError(null);
@@ -136,18 +136,23 @@ const BookingConfirmationForm: React.FC<BookingConfirmationFormProps> = ({
           <Car className="h-5 w-5 mr-2 text-blue-600" />
           Wybierz pojazd
         </h3>
-        
+
         {vehicles.length === 0 ? (
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             <p className="text-yellow-800">
-              Nie masz żadnych pojazdów. <a href="/vehicles" className="text-blue-600 hover:underline">Dodaj pojazd</a> aby móc dokonać rezerwacji.
+              Nie masz żadnych pojazdów.{" "}
+              <a href="/vehicles" className="text-blue-600 hover:underline">
+                Dodaj pojazd
+              </a>{" "}
+              aby móc dokonać rezerwacji.
             </p>
           </div>
         ) : (
           <div className="space-y-4">
-            <Select 
-              value={selectedVehicle?.license_plate || ""} 
+            <Select
+              value={selectedVehicle?.license_plate || ""}
               onValueChange={handleVehicleChange}
+              data-test-id="vehicle-select"
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Wybierz pojazd..." />
@@ -162,9 +167,7 @@ const BookingConfirmationForm: React.FC<BookingConfirmationFormProps> = ({
                           - {vehicle.brand} {vehicle.model}
                         </span>
                       )}
-                      {vehicle.production_year && (
-                        <span className="text-gray-400">({vehicle.production_year})</span>
-                      )}
+                      {vehicle.production_year && <span className="text-gray-400">({vehicle.production_year})</span>}
                     </div>
                   </SelectItem>
                 ))}
@@ -182,7 +185,9 @@ const BookingConfirmationForm: React.FC<BookingConfirmationFormProps> = ({
                   {selectedVehicle.brand && selectedVehicle.model && (
                     <div>
                       <span className="text-blue-700">Marka i model:</span>
-                      <p className="font-medium text-blue-900">{selectedVehicle.brand} {selectedVehicle.model}</p>
+                      <p className="font-medium text-blue-900">
+                        {selectedVehicle.brand} {selectedVehicle.model}
+                      </p>
                     </div>
                   )}
                   {selectedVehicle.production_year && (
@@ -203,9 +208,7 @@ const BookingConfirmationForm: React.FC<BookingConfirmationFormProps> = ({
           </div>
         )}
 
-        {validationError && (
-          <div className="mt-2 text-red-600 text-sm">{validationError}</div>
-        )}
+        {validationError && <div className="mt-2 text-red-600 text-sm">{validationError}</div>}
       </div>
 
       {/* Action Buttons */}
@@ -213,10 +216,11 @@ const BookingConfirmationForm: React.FC<BookingConfirmationFormProps> = ({
         <Button variant="outline" onClick={onBack} disabled={isCreatingReservation}>
           Anuluj
         </Button>
-        <Button 
-          onClick={handleSubmit} 
+        <Button
+          onClick={handleSubmit}
           disabled={!selectedVehicle || vehicles.length === 0 || isCreatingReservation}
           className="min-w-[120px]"
+          data-test-id="confirm-reservation"
         >
           {isCreatingReservation ? "Tworzenie..." : "Potwierdź rezerwację"}
         </Button>

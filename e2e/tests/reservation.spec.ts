@@ -84,12 +84,16 @@ test.describe("Reservation Flow", () => {
   test("should validate service selection", async () => {
     // Navigation to available reservations is done in beforeEach
 
-    // Try to submit without selecting service
+    // Verify submit button is disabled when no service is selected
     await serviceSelectionPage.expectToBeLoaded();
-    await serviceSelectionPage.submitServiceSelection();
+    await serviceSelectionPage.expectSubmitButtonDisabled();
 
-    // Should show validation error
-    await serviceSelectionPage.expectErrorMessage("Proszę wybrać usługę");
+    // Select a service and verify button becomes enabled
+    await serviceSelectionPage.selectOilChangeService();
+    await serviceSelectionPage.expectSubmitButtonEnabled();
+
+    // Verify we can now proceed
+    await expect(serviceSelectionPage.submitButton).toBeEnabled();
   });
 
   test("should validate vehicle selection in booking confirmation", async () => {

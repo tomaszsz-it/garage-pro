@@ -1,4 +1,5 @@
 import type { Page, Locator } from "@playwright/test";
+import { expect } from "@playwright/test";
 
 export class ServiceSelectionPage {
   readonly page: Page;
@@ -29,10 +30,12 @@ export class ServiceSelectionPage {
   async selectOilChangeService() {
     await this.serviceOption1.click();
     // Wait for React to update state and enable the submit button
-    await this.page.waitForTimeout(200);
+    await expect(this.submitButton).toBeEnabled({ timeout: 5000 });
   }
 
   async submitServiceSelection() {
+    // Wait for button to be enabled before clicking
+    await expect(this.submitButton).toBeEnabled({ timeout: 5000 });
     await this.submitButton.click();
   }
 
@@ -46,5 +49,14 @@ export class ServiceSelectionPage {
     if (message) {
       await this.page.locator(`text=${message}`).waitFor({ state: "visible" });
     }
+  }
+
+  async expectSubmitButtonDisabled() {
+    await this.submitButton.waitFor({ state: "visible" });
+    await expect(this.submitButton).toBeDisabled();
+  }
+
+  async expectSubmitButtonEnabled() {
+    await expect(this.submitButton).toBeEnabled({ timeout: 5000 });
   }
 }

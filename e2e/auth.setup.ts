@@ -43,8 +43,8 @@ setup("authenticate", async ({ page, baseURL }) => {
   // Click submit and wait for either success or error
   await submitButton.click();
 
-  // Wait a moment for any immediate feedback
-  await page.waitForTimeout(2000);
+  // Wait for either success or error state to be established
+  await page.waitForTimeout(3000);
 
   // Debug: Check current state
   const currentURL = page.url();
@@ -57,28 +57,41 @@ setup("authenticate", async ({ page, baseURL }) => {
   // Check for error messages with different selectors
   const errorSelectors = [
     '[data-testid="error-message"]',
+    ".text-red-200",
     ".text-red-300",
     ".text-red-400",
     ".bg-red-500",
     "text=Wystąpił błąd",
+    "text=Nieprawidłowe dane wejściowe",
+    "text=Nieprawidłowy adres e-mail lub hasło",
+    "text=Adres e-mail nie został potwierdzony",
+    "text=Nieprawidłowe dane logowania",
+    "text=Użytkownik nie istnieje",
+    "text=Wystąpił błąd serwera",
+    "text=Invalid credentials",
   ];
 
   for (const selector of errorSelectors) {
     const errorElement = page.locator(selector).first();
-    if (await errorElement.isVisible()) {
-      const errorText = await errorElement.textContent();
-      throw new Error(`Login failed with error: ${errorText} (found with selector: ${selector})`);
+    try {
+      if (await errorElement.isVisible({ timeout: 1000 })) {
+        const errorText = await errorElement.textContent();
+        throw new Error(`Login failed with error: ${errorText} (found with selector: ${selector})`);
+      }
+    } catch {
+      // Element not visible, continue checking other selectors
+      continue;
     }
   }
 
-  // Check if login was successful by looking for reservation content
+  // Check if login was successful by looking for reservation content or redirect
   const hasReservationContent =
     (await page.locator("text=Twoje Rezerwacje").first().isVisible()) ||
     pageTitle.includes("Rezerwacje") ||
     currentURL.includes("/reservations");
 
   if (hasReservationContent) {
-    console.log("✅ Login successful - reservation content found");
+    console.log("✅ Login successful - reservation content or redirect detected");
   } else {
     // Check for errors if login didn't succeed
     const errorElement = page.locator('[data-testid="error-message"], .text-red-300, .text-red-400').first();

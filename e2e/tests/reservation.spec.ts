@@ -19,9 +19,9 @@ test.describe("Reservation Flow", () => {
     // Wait for vehicles page to load
     await page.locator('h2:has-text("Zarządzanie pojazdami")').waitFor({ state: "visible", timeout: 10000 });
 
-    // Check if we have any vehicles
-    const vehicleCount = await page.locator("text=TWÓJ NUMER REJESTRACYJNY").count();
-    if (vehicleCount === 0) {
+    // Check if we have any vehicles by looking for the empty state message
+    const emptyStateVisible = await page.locator("text=Nie masz jeszcze żadnych pojazdów").isVisible();
+    if (emptyStateVisible) {
       // Create a test vehicle
       await page.click("text=Dodaj pojazd");
 

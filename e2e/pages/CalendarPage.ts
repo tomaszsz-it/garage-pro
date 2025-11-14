@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import type { Page, Locator } from "@playwright/test";
 
 export class CalendarPage {
   readonly page: Page;
@@ -38,7 +38,7 @@ export class CalendarPage {
   }
 
   async selectDay(dayName: string) {
-    const dayLocator = page.locator(`[data-test-id="day-${dayName}"]`);
+    const dayLocator = this.page.locator(`[data-test-id="day-${dayName}"]`);
     await dayLocator.click();
   }
 
@@ -47,7 +47,7 @@ export class CalendarPage {
   }
 
   async selectTimeSlot(slotIndex = 0) {
-    const timeSlotLocator = page.locator(`[data-test-id="time-slot-${slotIndex}"]`);
+    const timeSlotLocator = this.page.locator(`[data-test-id="time-slot-${slotIndex}"]`);
     await timeSlotLocator.click();
   }
 
@@ -73,65 +73,54 @@ export class CalendarPage {
 
   /**
    * Finds and selects the first available day with time slots.
-   * Will navigate through next weeks (up to maxWeeks) if no available days in current week.
+   * Iterates through days of the week, then navigates to next week if no slots found.
    * @param maxWeeks Maximum number of weeks to search (default: 4)
-   * @returns true if found and selected, false otherwise
+   * @returns true if an available day was found and selected, false otherwise
    */
   async selectFirstAvailableDay(maxWeeks = 4): Promise<boolean> {
     const dayTestIds = ["day-pon", "day-wt", "day-śr", "day-czw", "day-pt", "day-sob", "day-nie"];
 
     for (let week = 0; week < maxWeeks; week++) {
-      // Wait for at least one day to be visible (calendar loaded)
+      // Wait for calendar to load
       await this.dayMonday.waitFor({ state: "visible", timeout: 10000 }).catch(() => false);
 
       // Try each day in the current week
       for (const dayTestId of dayTestIds) {
         const dayLocator = this.page.locator(`[data-test-id="${dayTestId}"]`);
 
-        // Check if day exists and is visible
+        // Check if day is visible and enabled
         const isVisible = await dayLocator.isVisible().catch(() => false);
         if (!isVisible) continue;
 
-        // Check if day is disabled (aria-disabled="true")
         const isDisabled = await dayLocator.getAttribute("aria-disabled");
         if (isDisabled === "true") continue;
 
-        // Day is available, click it
+        // Click the available day
         await dayLocator.click();
 
-        // Wait for time slots to potentially load
-        await this.page.waitForTimeout(500);
-
-        // Check if time slots appeared
+        // Wait for UI update and check for time slots
+        await this.page.waitForTimeout(300);
         const hasTimeSlots = await this.timeSlot0.isVisible().catch(() => false);
 
         if (hasTimeSlots) {
-          return true; // Success!
+          return true; // Found available day with slots
         }
-
-        // No time slots for this day, try next day
       }
 
-      // No available days in this week, try next week
+      // No available days in this week, navigate to next week if possible
       if (week < maxWeeks - 1) {
-        const nextButtonVisible = await this.nextWeekButton.isVisible().catch(() => false);
-        if (!nextButtonVisible) {
-          return false; // Can't go to next week
-        }
+        const canNavigateNext = await this.nextWeekButton.isVisible().catch(() => false);
+        if (!canNavigateNext) return false;
 
-        const nextButtonDisabled = await this.nextWeekButton.isDisabled().catch(() => true);
-        if (nextButtonDisabled) {
-          return false; // Can't go to next week
-        }
+        const isNextDisabled = await this.nextWeekButton.isDisabled().catch(() => true);
+        if (isNextDisabled) return false;
 
         await this.nextWeekButton.click();
-
-        // Wait for the week to change - calendar should reload
-        await this.page.waitForTimeout(500); // Reduced from 1000ms
+        await this.page.waitForTimeout(300); // Wait for week transition
       }
     }
 
-    return false; // No available days found in any week
+    return false; // No available days found
   }
 
   async expectToBeLoaded() {

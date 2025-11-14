@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import type { Page, Locator } from "@playwright/test";
 
 export class ServiceSelectionPage {
   readonly page: Page;
@@ -22,10 +22,14 @@ export class ServiceSelectionPage {
     await serviceLocator.click();
   }
 
+  /**
+   * Selects the oil change service (service ID 1).
+   * Waits for React state update before proceeding.
+   */
   async selectOilChangeService() {
     await this.serviceOption1.click();
-    // Wait for React to update state and enable the button
-    await this.page.waitForTimeout(500);
+    // Wait for React to update state and enable the submit button
+    await this.page.waitForTimeout(200);
   }
 
   async submitServiceSelection() {

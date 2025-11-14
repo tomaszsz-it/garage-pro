@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import type { Page, Locator } from "@playwright/test";
 
 export class BookingConfirmationPage {
   readonly page: Page;
@@ -23,24 +23,29 @@ export class BookingConfirmationPage {
     this.validationError = page.locator(".text-red-600");
   }
 
+  /**
+   * Selects a vehicle by license plate from the Radix UI Select dropdown.
+   * @param licensePlate The vehicle license plate to select
+   */
   async selectVehicle(licensePlate: string) {
-    // Click the trigger to open dropdown
+    // Click trigger to open dropdown
     await this.vehicleSelect.click();
 
-    // Wait for dropdown to open and click the option with matching value
-    await this.page.waitForTimeout(500);
+    // Wait for dropdown animation and click the matching option
+    await this.page.waitForTimeout(200);
     const option = this.page.locator(`[role="option"][data-value="${licensePlate}"]`);
     await option.click();
   }
 
+  /**
+   * Selects the first available vehicle from the Radix UI Select dropdown.
+   */
   async selectFirstVehicle() {
-    // Click the trigger to open dropdown
+    // Click trigger to open dropdown
     await this.vehicleSelect.click();
 
-    // Wait for dropdown to open
-    await this.page.waitForTimeout(500);
-
-    // Select the first available option (Radix UI uses role="option")
+    // Wait for dropdown animation and select first option
+    await this.page.waitForTimeout(200);
     const firstOption = this.page.locator('[role="option"]').first();
     await firstOption.click();
   }

@@ -6,7 +6,12 @@ import * as SelectPrimitive from "@radix-ui/react-select";
 import { ArrowLeft, Calendar, Clock, Car, Wrench } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Custom SelectContent without Portal for E2E tests
+/**
+ * SelectContent component rendered inline without portal.
+ * This is necessary for E2E tests - Radix UI Select uses portals by default,
+ * which render content outside the DOM hierarchy, making it invisible to Playwright.
+ * Rendering inline ensures the dropdown is visible in the component's DOM tree.
+ */
 const SelectContentWithoutPortal = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>

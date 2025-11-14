@@ -51,8 +51,8 @@ test.describe("Reservation Flow", () => {
   });
 
   test("should complete full reservation flow", async ({ page }) => {
-    // Increase timeout for this test as it may need to search through multiple weeks
-    test.setTimeout(120000); // 120 seconds (2 minutes)
+    // Extended timeout for this test - may need to search through multiple weeks for available slots
+    test.setTimeout(90000); // 90 seconds
 
     // Vehicle setup and navigation to available reservations is done in beforeEach
 

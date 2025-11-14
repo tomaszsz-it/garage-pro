@@ -78,11 +78,11 @@ export default defineConfig({
     command: "npm run dev:e2e",
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
+    timeout: 90 * 1000, // 90 seconds for dev server startup
   },
 
-  /* Test timeout */
-  timeout: 120 * 1000, // Increased to 120 seconds for complex flows that search through multiple weeks
+  /* Global timeout for all tests - can be overridden per test */
+  timeout: 60 * 1000, // 60 seconds default
   expect: {
     timeout: 5 * 1000,
   },

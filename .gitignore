@@ -33,3 +33,4 @@ e2e/auth.json
 
 # vitest
 vitest.config.ts.timestamp-*
+playwright/.auth/user.json

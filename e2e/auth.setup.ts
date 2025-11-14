@@ -19,18 +19,23 @@ setup("authenticate", async ({ page, baseURL }) => {
   // Navigate to login page and wait for it to load
   await page.goto(`${baseURL}/auth/login`);
 
-  // Wait for and fill email input
+  // Wait for React component to hydrate by waiting for the form element
+  await page.waitForSelector("form");
+
+  // Wait for and fill email input - use type() instead of fill() for better React compatibility
   const emailInput = page.locator("#email");
   await emailInput.waitFor({ state: "visible" });
   await emailInput.click();
-  await emailInput.fill(E2E_USERNAME);
+  await emailInput.clear();
+  await emailInput.type(E2E_USERNAME, { delay: 100 }); // Add delay to ensure React state updates
   await expect(emailInput).toHaveValue(E2E_USERNAME);
 
   // Wait for and fill password input
   const passwordInput = page.locator("#password");
   await passwordInput.waitFor({ state: "visible" });
   await passwordInput.click();
-  await passwordInput.fill(E2E_PASSWORD);
+  await passwordInput.clear();
+  await passwordInput.type(E2E_PASSWORD, { delay: 100 }); // Add delay to ensure React state updates
   await expect(passwordInput).toHaveValue(E2E_PASSWORD);
 
   // Wait for and click submit button
@@ -41,7 +46,7 @@ setup("authenticate", async ({ page, baseURL }) => {
   await submitButton.click();
 
   // Wait a moment for any immediate feedback
-  await page.waitForTimeout(3000);
+  await page.waitForTimeout(2000);
 
   // Debug: Check current state
   const currentURL = page.url();
@@ -68,23 +73,23 @@ setup("authenticate", async ({ page, baseURL }) => {
     }
   }
 
-  // Check if we're still on login page (likely failed)
-  if (currentURL.includes("/auth/login")) {
-    // Try to get any error text from the page
-    const bodyText = await page.locator("body").textContent();
-    console.log("Page body text (first 500 chars):", bodyText?.substring(0, 500));
+  // Check if login was successful by looking for reservation content
+  const hasReservationContent =
+    (await page.locator("text=Twoje Rezerwacje").first().isVisible()) ||
+    pageTitle.includes("Rezerwacje") ||
+    currentURL.includes("/reservations");
 
-    throw new Error(`Login failed - still on login page. Please check credentials or server status.`);
-  }
-
-  // Check if login was successful
-  if (currentURL.includes("/reservations")) {
-    console.log("✅ Login successful - navigated to reservations page");
-  } else if (pageTitle.includes("Rezerwacje")) {
-    console.log("✅ Login successful - on reservations page (title check)");
+  if (hasReservationContent) {
+    console.log("✅ Login successful - reservation content found");
   } else {
-    console.log("❌ Login failed - still on login page");
-    throw new Error(`Login failed - still on ${currentURL} with title "${pageTitle}"`);
+    // Check for errors if login didn't succeed
+    const errorElement = page.locator('[data-testid="error-message"], .text-red-300, .text-red-400').first();
+    if (await errorElement.isVisible()) {
+      const errorText = await errorElement.textContent();
+      throw new Error(`Login failed with error: ${errorText}`);
+    }
+
+    throw new Error(`Login failed - no reservation content found on ${currentURL}`);
   }
 
   // Store authentication state

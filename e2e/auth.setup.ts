@@ -25,7 +25,6 @@ setup("authenticate", async ({ page, baseURL }) => {
   // Wait for and fill email input - use type() instead of fill() for better React compatibility
   const emailInput = page.locator("#email");
   await emailInput.waitFor({ state: "visible" });
-  await emailInput.click();
   await emailInput.clear();
   await emailInput.type(E2E_USERNAME, { delay: 100 }); // Add delay to ensure React state updates
   await expect(emailInput).toHaveValue(E2E_USERNAME);
@@ -33,7 +32,6 @@ setup("authenticate", async ({ page, baseURL }) => {
   // Wait for and fill password input
   const passwordInput = page.locator("#password");
   await passwordInput.waitFor({ state: "visible" });
-  await passwordInput.click();
   await passwordInput.clear();
   await passwordInput.type(E2E_PASSWORD, { delay: 100 }); // Add delay to ensure React state updates
   await expect(passwordInput).toHaveValue(E2E_PASSWORD);

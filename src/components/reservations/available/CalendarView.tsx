@@ -294,16 +294,22 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
         {/* Week Navigation */}
         <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm" onClick={handlePreviousWeek} disabled={!canGoToPreviousWeek}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handlePreviousWeek}
+            disabled={!canGoToPreviousWeek}
+            data-test-id="previous-week-button"
+          >
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <span className="text-sm font-medium text-gray-700 min-w-[120px] text-center">
             {formatDate(weekDates[0])} - {formatDate(weekDates[6])}
           </span>
-          <Button variant="outline" size="sm" onClick={handleNextWeek}>
+          <Button variant="outline" size="sm" onClick={handleNextWeek} data-test-id="next-week-button">
             <ChevronRight className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="sm" onClick={handleGoToToday} className="ml-2">
+          <Button variant="outline" size="sm" onClick={handleGoToToday} className="ml-2" data-test-id="today-button">
             Dzisiaj
           </Button>
         </div>

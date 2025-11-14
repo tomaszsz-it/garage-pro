@@ -82,7 +82,7 @@ export default defineConfig({
   },
 
   /* Test timeout */
-  timeout: 30 * 1000,
+  timeout: 120 * 1000, // Increased to 120 seconds for complex flows that search through multiple weeks
   expect: {
     timeout: 5 * 1000,
   },

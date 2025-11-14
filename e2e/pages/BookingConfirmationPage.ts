@@ -24,18 +24,25 @@ export class BookingConfirmationPage {
   }
 
   async selectVehicle(licensePlate: string) {
+    // Click the trigger to open dropdown
     await this.vehicleSelect.click();
-    await this.page.locator(`[value="${licensePlate}"]`).click();
+
+    // Wait for dropdown to open and click the option with matching value
+    await this.page.waitForTimeout(500);
+    const option = this.page.locator(`[role="option"][data-value="${licensePlate}"]`);
+    await option.click();
   }
 
   async selectFirstVehicle() {
+    // Click the trigger to open dropdown
     await this.vehicleSelect.click();
-    // Select the first available option (excluding placeholder)
-    const firstOption = this.page.locator("select option").nth(1);
-    const licensePlate = await firstOption.getAttribute("value");
-    if (licensePlate) {
-      await this.page.locator(`[value="${licensePlate}"]`).click();
-    }
+
+    // Wait for dropdown to open
+    await this.page.waitForTimeout(500);
+
+    // Select the first available option (Radix UI uses role="option")
+    const firstOption = this.page.locator('[role="option"]').first();
+    await firstOption.click();
   }
 
   async confirmReservation() {
@@ -51,10 +58,13 @@ export class BookingConfirmationPage {
   }
 
   async expectToBeLoaded() {
-    await this.vehicleSelect.waitFor({ state: "visible" });
-    await this.confirmReservationButton.waitFor({ state: "visible" });
-    await this.serviceDetails.waitFor({ state: "visible" });
-    await this.appointmentDetails.waitFor({ state: "visible" });
+    // Wait for main components to be visible first
+    await this.serviceDetails.waitFor({ state: "visible", timeout: 15000 });
+    await this.appointmentDetails.waitFor({ state: "visible", timeout: 15000 });
+    await this.confirmReservationButton.waitFor({ state: "visible", timeout: 15000 });
+
+    // Vehicle select may take longer to appear as vehicles are loaded async
+    await this.vehicleSelect.waitFor({ state: "visible", timeout: 20000 });
   }
 
   async expectVehicleSelected(licensePlate: string) {

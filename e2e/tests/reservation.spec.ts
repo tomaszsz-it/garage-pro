@@ -51,6 +51,9 @@ test.describe("Reservation Flow", () => {
   });
 
   test("should complete full reservation flow", async ({ page }) => {
+    // Increase timeout for this test as it may need to search through multiple weeks
+    test.setTimeout(120000); // 120 seconds (2 minutes)
+
     // Vehicle setup and navigation to available reservations is done in beforeEach
 
     // Step 1: Select service (Oil change - service ID 1)
@@ -58,9 +61,13 @@ test.describe("Reservation Flow", () => {
     await serviceSelectionPage.selectOilChangeService();
     await serviceSelectionPage.submitServiceSelection();
 
-    // Step 2: Select date and time (Friday, first available slot)
+    // Step 2: Select date and time (first available day and slot)
     await calendarPage.expectToBeLoaded();
-    await calendarPage.selectFriday();
+
+    // Find and select first available day (will search through multiple weeks if needed)
+    const foundAvailableDay = await calendarPage.selectFirstAvailableDay();
+    expect(foundAvailableDay).toBe(true); // Ensure we found an available day
+
     await calendarPage.expectTimeSlotsVisible();
     await calendarPage.selectFirstTimeSlot();
 

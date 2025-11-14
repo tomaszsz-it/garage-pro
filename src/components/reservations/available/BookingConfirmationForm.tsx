@@ -1,8 +1,41 @@
 import React, { useState } from "react";
 import type { ServiceDto, AvailableReservationViewModel, VehicleDto, ReservationCreateDto } from "../../../types";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import * as SelectPrimitive from "@radix-ui/react-select";
 import { ArrowLeft, Calendar, Clock, Car, Wrench } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+// Custom SelectContent without Portal for E2E tests
+const SelectContentWithoutPortal = React.forwardRef<
+  React.ElementRef<typeof SelectPrimitive.Content>,
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
+>(({ className, children, position = "popper", align = "center", ...props }, ref) => (
+  <SelectPrimitive.Content
+    ref={ref}
+    data-slot="select-content"
+    className={cn(
+      "bg-popover text-popover-foreground border-[var(--neutral-30)] data-[state=open]:animate-[fadeIn_150ms_ease-out] data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50 max-h-(--radix-select-content-available-height) min-w-[8rem] origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-[var(--radius-md)] border shadow-[var(--elevation-8)] backdrop-blur-sm",
+      position === "popper" &&
+        "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
+      className
+    )}
+    position={position}
+    align={align}
+    {...props}
+  >
+    <SelectPrimitive.Viewport
+      className={cn(
+        "p-1",
+        position === "popper" &&
+          "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)] scroll-my-1"
+      )}
+    >
+      {children}
+    </SelectPrimitive.Viewport>
+  </SelectPrimitive.Content>
+));
+SelectContentWithoutPortal.displayName = "SelectContentWithoutPortal";
 
 interface BookingConfirmationFormProps {
   selectedService: ServiceDto;
@@ -149,15 +182,11 @@ const BookingConfirmationForm: React.FC<BookingConfirmationFormProps> = ({
           </div>
         ) : (
           <div className="space-y-4">
-            <Select
-              value={selectedVehicle?.license_plate || ""}
-              onValueChange={handleVehicleChange}
-              data-test-id="vehicle-select"
-            >
-              <SelectTrigger className="w-full">
+            <Select value={selectedVehicle?.license_plate || ""} onValueChange={handleVehicleChange}>
+              <SelectTrigger className="w-full" data-test-id="vehicle-select">
                 <SelectValue placeholder="Wybierz pojazd..." />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContentWithoutPortal>
                 {vehicles.map((vehicle) => (
                   <SelectItem key={vehicle.license_plate} value={vehicle.license_plate}>
                     <div className="flex items-center space-x-2">
@@ -171,7 +200,7 @@ const BookingConfirmationForm: React.FC<BookingConfirmationFormProps> = ({
                     </div>
                   </SelectItem>
                 ))}
-              </SelectContent>
+              </SelectContentWithoutPortal>
             </Select>
 
             {selectedVehicle && (

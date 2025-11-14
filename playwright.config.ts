@@ -1,6 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 import dotenv from "dotenv";
 import path from "path";
+
+// Load test environment variables
 dotenv.config({ path: path.resolve(process.cwd(), ".env.test") });
 
 /**
@@ -31,7 +33,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: "http://localhost:3002",
+    baseURL: "http://localhost:3000",
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
@@ -45,6 +47,17 @@ export default defineConfig({
 
   /* Configure projects for major browsers */
   projects: [
+    // Setup project
+    {
+      name: "setup",
+      testMatch: /.*\.setup\.ts/,
+      teardown: "cleanup",
+    },
+    // Cleanup project
+    {
+      name: "cleanup",
+      testMatch: /global\.teardown\.ts/,
+    },
     {
       name: "chromium",
       use: {
@@ -54,21 +67,19 @@ export default defineConfig({
           // Ignore HTTPS errors for local development
           ignoreHTTPSErrors: true,
         },
+        storageState: "playwright/.auth/user.json",
       },
+      dependencies: ["setup"],
     },
   ],
 
   /* Run your local dev server before starting the tests */
   webServer: {
     command: "npm run dev:e2e",
-    url: "http://localhost:3002",
+    url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },
-
-  /* Global setup and teardown */
-  globalSetup: "./e2e/global-setup.ts",
-  globalTeardown: "./e2e/global-teardown.ts",
 
   /* Test timeout */
   timeout: 30 * 1000,

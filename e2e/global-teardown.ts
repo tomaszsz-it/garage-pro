@@ -7,7 +7,7 @@ async function globalTeardown(config: FullConfig) {
   
   try {
     // Clean up auth files
-    const authFile = path.join(__dirname, 'auth.json');
+    const authFile = path.join(__dirname, '../playwright/.auth/user.json');
     if (fs.existsSync(authFile)) {
       fs.unlinkSync(authFile);
       console.log('✅ Auth file cleaned up');

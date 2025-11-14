@@ -1,35 +1,17 @@
 import { test, expect } from "@playwright/test";
-import { LoginPage } from "../pages/LoginPage";
 import { ServiceSelectionPage } from "../pages/ServiceSelectionPage";
 import { CalendarPage } from "../pages/CalendarPage";
 import { BookingConfirmationPage } from "../pages/BookingConfirmationPage";
 
 test.describe("Reservation Flow", () => {
-  let loginPage: LoginPage;
   let serviceSelectionPage: ServiceSelectionPage;
   let calendarPage: CalendarPage;
   let bookingConfirmationPage: BookingConfirmationPage;
 
   test.beforeEach(async ({ page }) => {
-    loginPage = new LoginPage(page);
     serviceSelectionPage = new ServiceSelectionPage(page);
     calendarPage = new CalendarPage(page);
     bookingConfirmationPage = new BookingConfirmationPage(page);
-
-    // Login first - required for accessing protected routes like /reservations
-    await loginPage.goto();
-
-    // Wait for login page to load
-    await loginPage.expectToBeLoaded();
-
-    // Use test credentials - can be overridden by environment variables
-    const username = process.env.E2E_USERNAME || "test@example.com";
-    const password = process.env.E2E_PASSWORD || "password";
-
-    await loginPage.login(username, password);
-
-    // Wait for successful login by checking for navigation menu (indicates we're logged in)
-    await page.locator("nav").waitFor({ state: "visible", timeout: 10000 });
 
     // Ensure test user has at least one vehicle
     await page.goto("/vehicles");
@@ -58,7 +40,7 @@ test.describe("Reservation Flow", () => {
       await page.locator('h2:has-text("Zarządzanie pojazdami")').waitFor({ state: "visible", timeout: 10000 });
     }
 
-    // Go back to reservations for the test
+    // Go to reservations for the test
     await page.goto("/reservations/available");
 
     // Wait for available reservations page to load
@@ -92,7 +74,7 @@ test.describe("Reservation Flow", () => {
     await expect(page.locator("text=Szczegóły rezerwacji")).toBeVisible();
   });
 
-  test("should validate service selection", async ({ page }) => {
+  test("should validate service selection", async () => {
     // Navigation to available reservations is done in beforeEach
 
     // Try to submit without selecting service
@@ -103,7 +85,7 @@ test.describe("Reservation Flow", () => {
     await serviceSelectionPage.expectErrorMessage("Proszę wybrać usługę");
   });
 
-  test("should validate vehicle selection in booking confirmation", async ({ page }) => {
+  test("should validate vehicle selection in booking confirmation", async () => {
     // Skip to booking confirmation step (assuming service and time are selected)
     // This would typically require setting up the app state or using API calls
 
@@ -117,7 +99,7 @@ test.describe("Reservation Flow", () => {
     // For demonstration purposes, we'll test the component behavior
   });
 
-  test("should allow navigation back through the flow", async ({ page }) => {
+  test("should allow navigation back through the flow", async () => {
     // Navigation to available reservations is done in beforeEach
 
     // Select service
@@ -131,7 +113,7 @@ test.describe("Reservation Flow", () => {
     await serviceSelectionPage.expectToBeLoaded();
   });
 
-  test("should handle empty calendar state", async ({ page }) => {
+  test("should handle empty calendar state", async () => {
     // Navigation to available reservations is done in beforeEach
 
     // Select service

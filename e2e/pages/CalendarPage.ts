@@ -34,7 +34,7 @@ export class CalendarPage {
     this.timeSlot1 = page.locator('[data-test-id="time-slot-1"]');
     this.timeSlot2 = page.locator('[data-test-id="time-slot-2"]');
     this.backButton = page.locator('button:has-text("Zmień usługę")');
-    this.emptyStateMessage = page.locator('text=Brak dostępnych terminów');
+    this.emptyStateMessage = page.locator('text=Brak dostępnych terminów').first();
   }
 
   async selectDay(dayName: string) {

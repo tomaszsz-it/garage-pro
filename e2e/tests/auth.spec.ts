@@ -4,9 +4,17 @@ import { LoginPage } from "../pages/LoginPage";
 test.describe("Authentication", () => {
   let loginPage: LoginPage;
 
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, context }) => {
+    // Ensure user is logged out before each test
+    await context.clearCookies();
+    
     loginPage = new LoginPage(page);
     await loginPage.goto();
+    
+    // Wait for React to hydrate by interacting with the form
+    await loginPage.emailInput.waitFor({ state: "visible" });
+    await loginPage.emailInput.click();
+    await page.waitForTimeout(300);
   });
 
   test("should display login form", async () => {
@@ -18,42 +26,34 @@ test.describe("Authentication", () => {
   });
 
   test("should show validation errors for empty fields", async ({ page }) => {
-    await loginPage.loginButton.click();
-
-    // Check for client-side validation error messages (field-level errors use text-red-300)
-    await expect(page.locator(".text-red-300").filter({ hasText: "Adres e-mail jest wymagany" })).toBeVisible();
-    await expect(page.locator(".text-red-300").filter({ hasText: "Hasło jest wymagane" })).toBeVisible();
-  });
-
-  test("should show error for invalid credentials", async ({ page, baseURL }) => {
-    // Navigate to a fresh page and set up interception
-    await page.goto(`${baseURL}/auth/login`);
-    await page.waitForSelector("form");
-
-    // Intercept login API call
-    await page.route("**/api/auth/login", async (route) => {
-      await route.fulfill({
-        status: 401,
-        contentType: "application/json",
-        body: JSON.stringify({
-          success: false,
-          error: {
-            message: "Invalid credentials",
-          },
-        }),
-      });
+    // Disable HTML5 validation to test React validation
+    await page.evaluate(() => {
+      const form = document.querySelector("form");
+      if (form) form.noValidate = true;
     });
 
-    // Fill and submit form
-    await page.fill("#email", "invalid@example.com");
-    await page.fill("#password", "wrongpassword");
-    await page.click('button[type="submit"]');
+    // Click submit with empty fields to trigger React validation
+    await loginPage.loginButton.click();
+
+    // Wait for React to render validation errors
+    await page.waitForTimeout(500);
+
+    // Check for React validation error messages (both fields required)
+    await expect(page.getByText("Adres e-mail jest wymagany", { exact: true })).toBeVisible();
+    await expect(page.getByText("Hasło jest wymagane", { exact: true })).toBeVisible();
+  });
+
+  test("should show error for invalid credentials", async ({ page }) => {
+    // Fill and submit form with invalid credentials
+    await loginPage.emailInput.fill("invalid@example.com");
+    await loginPage.passwordInput.fill("wrongpassword123");
+    await loginPage.loginButton.click();
 
     // Wait for error to appear
     await page.waitForTimeout(2000);
 
-    // Verify error handling
-    await expect(page.locator(".text-red-200").filter({ hasText: "Invalid credentials" })).toBeVisible();
+    // Verify error handling - backend returns this message for invalid credentials
+    await expect(page.getByText("Nieprawidłowe dane logowania")).toBeVisible();
   });
 
   test("should validate email format", async () => {
@@ -87,50 +87,5 @@ test.describe("Authentication", () => {
   test("should have working register link", async ({ page }) => {
     await loginPage.registerLink.click();
     await expect(page).toHaveURL(/.*\/auth\/register/);
-  });
-
-  // API testing example
-  test("should make proper API call on login", async ({ page, baseURL }) => {
-    // Navigate to a fresh page and set up interception before any API calls
-    await page.goto(`${baseURL}/auth/login`);
-    await page.waitForSelector("form");
-
-    // Set up route interception
-    await page.route("**/api/auth/login", async (route) => {
-      console.log("Intercepted API call:", route.request().url());
-      await route.fulfill({
-        status: 401,
-        contentType: "application/json",
-        body: JSON.stringify({
-          success: false,
-          error: {
-            message: "Invalid credentials",
-          },
-        }),
-      });
-    });
-
-    // Fill and submit form
-    await page.fill("#email", "test@example.com");
-    await page.fill("#password", "password");
-    await page.click('button[type="submit"]');
-
-    // Wait for error to appear
-    await page.waitForTimeout(2000);
-
-    // Check what error messages appear
-    const errorElements = await page.locator(".text-red-200").all();
-    console.log(`Found ${errorElements.length} error elements`);
-    for (const element of errorElements) {
-      const text = await element.textContent();
-      console.log("Error text:", JSON.stringify(text));
-    }
-
-    // Look for any error text on the page
-    const pageText = await page.textContent("body");
-    console.log("Page contains 'Invalid credentials':", pageText?.includes("Invalid credentials"));
-
-    // Verify error handling
-    await expect(page.locator(".text-red-200").filter({ hasText: "Invalid credentials" })).toBeVisible();
   });
 });

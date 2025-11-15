@@ -15,7 +15,7 @@ export default defineConfig({
     watch: true,
     
     // UI mode for development
-    ui: true,
+    ui: process.env.CI ? false : true,
     
     // Coverage configuration
     coverage: {

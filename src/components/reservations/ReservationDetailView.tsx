@@ -46,7 +46,7 @@ export function ReservationDetailView({ reservationId }: ReservationDetailViewPr
       await editReservation(data);
       toast.success("Rezerwacja została zaktualizowana pomyślnie");
       setIsEditDialogOpen(false);
-    } catch (error) {
+    } catch {
       // Error is already handled in the hook and dialog
       toast.error("Nie udało się zaktualizować rezerwacji");
     }
@@ -62,7 +62,7 @@ export function ReservationDetailView({ reservationId }: ReservationDetailViewPr
       setTimeout(() => {
         window.location.href = "/reservations";
       }, 1500);
-    } catch (error) {
+    } catch {
       // Error is already handled in the hook and dialog
       toast.error("Nie udało się anulować rezerwacji");
     }

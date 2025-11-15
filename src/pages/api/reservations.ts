@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { APIRoute } from "astro";
 import { ReservationCreateSchema, getReservationsQuerySchema } from "../../lib/validation/reservationSchema";
 import { createReservationService } from "../../lib/services/reservationService";

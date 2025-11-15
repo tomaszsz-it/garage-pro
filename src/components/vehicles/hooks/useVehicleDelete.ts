@@ -58,7 +58,6 @@ export function useVehicleDelete({ onSuccess, onError }: UseVehicleDeleteParams 
         onSuccess?.(vehicle);
         return true;
       } catch (err) {
-        console.error("Error deleting vehicle:", err);
         const error = err instanceof Error ? err : new Error("Nieznany błąd podczas usuwania pojazdu");
         setDeleteError(error);
         onError?.(error, vehicle);

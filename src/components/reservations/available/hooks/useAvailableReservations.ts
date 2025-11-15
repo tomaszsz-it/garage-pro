@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import type {
   AvailableReservationsQueryParams,
   AvailableReservationsResponseDto,
+  AvailableReservationDto,
   AvailableReservationViewModel,
 } from "../../../../types";
 
@@ -28,7 +29,7 @@ export const useAvailableReservations = ({
    * Maps AvailableReservationDto to AvailableReservationViewModel
    * Adds formatted display fields for the frontend
    */
-  const mapToViewModel = useCallback((dto: any): AvailableReservationViewModel => {
+  const mapToViewModel = useCallback((dto: AvailableReservationDto): AvailableReservationViewModel => {
     const startDate = new Date(dto.start_ts);
     const endDate = new Date(dto.end_ts);
 

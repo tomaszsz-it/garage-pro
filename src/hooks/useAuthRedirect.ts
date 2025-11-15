@@ -1,8 +1,9 @@
 import { useCallback } from "react";
+import type { ServiceDto, AvailableReservationViewModel } from "../types";
 
 interface PendingBookingState {
-  selectedService: any;
-  selectedSlot: any;
+  selectedService: ServiceDto | null;
+  selectedSlot: AvailableReservationViewModel | null;
   returnUrl: string;
   step: string;
 }

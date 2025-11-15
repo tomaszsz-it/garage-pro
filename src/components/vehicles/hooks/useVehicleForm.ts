@@ -223,8 +223,12 @@ export function useVehicleForm({ mode, initialData, onSuccess, onError }: UseVeh
 
           if (response.status === 400 && errorData.errors) {
             // Handle validation errors
+            interface ValidationError {
+              path: string[];
+              message: string;
+            }
             const fieldErrors: VehicleFormErrors = {};
-            errorData.errors.forEach((error: any) => {
+            (errorData.errors as ValidationError[]).forEach((error) => {
               if (error.path && error.path.length > 0) {
                 fieldErrors[error.path[0] as keyof VehicleFormErrors] = error.message;
               }

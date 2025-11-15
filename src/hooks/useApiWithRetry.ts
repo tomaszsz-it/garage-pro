@@ -1,5 +1,6 @@
-import { useCallback, useState } from "react";
+import { useState, useCallback } from "react";
 import { useAuthRedirect } from "./useAuthRedirect";
+import type { ServiceDto, AvailableReservationViewModel } from "../types";
 
 interface ApiCallOptions {
   method?: string;
@@ -9,12 +10,19 @@ interface ApiCallOptions {
   retryDelay?: number;
 }
 
+interface PendingBookingState {
+  selectedService: ServiceDto | null;
+  selectedSlot: AvailableReservationViewModel | null;
+  returnUrl: string;
+  step: string;
+}
+
 export const useApiWithRetry = () => {
   const { checkAuthAndRedirect } = useAuthRedirect();
   const [retryCount, setRetryCount] = useState(0);
 
   const makeApiCall = useCallback(
-    async (url: string, options: ApiCallOptions = {}, pendingBookingState?: any) => {
+    async (url: string, options: ApiCallOptions = {}, pendingBookingState?: PendingBookingState) => {
       const { method = "GET", body, headers = {}, maxRetries = 3, retryDelay = 1000 } = options;
 
       const fetchOptions: RequestInit = {
@@ -66,7 +74,7 @@ export const useApiWithRetry = () => {
     [checkAuthAndRedirect]
   );
 
-  const retry = useCallback(async (lastFailedCall: () => Promise<any>) => {
+  const retry = useCallback(async <T>(lastFailedCall: () => Promise<T>): Promise<T> => {
     setRetryCount(0);
     return await lastFailedCall();
   }, []);

@@ -11,9 +11,9 @@ export class LoginPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.emailInput = page.locator('input[name="email"]');
-    this.passwordInput = page.locator('input[name="password"]');
-    this.loginButton = page.locator('button[type="submit"]:has-text("Log in")');
+    this.emailInput = page.locator('#email');
+    this.passwordInput = page.locator('#password');
+    this.loginButton = page.locator('button[type="submit"]:has-text("Zaloguj się")');
     this.errorMessage = page.locator('[data-testid="error-message"]');
     this.forgotPasswordLink = page.locator('a[href="/auth/forgot-password"]');
     this.registerLink = page.locator('a[href="/auth/register"]');

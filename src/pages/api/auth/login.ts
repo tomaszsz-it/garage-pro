@@ -44,11 +44,24 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     });
 
     if (error) {
+      console.error('Supabase login error:', error);
+
+      // More specific error messages
+      let errorMessage = 'Nieprawidłowy adres e-mail lub hasło';
+      if (error.message?.includes('Email not confirmed')) {
+        errorMessage = 'Adres e-mail nie został potwierdzony. Sprawdź swoją skrzynkę pocztową.';
+      } else if (error.message?.includes('Invalid login credentials')) {
+        errorMessage = 'Nieprawidłowe dane logowania. Sprawdź email i hasło.';
+      } else if (error.message?.includes('User not found')) {
+        errorMessage = 'Użytkownik nie istnieje.';
+      }
+
       return new Response(
         JSON.stringify({
           success: false,
           error: {
-            message: 'Nieprawidłowy adres e-mail lub hasło',
+            message: errorMessage,
+            supabaseError: error.message,
           },
         }),
         {

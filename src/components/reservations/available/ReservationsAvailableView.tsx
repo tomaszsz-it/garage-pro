@@ -25,6 +25,7 @@ const ReservationsAvailableView: React.FC = React.memo(() => {
     setLoading,
     setCreatingReservation,
     setError,
+    setCurrentStep,
     setReservationSummary,
     resetToServiceSelection,
     resetToCalendar,
@@ -102,12 +103,13 @@ const ReservationsAvailableView: React.FC = React.memo(() => {
           setVehicles(vehiclesData.data);
         }
         setLoading(false);
+        setCurrentStep("booking-confirmation");
       } catch (error) {
         setError(error instanceof Error ? error.message : "Failed to load vehicles");
         setLoading(false);
       }
     },
-    [state.selectedService, setSelectedSlot, setLoading, setError, makeApiCall, setVehicles]
+    [state.selectedService, setSelectedSlot, setLoading, setError, makeApiCall, setVehicles, setCurrentStep]
   );
 
   const handleRetry = useCallback(async () => {

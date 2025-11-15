@@ -106,6 +106,7 @@ const ServiceSelectionForm: React.FC<ServiceSelectionFormProps> = ({ onServiceSe
               tabIndex={0}
               role="button"
               aria-pressed={selectedServiceId === service.service_id}
+              data-test-id={`service-option-${service.service_id}`}
             >
               <div className="flex items-start space-x-3">
                 <input
@@ -169,6 +170,7 @@ const ServiceSelectionForm: React.FC<ServiceSelectionFormProps> = ({ onServiceSe
             type="submit" 
             className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-sm font-medium rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed" 
             disabled={!selectedServiceId}
+            data-test-id="service-selection-submit"
           >
             Dalej
           </Button>

@@ -42,7 +42,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     const startOfWeek = new Date(date);
     // Normalize to start of day to avoid timezone issues
     startOfWeek.setHours(0, 0, 0, 0);
-    
+
     const day = startOfWeek.getDay();
 
     // Calculate days to subtract to get to Monday
@@ -70,13 +70,13 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   const canGoToPreviousWeek = React.useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     const previousWeekDate = new Date(currentDate);
     previousWeekDate.setDate(currentDate.getDate() - 7);
-    
+
     const previousWeekStart = getWeekDates(previousWeekDate)[0];
     previousWeekStart.setHours(0, 0, 0, 0);
-    
+
     return previousWeekStart >= today;
   }, [currentDate]);
 
@@ -91,10 +91,10 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   useEffect(() => {
     const startOfWeek = new Date(weekDates[0]);
     const endOfWeek = new Date(weekDates[6]);
-    
+
     // Set end of week to end of Sunday (23:59:59)
     endOfWeek.setHours(23, 59, 59, 999);
-    
+
     const now = new Date();
 
     // Don't query for dates more than 1 day in the past to avoid validation errors
@@ -119,14 +119,14 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
     weekDates.forEach((date) => {
       // FIXED: Use local date string instead of UTC to avoid timezone shift
-      const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
       grouped[dateKey] = [];
     });
 
     availableSlots.forEach((slot) => {
       const slotDateTime = new Date(slot.start_ts);
       // FIXED: Use local date string instead of UTC to avoid timezone shift
-      const slotDate = `${slotDateTime.getFullYear()}-${String(slotDateTime.getMonth() + 1).padStart(2, '0')}-${String(slotDateTime.getDate()).padStart(2, '0')}`;
+      const slotDate = `${slotDateTime.getFullYear()}-${String(slotDateTime.getMonth() + 1).padStart(2, "0")}-${String(slotDateTime.getDate()).padStart(2, "0")}`;
       const slotTime = new Date(slot.start_ts);
 
       // Only include slots that are in the future (with 5 minute buffer to avoid edge cases)
@@ -142,14 +142,14 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   const handlePreviousWeek = () => {
     const newDate = new Date(currentDate);
     newDate.setDate(currentDate.getDate() - 7);
-    
+
     // Don't allow navigation to weeks that start before today
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Start of today
-    
+
     const newWeekStart = getWeekDates(newDate)[0];
     newWeekStart.setHours(0, 0, 0, 0); // Start of week
-    
+
     if (newWeekStart >= today) {
       setCurrentDate(newDate);
     }
@@ -294,21 +294,22 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
         {/* Week Navigation */}
         <div className="flex items-center space-x-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             onClick={handlePreviousWeek}
             disabled={!canGoToPreviousWeek}
+            data-test-id="previous-week-button"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <span className="text-sm font-medium text-gray-700 min-w-[120px] text-center">
             {formatDate(weekDates[0])} - {formatDate(weekDates[6])}
           </span>
-          <Button variant="outline" size="sm" onClick={handleNextWeek}>
+          <Button variant="outline" size="sm" onClick={handleNextWeek} data-test-id="next-week-button">
             <ChevronRight className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="sm" onClick={handleGoToToday} className="ml-2">
+          <Button variant="outline" size="sm" onClick={handleGoToToday} className="ml-2" data-test-id="today-button">
             Dzisiaj
           </Button>
         </div>
@@ -318,7 +319,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
       <div className="grid grid-cols-7 gap-4">
         {weekDates.map((date, index) => {
           // FIXED: Use local date string instead of UTC to avoid timezone shift
-          const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+          const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
           const daySlots = slotsByDate[dateKey] || [];
           const hasSlots = daySlots.length > 0;
           const isSelectedDay = selectedDay === dateKey;
@@ -354,6 +355,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                 role="button"
                 aria-pressed={isSelectedDay}
                 aria-disabled={isPastDate || !hasSlots}
+                data-test-id={`day-${dayNames[index].toLowerCase()}`}
               >
                 <div className="text-xs font-medium">{dayNames[index]}</div>
                 <div className="text-lg font-semibold">{date.getDate()}</div>
@@ -375,6 +377,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                         size="sm"
                         className="w-full text-xs justify-start hover:bg-blue-50 hover:border-blue-300"
                         onClick={() => onTimeSelect(slot)}
+                        data-test-id={`time-slot-${slotIndex}`}
                       >
                         <Clock className="h-3 w-3 mr-1" />
                         {formatTime(slot.start_ts)}

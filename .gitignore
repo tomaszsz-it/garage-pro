@@ -15,6 +15,8 @@ pnpm-debug.log*
 
 # environment variables
 .env
+.env.local
+.env.test
 .env.production
 
 # macOS-specific files
@@ -23,12 +25,15 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
+playwright/.auth
 # test output
 coverage/
 test-results/
-playwright-report/
+playwright-report/*
+playwright-report/index.html
 html/
 e2e/auth.json
 
 # vitest
 vitest.config.ts.timestamp-*
+/playwright/.auth

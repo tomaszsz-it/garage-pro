@@ -74,32 +74,40 @@ export class CalendarPage {
   /**
    * Finds and selects the first available day with time slots.
    * Iterates through days of the week, then navigates to next week if no slots found.
-   * @param maxWeeks Maximum number of weeks to search (default: 4)
+   * @param maxWeeks Maximum number of weeks to search (default: 8)
    * @returns true if an available day was found and selected, false otherwise
    */
-  async selectFirstAvailableDay(maxWeeks = 4): Promise<boolean> {
+  async selectFirstAvailableDay(maxWeeks = 8): Promise<boolean> {
     const dayTestIds = ["day-pon", "day-wt", "day-śr", "day-czw", "day-pt", "day-sob", "day-nie"];
 
     for (let week = 0; week < maxWeeks; week++) {
       // Wait for calendar to load
       await this.dayMonday.waitFor({ state: "visible", timeout: 10000 }).catch(() => false);
 
+      // Wait a bit for slots to load after week navigation
+      await this.page.waitForTimeout(500);
+
       // Try each day in the current week
       for (const dayTestId of dayTestIds) {
         const dayLocator = this.page.locator(`[data-test-id="${dayTestId}"]`);
 
-        // Check if day is visible and enabled
+        // Check if day is visible
         const isVisible = await dayLocator.isVisible().catch(() => false);
-        if (!isVisible) continue;
+        if (!isVisible) {
+          continue;
+        }
 
+        // Check if day is disabled (past or no slots)
         const isDisabled = await dayLocator.getAttribute("aria-disabled");
-        if (isDisabled === "true") continue;
+        if (isDisabled === "true") {
+          continue;
+        }
 
         // Click the available day
         await dayLocator.click();
 
         // Wait for UI update and check for time slots
-        await this.page.waitForTimeout(300);
+        await this.page.waitForTimeout(500);
         const hasTimeSlots = await this.timeSlot0.isVisible().catch(() => false);
 
         if (hasTimeSlots) {
@@ -110,17 +118,21 @@ export class CalendarPage {
       // No available days in this week, navigate to next week if possible
       if (week < maxWeeks - 1) {
         const canNavigateNext = await this.nextWeekButton.isVisible().catch(() => false);
-        if (!canNavigateNext) return false;
+        if (!canNavigateNext) {
+          return false;
+        }
 
         const isNextDisabled = await this.nextWeekButton.isDisabled().catch(() => true);
-        if (isNextDisabled) return false;
+        if (isNextDisabled) {
+          return false;
+        }
 
         await this.nextWeekButton.click();
-        await this.page.waitForTimeout(300); // Wait for week transition
+        await this.page.waitForTimeout(500); // Wait for week transition and data loading
       }
     }
 
-    return false; // No available days found
+    return false; // No available slots found after searching all weeks
   }
 
   async expectToBeLoaded() {

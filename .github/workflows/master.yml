@@ -26,8 +26,9 @@ jobs:
       - name: Run tests (Vitest & Playwright)
         env:
           CI: true
+          FORCE_COLOR: '1'
         run: |
-          npm run test
+          npm run test -- --reporter=verbose --no-coverage
           npm run playwright:test
 
   build:

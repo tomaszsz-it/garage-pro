@@ -4,13 +4,15 @@ interface RecommendationSectionProps {
   recommendationText: string;
 }
 
-export const RecommendationSection: React.FC<RecommendationSectionProps> = ({
-  recommendationText,
-}) => {
+export const RecommendationSection: React.FC<RecommendationSectionProps> = ({ recommendationText }) => {
   const hasRecommendation = recommendationText && recommendationText.trim().length > 0;
 
   return (
-    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6" role="region" aria-labelledby="ai-recommendations-title">
+    <div
+      className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6"
+      role="region"
+      aria-labelledby="ai-recommendations-title"
+    >
       <div className="flex items-start space-x-3">
         <div className="flex-shrink-0" aria-hidden="true">
           <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
@@ -31,18 +33,16 @@ export const RecommendationSection: React.FC<RecommendationSectionProps> = ({
             </svg>
           </div>
         </div>
-        
+
         <div className="flex-1">
           <h3 id="ai-recommendations-title" className="text-lg font-semibold text-gray-900 mb-2">
             Rekomendacje serwisowe AI
           </h3>
-          
+
           {hasRecommendation ? (
             <div className="prose prose-sm max-w-none">
               <div className="bg-white rounded-md p-4 border border-blue-100 max-h-64 overflow-y-auto">
-                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                  {recommendationText}
-                </p>
+                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{recommendationText}</p>
               </div>
             </div>
           ) : (
@@ -52,7 +52,7 @@ export const RecommendationSection: React.FC<RecommendationSectionProps> = ({
               </p>
             </div>
           )}
-          
+
           <div className="mt-3 text-xs text-gray-500">
             <p>
               💡 Rekomendacje zostały wygenerowane automatycznie na podstawie danych Twojego pojazdu i wybranej usługi.

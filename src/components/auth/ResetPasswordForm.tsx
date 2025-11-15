@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Lock, Eye, EyeOff, Save, CheckCircle } from 'lucide-react';
-import { Button } from '../ui/button';
+import React, { useState } from "react";
+import { Lock, Eye, EyeOff, Save, CheckCircle } from "lucide-react";
+import { Button } from "../ui/button";
 
 interface ResetPasswordFormData {
   password: string;
@@ -15,8 +15,8 @@ interface ResetPasswordFormErrors {
 
 export default function ResetPasswordForm() {
   const [formData, setFormData] = useState<ResetPasswordFormData>({
-    password: '',
-    confirmPassword: '',
+    password: "",
+    confirmPassword: "",
   });
   const [errors, setErrors] = useState<ResetPasswordFormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -29,18 +29,18 @@ export default function ResetPasswordForm() {
 
     // Password validation
     if (!formData.password) {
-      newErrors.password = 'Hasło jest wymagane';
+      newErrors.password = "Hasło jest wymagane";
     } else if (formData.password.length < 8) {
-      newErrors.password = 'Hasło musi mieć co najmniej 8 znaków';
+      newErrors.password = "Hasło musi mieć co najmniej 8 znaków";
     } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      newErrors.password = 'Hasło musi zawierać małą literę, wielką literę i cyfrę';
+      newErrors.password = "Hasło musi zawierać małą literę, wielką literę i cyfrę";
     }
 
     // Confirm password validation
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Potwierdzenie hasła jest wymagane';
+      newErrors.confirmPassword = "Potwierdzenie hasła jest wymagane";
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Hasła nie są identyczne';
+      newErrors.confirmPassword = "Hasła nie są identyczne";
     }
 
     setErrors(newErrors);
@@ -49,7 +49,7 @@ export default function ResetPasswordForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -60,35 +60,31 @@ export default function ResetPasswordForm() {
     try {
       // TODO: Implement API call to /api/auth/reset-password
       // This should include the token from URL params
-      console.log('Reset password attempt:', { password: formData.password });
-      
+
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       setIsSuccess(true);
-      
-    } catch (error) {
+    } catch {
       setErrors({
-        general: 'Wystąpił błąd podczas resetowania hasła. Link może być nieprawidłowy lub wygasły.'
+        general: "Wystąpił błąd podczas resetowania hasła. Link może być nieprawidłowy lub wygasły.",
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleInputChange = (field: keyof ResetPasswordFormData) => (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setFormData(prev => ({
+  const handleInputChange = (field: keyof ResetPasswordFormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData((prev) => ({
       ...prev,
-      [field]: e.target.value
+      [field]: e.target.value,
     }));
-    
+
     // Clear field error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [field]: undefined
+        [field]: undefined,
       }));
     }
   };
@@ -105,7 +101,7 @@ export default function ResetPasswordForm() {
         </p>
         <div className="pt-4">
           <Button
-            onClick={() => window.location.href = '/auth/login'}
+            onClick={() => (window.location.href = "/auth/login")}
             className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200"
           >
             Przejdź do logowania
@@ -135,13 +131,11 @@ export default function ResetPasswordForm() {
           </div>
           <input
             id="password"
-            type={showPassword ? 'text' : 'password'}
+            type={showPassword ? "text" : "password"}
             value={formData.password}
-            onChange={handleInputChange('password')}
+            onChange={handleInputChange("password")}
             className={`w-full pl-10 pr-12 py-3 rounded-xl bg-white/5 border backdrop-blur-sm text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-400/50 transition-all ${
-              errors.password 
-                ? 'border-red-400/50 focus:ring-red-400/50' 
-                : 'border-white/10 hover:border-white/20'
+              errors.password ? "border-red-400/50 focus:ring-red-400/50" : "border-white/10 hover:border-white/20"
             }`}
             placeholder="Minimum 8 znaków"
             disabled={isLoading}
@@ -155,9 +149,7 @@ export default function ResetPasswordForm() {
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
         </div>
-        {errors.password && (
-          <p className="text-red-300 text-sm">{errors.password}</p>
-        )}
+        {errors.password && <p className="text-red-300 text-sm">{errors.password}</p>}
       </div>
 
       {/* Confirm Password Field */}
@@ -171,13 +163,13 @@ export default function ResetPasswordForm() {
           </div>
           <input
             id="confirmPassword"
-            type={showConfirmPassword ? 'text' : 'password'}
+            type={showConfirmPassword ? "text" : "password"}
             value={formData.confirmPassword}
-            onChange={handleInputChange('confirmPassword')}
+            onChange={handleInputChange("confirmPassword")}
             className={`w-full pl-10 pr-12 py-3 rounded-xl bg-white/5 border backdrop-blur-sm text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-400/50 transition-all ${
-              errors.confirmPassword 
-                ? 'border-red-400/50 focus:ring-red-400/50' 
-                : 'border-white/10 hover:border-white/20'
+              errors.confirmPassword
+                ? "border-red-400/50 focus:ring-red-400/50"
+                : "border-white/10 hover:border-white/20"
             }`}
             placeholder="Powtórz nowe hasło"
             disabled={isLoading}
@@ -191,9 +183,7 @@ export default function ResetPasswordForm() {
             {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
         </div>
-        {errors.confirmPassword && (
-          <p className="text-red-300 text-sm">{errors.confirmPassword}</p>
-        )}
+        {errors.confirmPassword && <p className="text-red-300 text-sm">{errors.confirmPassword}</p>}
       </div>
 
       {/* Password Requirements */}

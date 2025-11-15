@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
-import { Button } from '../ui/button';
+import React, { useState } from "react";
+import { Mail, Lock, Eye, EyeOff, LogIn } from "lucide-react";
+import { Button } from "../ui/button";
 
 interface LoginFormData {
   email: string;
@@ -15,8 +15,8 @@ interface LoginFormErrors {
 
 export default function LoginForm() {
   const [formData, setFormData] = useState<LoginFormData>({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
   const [errors, setErrors] = useState<LoginFormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -27,14 +27,14 @@ export default function LoginForm() {
 
     // Email validation
     if (!formData.email) {
-      newErrors.email = 'Adres e-mail jest wymagany';
+      newErrors.email = "Adres e-mail jest wymagany";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Wprowadź prawidłowy adres e-mail';
+      newErrors.email = "Wprowadź prawidłowy adres e-mail";
     }
 
     // Password validation
     if (!formData.password) {
-      newErrors.password = 'Hasło jest wymagane';
+      newErrors.password = "Hasło jest wymagane";
     }
 
     setErrors(newErrors);
@@ -43,7 +43,7 @@ export default function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -52,10 +52,10 @@ export default function LoginForm() {
     setErrors({});
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
@@ -64,7 +64,7 @@ export default function LoginForm() {
 
       if (!response.ok || !result.success) {
         setErrors({
-          general: result.error?.message || 'Wystąpił błąd podczas logowania'
+          general: result.error?.message || "Wystąpił błąd podczas logowania",
         });
         return;
       }
@@ -73,35 +73,31 @@ export default function LoginForm() {
       const pendingBooking = sessionStorage.getItem("pendingBooking");
       if (pendingBooking) {
         // User was in the middle of booking process, redirect back to continue
-        window.location.href = '/reservations/available';
+        window.location.href = "/reservations/available";
       } else {
         // Normal login, redirect to dashboard
-        window.location.href = '/reservations';
+        window.location.href = "/reservations";
       }
-      
-    } catch (error) {
-      console.error('Login error:', error);
+    } catch {
       setErrors({
-        general: 'Wystąpił błąd połączenia. Spróbuj ponownie.'
+        general: "Wystąpił błąd połączenia. Spróbuj ponownie.",
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleInputChange = (field: keyof LoginFormData) => (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setFormData(prev => ({
+  const handleInputChange = (field: keyof LoginFormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData((prev) => ({
       ...prev,
-      [field]: e.target.value
+      [field]: e.target.value,
     }));
-    
+
     // Clear field error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [field]: undefined
+        [field]: undefined,
       }));
     }
   };
@@ -128,19 +124,15 @@ export default function LoginForm() {
             id="email"
             type="email"
             value={formData.email}
-            onChange={handleInputChange('email')}
+            onChange={handleInputChange("email")}
             className={`w-full pl-10 pr-4 py-3 rounded-xl bg-white/5 border backdrop-blur-sm text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-400/50 transition-all ${
-              errors.email 
-                ? 'border-red-400/50 focus:ring-red-400/50' 
-                : 'border-white/10 hover:border-white/20'
+              errors.email ? "border-red-400/50 focus:ring-red-400/50" : "border-white/10 hover:border-white/20"
             }`}
             placeholder="twoj@email.com"
             disabled={isLoading}
           />
         </div>
-        {errors.email && (
-          <p className="text-red-300 text-sm">{errors.email}</p>
-        )}
+        {errors.email && <p className="text-red-300 text-sm">{errors.email}</p>}
       </div>
 
       {/* Password Field */}
@@ -154,13 +146,11 @@ export default function LoginForm() {
           </div>
           <input
             id="password"
-            type={showPassword ? 'text' : 'password'}
+            type={showPassword ? "text" : "password"}
             value={formData.password}
-            onChange={handleInputChange('password')}
+            onChange={handleInputChange("password")}
             className={`w-full pl-10 pr-12 py-3 rounded-xl bg-white/5 border backdrop-blur-sm text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-400/50 transition-all ${
-              errors.password 
-                ? 'border-red-400/50 focus:ring-red-400/50' 
-                : 'border-white/10 hover:border-white/20'
+              errors.password ? "border-red-400/50 focus:ring-red-400/50" : "border-white/10 hover:border-white/20"
             }`}
             placeholder="Wprowadź hasło"
             disabled={isLoading}
@@ -174,9 +164,7 @@ export default function LoginForm() {
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
         </div>
-        {errors.password && (
-          <p className="text-red-300 text-sm">{errors.password}</p>
-        )}
+        {errors.password && <p className="text-red-300 text-sm">{errors.password}</p>}
       </div>
 
       {/* Submit Button */}

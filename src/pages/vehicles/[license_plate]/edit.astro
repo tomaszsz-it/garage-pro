@@ -16,14 +16,12 @@ const decodedLicensePlate = decodeURIComponent(license_plate);
 <Layout title={`Edytuj pojazd ${decodedLicensePlate}`}>
   <main class="container mx-auto px-4 py-8">
     <div class="mb-8">
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-        Edytuj pojazd
-      </h1>
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Edytuj pojazd</h1>
       <p class="text-gray-600 dark:text-gray-400 mt-2">
         Aktualizuj dane pojazdu <strong>{decodedLicensePlate}</strong>.
       </p>
     </div>
-    
+
     <!-- VehicleForm component will be rendered here -->
     <div id="vehicle-form" data-license-plate={decodedLicensePlate}></div>
   </main>
@@ -39,9 +37,11 @@ const decodedLicensePlate = decodeURIComponent(license_plate);
   if (container) {
     const licensePlate = container.getAttribute("data-license-plate");
     const root = createRoot(container);
-    root.render(createElement(VehicleForm, { 
-      mode: "edit", 
-      licensePlate: licensePlate 
-    }));
+    root.render(
+      createElement(VehicleForm, {
+        mode: "edit",
+        licensePlate: licensePlate,
+      })
+    );
   }
 </script>

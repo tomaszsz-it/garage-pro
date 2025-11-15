@@ -1,35 +1,35 @@
 /// <reference types="vitest" />
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
   test: {
     // Environment setup
-    environment: 'jsdom',
-    
+    environment: "jsdom",
+
     // Global setup and teardown
-    setupFiles: ['./src/test/setup.ts'],
-    
+    setupFiles: ["./src/test/setup.ts"],
+
     // Watch mode configuration
     watch: true,
-    
+
     // UI mode for development
     ui: process.env.CI ? false : true,
-    
+
     // Coverage configuration
     coverage: {
-      provider: 'v8',
-      reporter: ['text', 'html', 'json-summary'],
+      provider: "v8",
+      reporter: ["text", "html", "json-summary"],
       exclude: [
-        'node_modules/',
-        'dist/',
-        '**/*.config.*',
-        '**/*.test.*',
-        '**/*.spec.*',
-        'src/test/',
-        'e2e/',
-        '.astro/',
+        "node_modules/",
+        "dist/",
+        "**/*.config.*",
+        "**/*.test.*",
+        "**/*.spec.*",
+        "src/test/",
+        "e2e/",
+        ".astro/",
       ],
       thresholds: {
         global: {
@@ -40,20 +40,18 @@ export default defineConfig({
         },
       },
     },
-    
+
     // Test file patterns
-    include: [
-      'src/**/*.{test,spec}.{js,ts,jsx,tsx}',
-    ],
-    
+    include: ["src/**/*.{test,spec}.{js,ts,jsx,tsx}"],
+
     // Globals for vi and expect
     globals: true,
-    
+
     // Reporter configuration
-    reporter: ['verbose', 'html'],
-    
+    reporter: ["verbose", "html"],
+
     // Pool options for better performance
-    pool: 'threads',
+    pool: "threads",
     poolOptions: {
       threads: {
         singleThread: false,
@@ -62,7 +60,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': '/src',
+      "@": "/src",
     },
   },
-})
+});

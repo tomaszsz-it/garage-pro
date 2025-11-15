@@ -25,7 +25,7 @@ export function VehicleForm({ mode, licensePlate, initialData }: VehicleFormProp
 
         try {
           const response = await fetch(`/api/vehicles/${encodeURIComponent(licensePlate)}`);
-          
+
           if (!response.ok) {
             if (response.status === 404) {
               throw new Error("Pojazd nie został znaleziony");
@@ -39,7 +39,6 @@ export function VehicleForm({ mode, licensePlate, initialData }: VehicleFormProp
           const vehicle: VehicleDto = await response.json();
           setVehicleData(vehicle);
         } catch (error) {
-          console.error("Error fetching vehicle:", error);
           setLoadError(error instanceof Error ? error.message : "Nieznany błąd");
         } finally {
           setIsLoadingVehicle(false);
@@ -50,37 +49,29 @@ export function VehicleForm({ mode, licensePlate, initialData }: VehicleFormProp
     }
   }, [mode, licensePlate, initialData]);
 
-  // Don't initialize the form hook until we have vehicle data for edit mode
-  const shouldInitializeForm = mode === "create" || (mode === "edit" && (vehicleData || loadError));
-  
-  const {
-    formData,
-    errors,
-    isSubmitting,
-    isDirty,
-    updateField,
-    validateField,
-    submitForm,
-    resetForm,
-  } = useVehicleForm({
-    mode,
-    initialData: vehicleData,
-    onSuccess: (vehicle) => {
-      const message = mode === "create" 
-        ? `Pojazd ${vehicle.license_plate} został dodany`
-        : `Pojazd ${vehicle.license_plate} został zaktualizowany`;
-      
-      toast.success(message);
-      
-      // Redirect after success
-      setTimeout(() => {
-        window.location.href = "/vehicles";
-      }, 1500);
-    },
-    onError: (error) => {
-      toast.error(`Błąd ${mode === "create" ? "dodawania" : "aktualizacji"} pojazdu: ${error.message}`);
-    },
-  });
+  // Initialize the form hook with vehicle data for edit mode or create mode
+  const { formData, errors, isSubmitting, isDirty, updateField, validateField, submitForm, resetForm } = useVehicleForm(
+    {
+      mode,
+      initialData: vehicleData,
+      onSuccess: (vehicle) => {
+        const message =
+          mode === "create"
+            ? `Pojazd ${vehicle.license_plate} został dodany`
+            : `Pojazd ${vehicle.license_plate} został zaktualizowany`;
+
+        toast.success(message);
+
+        // Redirect after success
+        setTimeout(() => {
+          window.location.href = "/vehicles";
+        }, 1500);
+      },
+      onError: (error) => {
+        toast.error(`Błąd ${mode === "create" ? "dodawania" : "aktualizacji"} pojazdu: ${error.message}`);
+      },
+    }
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,9 +80,7 @@ export function VehicleForm({ mode, licensePlate, initialData }: VehicleFormProp
 
   const handleCancel = () => {
     if (isDirty) {
-      const confirmed = window.confirm(
-        "Masz niezapisane zmiany. Czy na pewno chcesz opuścić formularz?"
-      );
+      const confirmed = window.confirm("Masz niezapisane zmiany. Czy na pewno chcesz opuścić formularz?");
       if (!confirmed) return;
     }
     window.location.href = "/vehicles";
@@ -99,9 +88,7 @@ export function VehicleForm({ mode, licensePlate, initialData }: VehicleFormProp
 
   const handleReset = () => {
     if (isDirty) {
-      const confirmed = window.confirm(
-        "Czy na pewno chcesz zresetować formularz? Wszystkie zmiany zostaną utracone."
-      );
+      const confirmed = window.confirm("Czy na pewno chcesz zresetować formularz? Wszystkie zmiany zostaną utracone.");
       if (!confirmed) return;
     }
     resetForm();
@@ -114,9 +101,7 @@ export function VehicleForm({ mode, licensePlate, initialData }: VehicleFormProp
         <div className="bg-card p-[var(--spacing-2xl)] rounded-[var(--radius-lg)] shadow-[var(--elevation-2)] border border-[var(--neutral-30)]">
           <div className="flex items-center justify-center py-[var(--spacing-3xl)]">
             <Loader2 className="h-8 w-8 animate-spin text-[var(--neutral-60)]" />
-            <span className="ml-[var(--spacing-sm)] text-[var(--neutral-70)]">
-              Ładowanie danych pojazdu...
-            </span>
+            <span className="ml-[var(--spacing-sm)] text-[var(--neutral-70)]">Ładowanie danych pojazdu...</span>
           </div>
         </div>
       </div>
@@ -132,7 +117,7 @@ export function VehicleForm({ mode, licensePlate, initialData }: VehicleFormProp
             Błąd ładowania pojazdu
           </h2>
           <p className="text-[var(--neutral-70)] mb-[var(--spacing-2xl)]">{loadError}</p>
-          <Button variant="outline" onClick={() => window.location.href = "/vehicles"}>
+          <Button variant="outline" onClick={() => (window.location.href = "/vehicles")}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Powrót do listy pojazdów
           </Button>
@@ -156,7 +141,7 @@ export function VehicleForm({ mode, licensePlate, initialData }: VehicleFormProp
               </span>
             )}
           </div>
-          
+
           {errors.general && (
             <div className="bg-destructive/10 border border-destructive/20 p-[var(--spacing-lg)] rounded-[var(--radius-md)] mb-[var(--spacing-lg)]">
               <p className="text-destructive text-[var(--font-size-body-small)]">{errors.general}</p>
@@ -166,10 +151,12 @@ export function VehicleForm({ mode, licensePlate, initialData }: VehicleFormProp
 
         {/* Form Fields */}
         <div className="bg-card p-[var(--spacing-2xl)] rounded-[var(--radius-lg)] shadow-[var(--elevation-2)] border border-[var(--neutral-30)] space-y-[var(--spacing-2xl)]">
-          
           {/* License Plate */}
           <div className="space-y-[var(--spacing-sm)]">
-            <label htmlFor="license_plate" className="block text-[var(--font-size-body)] font-[var(--font-weight-medium)] text-foreground">
+            <label
+              htmlFor="license_plate"
+              className="block text-[var(--font-size-body)] font-[var(--font-weight-medium)] text-foreground"
+            >
               Numer rejestracyjny <span className="text-destructive">*</span>
             </label>
             <input
@@ -180,8 +167,8 @@ export function VehicleForm({ mode, licensePlate, initialData }: VehicleFormProp
               onBlur={() => validateField("license_plate")}
               disabled={mode === "edit" || isSubmitting}
               className={`w-full px-[var(--spacing-lg)] py-[var(--spacing-sm)] border rounded-[var(--radius-md)] text-[var(--font-size-body)] transition-all duration-150 ease-out focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary ${
-                errors.license_plate 
-                  ? "border-destructive bg-destructive/5" 
+                errors.license_plate
+                  ? "border-destructive bg-destructive/5"
                   : "border-[var(--neutral-30)] bg-background hover:border-[var(--neutral-40)]"
               } ${mode === "edit" ? "bg-[var(--neutral-10)] cursor-not-allowed" : ""}`}
               placeholder="np. ABC 1234"
@@ -200,7 +187,10 @@ export function VehicleForm({ mode, licensePlate, initialData }: VehicleFormProp
 
           {/* Brand */}
           <div className="space-y-[var(--spacing-sm)]">
-            <label htmlFor="brand" className="block text-[var(--font-size-body)] font-[var(--font-weight-medium)] text-foreground">
+            <label
+              htmlFor="brand"
+              className="block text-[var(--font-size-body)] font-[var(--font-weight-medium)] text-foreground"
+            >
               Marka
             </label>
             <input
@@ -211,21 +201,22 @@ export function VehicleForm({ mode, licensePlate, initialData }: VehicleFormProp
               onBlur={() => validateField("brand")}
               disabled={isSubmitting}
               className={`w-full px-[var(--spacing-lg)] py-[var(--spacing-sm)] border rounded-[var(--radius-md)] text-[var(--font-size-body)] transition-all duration-150 ease-out focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary ${
-                errors.brand 
-                  ? "border-destructive bg-destructive/5" 
+                errors.brand
+                  ? "border-destructive bg-destructive/5"
                   : "border-[var(--neutral-30)] bg-background hover:border-[var(--neutral-40)]"
               }`}
               placeholder="np. Toyota"
               maxLength={50}
             />
-            {errors.brand && (
-              <p className="text-destructive text-[var(--font-size-body-small)]">{errors.brand}</p>
-            )}
+            {errors.brand && <p className="text-destructive text-[var(--font-size-body-small)]">{errors.brand}</p>}
           </div>
 
           {/* Model */}
           <div className="space-y-[var(--spacing-sm)]">
-            <label htmlFor="model" className="block text-[var(--font-size-body)] font-[var(--font-weight-medium)] text-foreground">
+            <label
+              htmlFor="model"
+              className="block text-[var(--font-size-body)] font-[var(--font-weight-medium)] text-foreground"
+            >
               Model
             </label>
             <input
@@ -236,21 +227,22 @@ export function VehicleForm({ mode, licensePlate, initialData }: VehicleFormProp
               onBlur={() => validateField("model")}
               disabled={isSubmitting}
               className={`w-full px-[var(--spacing-lg)] py-[var(--spacing-sm)] border rounded-[var(--radius-md)] text-[var(--font-size-body)] transition-all duration-150 ease-out focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary ${
-                errors.model 
-                  ? "border-destructive bg-destructive/5" 
+                errors.model
+                  ? "border-destructive bg-destructive/5"
                   : "border-[var(--neutral-30)] bg-background hover:border-[var(--neutral-40)]"
               }`}
               placeholder="np. Corolla"
               maxLength={50}
             />
-            {errors.model && (
-              <p className="text-destructive text-[var(--font-size-body-small)]">{errors.model}</p>
-            )}
+            {errors.model && <p className="text-destructive text-[var(--font-size-body-small)]">{errors.model}</p>}
           </div>
 
           {/* Production Year */}
           <div className="space-y-[var(--spacing-sm)]">
-            <label htmlFor="production_year" className="block text-[var(--font-size-body)] font-[var(--font-weight-medium)] text-foreground">
+            <label
+              htmlFor="production_year"
+              className="block text-[var(--font-size-body)] font-[var(--font-weight-medium)] text-foreground"
+            >
               Rok produkcji
             </label>
             <input
@@ -261,8 +253,8 @@ export function VehicleForm({ mode, licensePlate, initialData }: VehicleFormProp
               onBlur={() => validateField("production_year")}
               disabled={isSubmitting}
               className={`w-full px-[var(--spacing-lg)] py-[var(--spacing-sm)] border rounded-[var(--radius-md)] text-[var(--font-size-body)] transition-all duration-150 ease-out focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary ${
-                errors.production_year 
-                  ? "border-destructive bg-destructive/5" 
+                errors.production_year
+                  ? "border-destructive bg-destructive/5"
                   : "border-[var(--neutral-30)] bg-background hover:border-[var(--neutral-40)]"
               }`}
               placeholder="np. 2020"
@@ -276,7 +268,10 @@ export function VehicleForm({ mode, licensePlate, initialData }: VehicleFormProp
 
           {/* VIN */}
           <div className="space-y-[var(--spacing-sm)]">
-            <label htmlFor="vin" className="block text-[var(--font-size-body)] font-[var(--font-weight-medium)] text-foreground">
+            <label
+              htmlFor="vin"
+              className="block text-[var(--font-size-body)] font-[var(--font-weight-medium)] text-foreground"
+            >
               Numer VIN
             </label>
             <input
@@ -287,16 +282,14 @@ export function VehicleForm({ mode, licensePlate, initialData }: VehicleFormProp
               onBlur={() => validateField("vin")}
               disabled={isSubmitting}
               className={`w-full px-[var(--spacing-lg)] py-[var(--spacing-sm)] border rounded-[var(--radius-md)] text-[var(--font-size-body)] font-mono transition-all duration-150 ease-out focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary ${
-                errors.vin 
-                  ? "border-destructive bg-destructive/5" 
+                errors.vin
+                  ? "border-destructive bg-destructive/5"
                   : "border-[var(--neutral-30)] bg-background hover:border-[var(--neutral-40)]"
               }`}
               placeholder="17-znakowy numer VIN"
               maxLength={17}
             />
-            {errors.vin && (
-              <p className="text-destructive text-[var(--font-size-body-small)]">{errors.vin}</p>
-            )}
+            {errors.vin && <p className="text-destructive text-[var(--font-size-body-small)]">{errors.vin}</p>}
             <p className="text-[var(--neutral-60)] text-[var(--font-size-body-small)]">
               Opcjonalne. Jeśli podasz VIN, musi mieć dokładnie 17 znaków.
             </p>
@@ -304,7 +297,10 @@ export function VehicleForm({ mode, licensePlate, initialData }: VehicleFormProp
 
           {/* Car Type */}
           <div className="space-y-[var(--spacing-sm)]">
-            <label htmlFor="car_type" className="block text-[var(--font-size-body)] font-[var(--font-weight-medium)] text-foreground">
+            <label
+              htmlFor="car_type"
+              className="block text-[var(--font-size-body)] font-[var(--font-weight-medium)] text-foreground"
+            >
               Typ pojazdu
             </label>
             <input
@@ -315,8 +311,8 @@ export function VehicleForm({ mode, licensePlate, initialData }: VehicleFormProp
               onBlur={() => validateField("car_type")}
               disabled={isSubmitting}
               className={`w-full px-[var(--spacing-lg)] py-[var(--spacing-sm)] border rounded-[var(--radius-md)] text-[var(--font-size-body)] transition-all duration-150 ease-out focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary ${
-                errors.car_type 
-                  ? "border-destructive bg-destructive/5" 
+                errors.car_type
+                  ? "border-destructive bg-destructive/5"
                   : "border-[var(--neutral-30)] bg-background hover:border-[var(--neutral-40)]"
               }`}
               placeholder="np. Sedan, Hatchback, SUV"
@@ -355,7 +351,7 @@ export function VehicleForm({ mode, licensePlate, initialData }: VehicleFormProp
                   Resetuj
                 </Button>
               )}
-              
+
               <Button
                 type="submit"
                 variant="default"

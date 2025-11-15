@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { LogIn, UserPlus, LogOut, User } from 'lucide-react';
-import { Button } from '../ui/button';
+import React, { useState } from "react";
+import { LogIn, UserPlus, LogOut, User } from "lucide-react";
+import { Button } from "../ui/button";
 
 interface AuthNavProps {
   // TODO: This will be populated from the auth context/store
@@ -15,28 +15,26 @@ export default function AuthNav({ user }: AuthNavProps) {
 
   const handleLogout = async () => {
     setIsLoading(true);
-    
+
     try {
-      const response = await fetch('/api/auth/logout', {
-        method: 'POST',
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
       const result = await response.json();
 
       if (!response.ok || !result.success) {
-        console.error('Logout failed:', result.error?.message);
+        // Logout failed but we still redirect
       }
 
       // Redirect to home page after logout (successful or not)
-      window.location.href = '/';
-      
-    } catch (error) {
-      console.error('Logout failed:', error);
+      window.location.href = "/";
+    } catch {
       // Still redirect even if logout API fails
-      window.location.href = '/';
+      window.location.href = "/";
     } finally {
       setIsLoading(false);
     }
@@ -49,9 +47,7 @@ export default function AuthNav({ user }: AuthNavProps) {
         {/* User Info - Hidden on mobile */}
         <div className="hidden md:flex items-center space-x-2 text-blue-100/90">
           <User size={18} className="text-blue-300" />
-          <span className="text-sm font-medium truncate max-w-32">
-            {user.email}
-          </span>
+          <span className="text-sm font-medium truncate max-w-32">{user.email}</span>
         </div>
 
         {/* Logout Button */}
@@ -76,7 +72,7 @@ export default function AuthNav({ user }: AuthNavProps) {
     <div className="flex items-center space-x-2">
       {/* Login Button */}
       <Button
-        onClick={() => window.location.href = '/auth/login'}
+        onClick={() => (window.location.href = "/auth/login")}
         className="px-3 md:px-4 py-2 rounded-xl text-sm font-medium transition-all duration-150 ease-out flex items-center gap-2 text-blue-100/90 hover:text-white hover:bg-white/10 backdrop-blur-sm"
       >
         <LogIn size={16} className="text-blue-300" />
@@ -85,7 +81,7 @@ export default function AuthNav({ user }: AuthNavProps) {
 
       {/* Register Button */}
       <Button
-        onClick={() => window.location.href = '/auth/register'}
+        onClick={() => (window.location.href = "/auth/register")}
         className="px-3 md:px-4 py-2 rounded-xl text-sm font-medium transition-all duration-150 ease-out flex items-center gap-2 bg-gradient-to-r from-white/20 to-white/10 text-white shadow-lg backdrop-blur-sm border border-white/20 hover:from-white/30 hover:to-white/20"
       >
         <UserPlus size={16} className="text-blue-200" />

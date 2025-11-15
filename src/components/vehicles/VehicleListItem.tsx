@@ -23,9 +23,6 @@ function getVehicleDisplayName(vehicle: VehicleDto): string {
 }
 
 function TableRow({ vehicle, onEdit, onDelete }: Omit<VehicleListItemProps, "view">) {
-  const displayName = getVehicleDisplayName(vehicle);
-  const formattedDate = formatDate(vehicle.created_at);
-
   return (
     <tr
       className="border-b border-[var(--neutral-20)] hover:bg-[var(--neutral-5)] transition-all duration-150 ease-out group"
@@ -37,23 +34,11 @@ function TableRow({ vehicle, onEdit, onDelete }: Omit<VehicleListItemProps, "vie
           {vehicle.license_plate}
         </div>
       </td>
-      <td className="p-[var(--spacing-lg)] text-[var(--neutral-70)]">
-        {vehicle.brand || "—"}
-      </td>
-      <td className="p-[var(--spacing-lg)] text-[var(--neutral-70)]">
-        {vehicle.model || "—"}
-      </td>
-      <td className="p-[var(--spacing-lg)] text-[var(--neutral-70)]">
-        {vehicle.production_year || "—"}
-      </td>
+      <td className="p-[var(--spacing-lg)] text-[var(--neutral-70)]">{vehicle.brand || "—"}</td>
+      <td className="p-[var(--spacing-lg)] text-[var(--neutral-70)]">{vehicle.model || "—"}</td>
+      <td className="p-[var(--spacing-lg)] text-[var(--neutral-70)]">{vehicle.production_year || "—"}</td>
       <td className="p-[var(--spacing-lg)] text-[var(--neutral-70)] font-mono text-sm">
-        {vehicle.vin ? (
-          <span title={vehicle.vin}>
-            {vehicle.vin.substring(0, 8)}...
-          </span>
-        ) : (
-          "—"
-        )}
+        {vehicle.vin ? <span title={vehicle.vin}>{vehicle.vin.substring(0, 8)}...</span> : "—"}
       </td>
       <td className="p-[var(--spacing-lg)]">
         <div className="flex gap-[var(--spacing-sm)] opacity-0 group-hover:opacity-100 transition-opacity duration-150">
@@ -127,36 +112,26 @@ function CardView({ vehicle, onEdit, onDelete }: Omit<VehicleListItemProps, "vie
           <strong className="text-foreground">{displayName}</strong>
         </p>
         {vehicle.car_type && (
-          <p className="text-[var(--font-size-body-small)] text-[var(--neutral-60)]">
-            Typ: {vehicle.car_type}
-          </p>
+          <p className="text-[var(--font-size-body-small)] text-[var(--neutral-60)]">Typ: {vehicle.car_type}</p>
         )}
       </div>
 
       <div className="grid grid-cols-2 gap-[var(--spacing-lg)] text-[var(--font-size-body-small)]">
         <div>
           <span className="text-[var(--neutral-60)] block">Marka</span>
-          <span className="text-foreground font-[var(--font-weight-medium)]">
-            {vehicle.brand || "—"}
-          </span>
+          <span className="text-foreground font-[var(--font-weight-medium)]">{vehicle.brand || "—"}</span>
         </div>
         <div>
           <span className="text-[var(--neutral-60)] block">Model</span>
-          <span className="text-foreground font-[var(--font-weight-medium)]">
-            {vehicle.model || "—"}
-          </span>
+          <span className="text-foreground font-[var(--font-weight-medium)]">{vehicle.model || "—"}</span>
         </div>
         <div>
           <span className="text-[var(--neutral-60)] block">Rok</span>
-          <span className="text-foreground font-[var(--font-weight-medium)]">
-            {vehicle.production_year || "—"}
-          </span>
+          <span className="text-foreground font-[var(--font-weight-medium)]">{vehicle.production_year || "—"}</span>
         </div>
         <div>
           <span className="text-[var(--neutral-60)] block">Dodano</span>
-          <span className="text-foreground font-[var(--font-weight-medium)]">
-            {formattedDate}
-          </span>
+          <span className="text-foreground font-[var(--font-weight-medium)]">{formattedDate}</span>
         </div>
       </div>
 

@@ -4,7 +4,7 @@ import { useMemo } from "react";
 
 export function LoadingIndicator() {
   const isDesktop = useMediaQuery("(min-width: 768px)");
-  
+
   // Memoize skeleton content to prevent unnecessary re-renders
   const skeletonContent = useMemo(() => {
     return (
@@ -44,10 +44,7 @@ export function LoadingIndicator() {
               </thead>
               <tbody>
                 {Array.from({ length: 5 }).map((_, index) => (
-                  <tr
-                    key={index}
-                    className="border-b border-[var(--neutral-30)]"
-                  >
+                  <tr key={index} className="border-b border-[var(--neutral-30)]">
                     <td className="p-[var(--spacing-lg)]">
                       <Skeleton className="h-[1rem] w-[5rem]" />
                     </td>
@@ -103,11 +100,7 @@ export function LoadingIndicator() {
   }, [isDesktop]);
 
   return (
-    <div
-      role="status"
-      aria-label="Ładowanie zawartości"
-      className="space-y-[var(--spacing-2xl)]"
-    >
+    <div role="status" aria-label="Ładowanie zawartości" className="space-y-[var(--spacing-2xl)]">
       {skeletonContent}
     </div>
   );

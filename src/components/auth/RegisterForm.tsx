@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff, UserPlus } from 'lucide-react';
-import { Button } from '../ui/button';
+import React, { useState } from "react";
+import { Mail, Lock, Eye, EyeOff, UserPlus } from "lucide-react";
+import { Button } from "../ui/button";
 
 interface RegisterFormData {
   email: string;
@@ -17,9 +17,9 @@ interface RegisterFormErrors {
 
 export default function RegisterForm() {
   const [formData, setFormData] = useState<RegisterFormData>({
-    email: '',
-    password: '',
-    confirmPassword: '',
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
   const [errors, setErrors] = useState<RegisterFormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -32,25 +32,25 @@ export default function RegisterForm() {
 
     // Email validation
     if (!formData.email) {
-      newErrors.email = 'Adres e-mail jest wymagany';
+      newErrors.email = "Adres e-mail jest wymagany";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Wprowadź prawidłowy adres e-mail';
+      newErrors.email = "Wprowadź prawidłowy adres e-mail";
     }
 
     // Password validation
     if (!formData.password) {
-      newErrors.password = 'Hasło jest wymagane';
+      newErrors.password = "Hasło jest wymagane";
     } else if (formData.password.length < 8) {
-      newErrors.password = 'Hasło musi mieć co najmniej 8 znaków';
+      newErrors.password = "Hasło musi mieć co najmniej 8 znaków";
     } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      newErrors.password = 'Hasło musi zawierać małą literę, wielką literę i cyfrę';
+      newErrors.password = "Hasło musi zawierać małą literę, wielką literę i cyfrę";
     }
 
     // Confirm password validation
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Potwierdzenie hasła jest wymagane';
+      newErrors.confirmPassword = "Potwierdzenie hasła jest wymagane";
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Hasła nie są identyczne';
+      newErrors.confirmPassword = "Hasła nie są identyczne";
     }
 
     setErrors(newErrors);
@@ -59,7 +59,7 @@ export default function RegisterForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -68,10 +68,10 @@ export default function RegisterForm() {
     setErrors({});
 
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           email: formData.email,
@@ -83,36 +83,32 @@ export default function RegisterForm() {
 
       if (!response.ok || !result.success) {
         setErrors({
-          general: result.error?.message || 'Wystąpił błąd podczas rejestracji'
+          general: result.error?.message || "Wystąpił błąd podczas rejestracji",
         });
         return;
       }
 
       setIsSuccess(true);
-      
-    } catch (error) {
-      console.error('Registration error:', error);
+    } catch {
       setErrors({
-        general: 'Wystąpił błąd połączenia. Spróbuj ponownie.'
+        general: "Wystąpił błąd połączenia. Spróbuj ponownie.",
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleInputChange = (field: keyof RegisterFormData) => (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setFormData(prev => ({
+  const handleInputChange = (field: keyof RegisterFormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData((prev) => ({
       ...prev,
-      [field]: e.target.value
+      [field]: e.target.value,
     }));
-    
+
     // Clear field error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [field]: undefined
+        [field]: undefined,
       }));
     }
   };
@@ -128,7 +124,7 @@ export default function RegisterForm() {
           Sprawdź swoją skrzynkę e-mail i kliknij link weryfikacyjny, aby aktywować konto.
         </p>
         <Button
-          onClick={() => window.location.href = '/auth/login'}
+          onClick={() => (window.location.href = "/auth/login")}
           className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200"
         >
           Przejdź do logowania
@@ -159,19 +155,15 @@ export default function RegisterForm() {
             id="email"
             type="email"
             value={formData.email}
-            onChange={handleInputChange('email')}
+            onChange={handleInputChange("email")}
             className={`w-full pl-10 pr-4 py-3 rounded-xl bg-white/5 border backdrop-blur-sm text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-400/50 transition-all ${
-              errors.email 
-                ? 'border-red-400/50 focus:ring-red-400/50' 
-                : 'border-white/10 hover:border-white/20'
+              errors.email ? "border-red-400/50 focus:ring-red-400/50" : "border-white/10 hover:border-white/20"
             }`}
             placeholder="twoj@email.com"
             disabled={isLoading}
           />
         </div>
-        {errors.email && (
-          <p className="text-red-300 text-sm">{errors.email}</p>
-        )}
+        {errors.email && <p className="text-red-300 text-sm">{errors.email}</p>}
       </div>
 
       {/* Password Field */}
@@ -185,13 +177,11 @@ export default function RegisterForm() {
           </div>
           <input
             id="password"
-            type={showPassword ? 'text' : 'password'}
+            type={showPassword ? "text" : "password"}
             value={formData.password}
-            onChange={handleInputChange('password')}
+            onChange={handleInputChange("password")}
             className={`w-full pl-10 pr-12 py-3 rounded-xl bg-white/5 border backdrop-blur-sm text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-400/50 transition-all ${
-              errors.password 
-                ? 'border-red-400/50 focus:ring-red-400/50' 
-                : 'border-white/10 hover:border-white/20'
+              errors.password ? "border-red-400/50 focus:ring-red-400/50" : "border-white/10 hover:border-white/20"
             }`}
             placeholder="Minimum 8 znaków"
             disabled={isLoading}
@@ -205,9 +195,7 @@ export default function RegisterForm() {
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
         </div>
-        {errors.password && (
-          <p className="text-red-300 text-sm">{errors.password}</p>
-        )}
+        {errors.password && <p className="text-red-300 text-sm">{errors.password}</p>}
       </div>
 
       {/* Confirm Password Field */}
@@ -221,13 +209,13 @@ export default function RegisterForm() {
           </div>
           <input
             id="confirmPassword"
-            type={showConfirmPassword ? 'text' : 'password'}
+            type={showConfirmPassword ? "text" : "password"}
             value={formData.confirmPassword}
-            onChange={handleInputChange('confirmPassword')}
+            onChange={handleInputChange("confirmPassword")}
             className={`w-full pl-10 pr-12 py-3 rounded-xl bg-white/5 border backdrop-blur-sm text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-400/50 transition-all ${
-              errors.confirmPassword 
-                ? 'border-red-400/50 focus:ring-red-400/50' 
-                : 'border-white/10 hover:border-white/20'
+              errors.confirmPassword
+                ? "border-red-400/50 focus:ring-red-400/50"
+                : "border-white/10 hover:border-white/20"
             }`}
             placeholder="Powtórz hasło"
             disabled={isLoading}
@@ -241,9 +229,7 @@ export default function RegisterForm() {
             {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
         </div>
-        {errors.confirmPassword && (
-          <p className="text-red-300 text-sm">{errors.confirmPassword}</p>
-        )}
+        {errors.confirmPassword && <p className="text-red-300 text-sm">{errors.confirmPassword}</p>}
       </div>
 
       {/* Submit Button */}

@@ -63,9 +63,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({ reservationId, onB
         setCopySuccess(false);
         timeoutRef.current = null;
       }, 3000);
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error("Failed to copy link:", error);
+    } catch {
       // Show error toast
       toast.error("Nie udało się skopiować linku", {
         description: "Spróbuj ponownie lub skopiuj link ręcznie z paska adresu.",

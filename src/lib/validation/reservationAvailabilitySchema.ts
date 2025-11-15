@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { paginationQuerySchema } from "./commonSchemas";
 
 const MAX_DAYS_RANGE = 90;
 
@@ -36,13 +35,7 @@ export const availableReservationsQuerySchema = z
         return !isNaN(date.getTime());
       }, "End time must be a valid datetime"),
 
-    limit: z.coerce
-      .number()
-      .int()
-      .min(1)
-      .max(300, "Limit cannot exceed 300")
-      .optional()
-      .default(20),
+    limit: z.coerce.number().int().min(1).max(300, "Limit cannot exceed 300").optional().default(20),
   })
   .refine(
     (data) => {

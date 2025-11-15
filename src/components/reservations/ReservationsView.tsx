@@ -27,13 +27,13 @@ export function ReservationsView() {
     field: SortField | null;
     direction: SortDirection;
   }>({
-    field: 'date',
-    direction: 'asc',
+    field: "date",
+    direction: "asc",
   });
-  
+
   // Hydration-safe state to prevent mismatch
   const [isHydrated, setIsHydrated] = useState(false);
-  
+
   useEffect(() => {
     setIsHydrated(true);
   }, []);
@@ -53,18 +53,18 @@ export function ReservationsView() {
   }, []);
 
   const handleSortChange = useCallback((field: SortField) => {
-    setSorting(prev => {
+    setSorting((prev) => {
       // If clicking the same field, toggle direction
       if (prev.field === field) {
         return {
           field,
-          direction: prev.direction === 'asc' ? 'desc' : 'asc',
+          direction: prev.direction === "asc" ? "desc" : "asc",
         };
       }
       // If clicking a new field, start with ascending
       return {
         field,
-        direction: 'asc',
+        direction: "asc",
       };
     });
     setCurrentPage(1); // Reset page on sort change
@@ -75,24 +75,33 @@ export function ReservationsView() {
   }, []);
 
   // Memoize main content to prevent unnecessary re-renders - MUST be after all hooks
-  const mainContent = useMemo(() => (
-    <div className="space-y-6">
-      <ReservationsFilterPanel
-        vehicles={vehicles}
-        services={services}
-        filters={filters}
-        onFilterChange={handleFilterChange}
-      />
-      {reservations && (
-        <ReservationsList 
-          reservations={reservations} 
-          sorting={sorting}
-          onSortChange={handleSortChange}
+  const mainContent = useMemo(
+    () => (
+      <div className="space-y-6">
+        <ReservationsFilterPanel
+          vehicles={vehicles}
+          services={services}
+          filters={filters}
+          onFilterChange={handleFilterChange}
         />
-      )}
-      {pagination && <PaginationControls pagination={pagination} onPageChange={handlePageChange} />}
-    </div>
-  ), [vehicles, services, filters, reservations, sorting, pagination, handleFilterChange, handleSortChange, handlePageChange]);
+        {reservations && (
+          <ReservationsList reservations={reservations} sorting={sorting} onSortChange={handleSortChange} />
+        )}
+        {pagination && <PaginationControls pagination={pagination} onPageChange={handlePageChange} />}
+      </div>
+    ),
+    [
+      vehicles,
+      services,
+      filters,
+      reservations,
+      sorting,
+      pagination,
+      handleFilterChange,
+      handleSortChange,
+      handlePageChange,
+    ]
+  );
 
   // Show loading during hydration and data fetching
   if (!isHydrated || isLoading) {

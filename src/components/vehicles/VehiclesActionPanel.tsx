@@ -26,7 +26,7 @@ export function VehiclesActionPanel({ onRefresh, isRefreshing = false }: Vehicle
             Dodawaj, edytuj i usuwaj swoje pojazdy z systemu
           </p>
         </div>
-        
+
         <div className="flex gap-[var(--spacing-lg)]">
           {onRefresh && (
             <Button
@@ -35,11 +35,11 @@ export function VehiclesActionPanel({ onRefresh, isRefreshing = false }: Vehicle
               disabled={isRefreshing}
               className="min-w-[8rem] hover:scale-105 active:scale-95 transition-all duration-150 ease-out"
             >
-              <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-              {isRefreshing ? 'Odświeżanie...' : 'Odśwież'}
+              <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
+              {isRefreshing ? "Odświeżanie..." : "Odśwież"}
             </Button>
           )}
-          
+
           <Button
             variant="default"
             onClick={handleAddVehicle}

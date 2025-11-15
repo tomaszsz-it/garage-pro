@@ -216,10 +216,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
 
-    const createdReservation = await reservationService.createReservation(
-      reservationData,
-      user.id
-    );
+    const createdReservation = await reservationService.createReservation(reservationData, user.id);
 
     // Return success response
     return new Response(JSON.stringify(createdReservation), {

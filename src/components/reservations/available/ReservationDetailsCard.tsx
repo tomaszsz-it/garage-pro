@@ -5,9 +5,7 @@ interface ReservationDetailsCardProps {
   reservation: ReservationDto;
 }
 
-export const ReservationDetailsCard: React.FC<ReservationDetailsCardProps> = ({
-  reservation,
-}) => {
+export const ReservationDetailsCard: React.FC<ReservationDetailsCardProps> = ({ reservation }) => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("pl-PL", {
@@ -46,53 +44,47 @@ export const ReservationDetailsCard: React.FC<ReservationDetailsCardProps> = ({
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm" role="region" aria-labelledby="reservation-details-title">
+    <div
+      className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm"
+      role="region"
+      aria-labelledby="reservation-details-title"
+    >
       <h2 id="reservation-details-title" className="text-lg font-semibold text-gray-900 mb-4">
         Szczegóły rezerwacji
       </h2>
-      
+
       <div className="space-y-4">
         <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <dt className="text-sm font-medium text-gray-500">Data</dt>
-            <dd className="mt-1 text-sm text-gray-900">
-              {formatDate(reservation.start_ts)}
-            </dd>
+            <dd className="mt-1 text-sm text-gray-900">{formatDate(reservation.start_ts)}</dd>
           </div>
-          
+
           <div>
             <dt className="text-sm font-medium text-gray-500">Godzina</dt>
             <dd className="mt-1 text-sm text-gray-900">
               {formatTime(reservation.start_ts)} - {formatTime(reservation.end_ts)}
             </dd>
           </div>
-          
+
           <div>
             <dt className="text-sm font-medium text-gray-500">Usługa</dt>
-            <dd className="mt-1 text-sm text-gray-900">
-              {reservation.service_name}
-            </dd>
+            <dd className="mt-1 text-sm text-gray-900">{reservation.service_name}</dd>
           </div>
-          
+
           <div>
             <dt className="text-sm font-medium text-gray-500">Mechanik</dt>
-            <dd className="mt-1 text-sm text-gray-900">
-              {reservation.employee_name}
-            </dd>
+            <dd className="mt-1 text-sm text-gray-900">{reservation.employee_name}</dd>
           </div>
-          
+
           <div>
             <dt className="text-sm font-medium text-gray-500">Pojazd</dt>
-            <dd className="mt-1 text-sm text-gray-900">
-              {reservation.vehicle_license_plate}
-            </dd>
+            <dd className="mt-1 text-sm text-gray-900">{reservation.vehicle_license_plate}</dd>
           </div>
-          
+
           <div>
             <dt className="text-sm font-medium text-gray-500">Status</dt>
-            <dd className="mt-1">
-              {getStatusBadge(reservation.status)}
-            </dd>
+            <dd className="mt-1">{getStatusBadge(reservation.status)}</dd>
           </div>
         </dl>
       </div>

@@ -1,10 +1,5 @@
-import { useState, useCallback } from 'react';
-import type {
-  ServiceDto,
-  AvailableReservationViewModel,
-  VehicleDto,
-  ReservationDto,
-} from '../types';
+import { useState, useCallback } from "react";
+import type { ServiceDto, AvailableReservationViewModel, VehicleDto, ReservationDto } from "../types";
 
 type BookingStep = "service-selection" | "calendar" | "booking-confirmation" | "reservation-summary";
 
@@ -40,7 +35,7 @@ export const useBookingState = () => {
   const [state, setState] = useState<BookingState>(initialState);
 
   const setSelectedService = useCallback((service: ServiceDto | null) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       selectedService: service,
       currentStep: service ? "calendar" : "service-selection",
@@ -49,51 +44,51 @@ export const useBookingState = () => {
   }, []);
 
   const setSelectedDay = useCallback((day: string | null) => {
-    setState(prev => ({ ...prev, selectedDay: day }));
+    setState((prev) => ({ ...prev, selectedDay: day }));
   }, []);
 
   const setSelectedSlot = useCallback((slot: AvailableReservationViewModel | null) => {
-    setState(prev => ({ ...prev, selectedSlot: slot }));
+    setState((prev) => ({ ...prev, selectedSlot: slot }));
   }, []);
 
   const setSelectedVehicle = useCallback((vehicle: VehicleDto | null) => {
-    setState(prev => ({ ...prev, selectedVehicle: vehicle }));
+    setState((prev) => ({ ...prev, selectedVehicle: vehicle }));
   }, []);
 
   const setSlots = useCallback((slots: AvailableReservationViewModel[]) => {
-    setState(prev => ({ ...prev, slots }));
+    setState((prev) => ({ ...prev, slots }));
   }, []);
 
   const setVehicles = useCallback((vehicles: VehicleDto[]) => {
-    setState(prev => ({ ...prev, vehicles }));
+    setState((prev) => ({ ...prev, vehicles }));
   }, []);
 
   const setLoading = useCallback((isLoading: boolean) => {
-    setState(prev => ({ ...prev, isLoading }));
+    setState((prev) => ({ ...prev, isLoading }));
   }, []);
 
   const setCreatingReservation = useCallback((isCreatingReservation: boolean) => {
-    setState(prev => ({ ...prev, isCreatingReservation }));
+    setState((prev) => ({ ...prev, isCreatingReservation }));
   }, []);
 
   const setError = useCallback((error: string | null) => {
-    setState(prev => ({ ...prev, error }));
+    setState((prev) => ({ ...prev, error }));
   }, []);
 
   const setCurrentStep = useCallback((step: BookingStep) => {
-    setState(prev => ({ ...prev, currentStep: step }));
+    setState((prev) => ({ ...prev, currentStep: step }));
   }, []);
 
   const setReservationSummary = useCallback((reservation: ReservationDto | null) => {
-    setState(prev => ({ 
-      ...prev, 
+    setState((prev) => ({
+      ...prev,
       reservationSummary: reservation,
       currentStep: reservation ? "reservation-summary" : prev.currentStep,
     }));
   }, []);
 
   const resetToServiceSelection = useCallback(() => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       currentStep: "service-selection",
       selectedService: null,
@@ -107,7 +102,7 @@ export const useBookingState = () => {
   }, []);
 
   const resetToCalendar = useCallback(() => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       currentStep: "calendar",
       selectedSlot: null,
@@ -118,7 +113,7 @@ export const useBookingState = () => {
   }, []);
 
   const restoreBookingState = useCallback((bookingState: any) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       selectedService: bookingState.selectedService,
       selectedSlot: bookingState.selectedSlot,
@@ -145,4 +140,3 @@ export const useBookingState = () => {
     restoreBookingState,
   };
 };
-

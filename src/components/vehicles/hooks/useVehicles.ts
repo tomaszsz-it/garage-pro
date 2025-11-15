@@ -1,9 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import type {
-  VehicleDto,
-  VehiclesListResponseDto,
-  PaginationDto,
-} from "../../../types";
+import type { VehicleDto, VehiclesListResponseDto, PaginationDto } from "../../../types";
 
 interface UseVehiclesParams {
   page: number;
@@ -29,7 +25,7 @@ export function useVehicles({ page }: UseVehiclesParams): UseVehiclesResult {
 
     try {
       const response = await fetch(`/api/vehicles?page=${page}&limit=20`);
-      
+
       if (!response.ok) {
         if (response.status === 401) {
           // Redirect to login if unauthorized
@@ -43,7 +39,6 @@ export function useVehicles({ page }: UseVehiclesParams): UseVehiclesResult {
       setVehicles(data.data);
       setPagination(data.pagination);
     } catch (err) {
-      console.error("Error fetching vehicles:", err);
       setError(err instanceof Error ? err : new Error("Unknown error occurred"));
       setVehicles(null);
       setPagination(null);

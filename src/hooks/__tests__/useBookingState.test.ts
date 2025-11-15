@@ -1,51 +1,51 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
-import { useBookingState } from '../useBookingState';
-import type { ServiceDto, AvailableReservationViewModel, VehicleDto, ReservationDto } from '../../types';
+import { describe, it, expect, beforeEach } from "vitest";
+import { renderHook, act } from "@testing-library/react";
+import { useBookingState } from "../useBookingState";
+import type { ServiceDto, AvailableReservationViewModel, VehicleDto, ReservationDto } from "../../types";
 
 // Mock data factories
 const mockService: ServiceDto = {
   id: 1,
-  name: 'Oil Change',
-  description: 'Regular oil change service',
+  name: "Oil Change",
+  description: "Regular oil change service",
   duration_minutes: 30,
-  price: 50.00,
+  price: 50.0,
   is_active: true,
 };
 
 const mockAvailableSlot: AvailableReservationViewModel = {
-  start_ts: '2025-11-15T10:00:00Z',
-  end_ts: '2025-11-15T10:30:00Z',
-  employee_id: 'emp1',
-  employee_name: 'John Mechanic',
+  start_ts: "2025-11-15T10:00:00Z",
+  end_ts: "2025-11-15T10:30:00Z",
+  employee_id: "emp1",
+  employee_name: "John Mechanic",
 };
 
 const mockVehicle: VehicleDto = {
-  license_plate: 'ABC-123',
-  brand: 'Toyota',
-  model: 'Camry',
+  license_plate: "ABC-123",
+  brand: "Toyota",
+  model: "Camry",
   production_year: 2020,
-  vin: '1234567890ABCDEFG',
-  car_type: 'Sedan',
-  created_at: '2025-01-01T00:00:00Z',
+  vin: "1234567890ABCDEFG",
+  car_type: "Sedan",
+  created_at: "2025-01-01T00:00:00Z",
 };
 
 const mockReservation: ReservationDto = {
-  id: 'res1',
+  id: "res1",
   service_id: 1,
-  vehicle_license_plate: 'ABC-123',
-  employee_id: 'emp1',
-  start_ts: '2025-11-15T10:00:00Z',
-  end_ts: '2025-11-15T10:30:00Z',
-  status: 'scheduled',
-  created_at: '2025-01-01T00:00:00Z',
-  service_name: 'Oil Change',
+  vehicle_license_plate: "ABC-123",
+  employee_id: "emp1",
+  start_ts: "2025-11-15T10:00:00Z",
+  end_ts: "2025-11-15T10:30:00Z",
+  status: "scheduled",
+  created_at: "2025-01-01T00:00:00Z",
+  service_name: "Oil Change",
   service_duration_minutes: 30,
-  employee_name: 'John Mechanic',
-  recommendation_text: 'Regular maintenance',
+  employee_name: "John Mechanic",
+  recommendation_text: "Regular maintenance",
 };
 
-describe('useBookingState', () => {
+describe("useBookingState", () => {
   let hookResult: ReturnType<typeof useBookingState>;
 
   beforeEach(() => {
@@ -53,8 +53,8 @@ describe('useBookingState', () => {
     hookResult = result.current;
   });
 
-  describe('Initial State', () => {
-    it('should initialize with correct default values', () => {
+  describe("Initial State", () => {
+    it("should initialize with correct default values", () => {
       expect(hookResult.state).toMatchInlineSnapshot(`
         {
           "currentStep": "service-selection",
@@ -72,30 +72,30 @@ describe('useBookingState', () => {
       `);
     });
 
-    it('should start with service-selection step', () => {
-      expect(hookResult.state.currentStep).toBe('service-selection');
+    it("should start with service-selection step", () => {
+      expect(hookResult.state.currentStep).toBe("service-selection");
     });
 
-    it('should have no selected items initially', () => {
+    it("should have no selected items initially", () => {
       expect(hookResult.state.selectedService).toBeNull();
       expect(hookResult.state.selectedDay).toBeNull();
       expect(hookResult.state.selectedSlot).toBeNull();
       expect(hookResult.state.selectedVehicle).toBeNull();
     });
 
-    it('should have empty arrays for slots and vehicles', () => {
+    it("should have empty arrays for slots and vehicles", () => {
       expect(hookResult.state.slots).toEqual([]);
       expect(hookResult.state.vehicles).toEqual([]);
     });
 
-    it('should have loading states as false initially', () => {
+    it("should have loading states as false initially", () => {
       expect(hookResult.state.isLoading).toBe(false);
       expect(hookResult.state.isCreatingReservation).toBe(false);
     });
   });
 
-  describe('Service Selection', () => {
-    it('should set selected service and advance to calendar step', () => {
+  describe("Service Selection", () => {
+    it("should set selected service and advance to calendar step", () => {
       const { result } = renderHook(() => useBookingState());
 
       act(() => {
@@ -103,11 +103,11 @@ describe('useBookingState', () => {
       });
 
       expect(result.current.state.selectedService).toEqual(mockService);
-      expect(result.current.state.currentStep).toBe('calendar');
+      expect(result.current.state.currentStep).toBe("calendar");
       expect(result.current.state.error).toBeNull();
     });
 
-    it('should reset to service-selection step when service is null', () => {
+    it("should reset to service-selection step when service is null", () => {
       const { result } = renderHook(() => useBookingState());
 
       // First set a service
@@ -121,15 +121,15 @@ describe('useBookingState', () => {
       });
 
       expect(result.current.state.selectedService).toBeNull();
-      expect(result.current.state.currentStep).toBe('service-selection');
+      expect(result.current.state.currentStep).toBe("service-selection");
     });
 
-    it('should clear error when setting service', () => {
+    it("should clear error when setting service", () => {
       const { result } = renderHook(() => useBookingState());
 
       // Set an error first
       act(() => {
-        result.current.setError('Some error');
+        result.current.setError("Some error");
       });
 
       // Then set service
@@ -141,18 +141,18 @@ describe('useBookingState', () => {
     });
   });
 
-  describe('Day and Slot Selection', () => {
-    it('should set selected day', () => {
+  describe("Day and Slot Selection", () => {
+    it("should set selected day", () => {
       const { result } = renderHook(() => useBookingState());
 
       act(() => {
-        result.current.setSelectedDay('2025-11-15');
+        result.current.setSelectedDay("2025-11-15");
       });
 
-      expect(result.current.state.selectedDay).toBe('2025-11-15');
+      expect(result.current.state.selectedDay).toBe("2025-11-15");
     });
 
-    it('should set selected slot', () => {
+    it("should set selected slot", () => {
       const { result } = renderHook(() => useBookingState());
 
       act(() => {
@@ -162,11 +162,11 @@ describe('useBookingState', () => {
       expect(result.current.state.selectedSlot).toEqual(mockAvailableSlot);
     });
 
-    it('should clear selected day', () => {
+    it("should clear selected day", () => {
       const { result } = renderHook(() => useBookingState());
 
       act(() => {
-        result.current.setSelectedDay('2025-11-15');
+        result.current.setSelectedDay("2025-11-15");
       });
 
       act(() => {
@@ -177,8 +177,8 @@ describe('useBookingState', () => {
     });
   });
 
-  describe('Vehicle Selection', () => {
-    it('should set selected vehicle', () => {
+  describe("Vehicle Selection", () => {
+    it("should set selected vehicle", () => {
       const { result } = renderHook(() => useBookingState());
 
       act(() => {
@@ -188,7 +188,7 @@ describe('useBookingState', () => {
       expect(result.current.state.selectedVehicle).toEqual(mockVehicle);
     });
 
-    it('should clear selected vehicle', () => {
+    it("should clear selected vehicle", () => {
       const { result } = renderHook(() => useBookingState());
 
       act(() => {
@@ -203,8 +203,8 @@ describe('useBookingState', () => {
     });
   });
 
-  describe('Data Management', () => {
-    it('should set available slots', () => {
+  describe("Data Management", () => {
+    it("should set available slots", () => {
       const { result } = renderHook(() => useBookingState());
       const slots = [mockAvailableSlot];
 
@@ -215,7 +215,7 @@ describe('useBookingState', () => {
       expect(result.current.state.slots).toEqual(slots);
     });
 
-    it('should set vehicles list', () => {
+    it("should set vehicles list", () => {
       const { result } = renderHook(() => useBookingState());
       const vehicles = [mockVehicle];
 
@@ -226,12 +226,10 @@ describe('useBookingState', () => {
       expect(result.current.state.vehicles).toEqual(vehicles);
     });
 
-    it('should replace existing slots when setting new ones', () => {
+    it("should replace existing slots when setting new ones", () => {
       const { result } = renderHook(() => useBookingState());
       const firstSlots = [mockAvailableSlot];
-      const secondSlots = [
-        { ...mockAvailableSlot, employee_id: 'emp2', employee_name: 'Jane Mechanic' }
-      ];
+      const secondSlots = [{ ...mockAvailableSlot, employee_id: "emp2", employee_name: "Jane Mechanic" }];
 
       act(() => {
         result.current.setSlots(firstSlots);
@@ -246,8 +244,8 @@ describe('useBookingState', () => {
     });
   });
 
-  describe('Loading States', () => {
-    it('should set loading state', () => {
+  describe("Loading States", () => {
+    it("should set loading state", () => {
       const { result } = renderHook(() => useBookingState());
 
       act(() => {
@@ -263,7 +261,7 @@ describe('useBookingState', () => {
       expect(result.current.state.isLoading).toBe(false);
     });
 
-    it('should set creating reservation state', () => {
+    it("should set creating reservation state", () => {
       const { result } = renderHook(() => useBookingState());
 
       act(() => {
@@ -280,10 +278,10 @@ describe('useBookingState', () => {
     });
   });
 
-  describe('Error Handling', () => {
-    it('should set error message', () => {
+  describe("Error Handling", () => {
+    it("should set error message", () => {
       const { result } = renderHook(() => useBookingState());
-      const errorMessage = 'Something went wrong';
+      const errorMessage = "Something went wrong";
 
       act(() => {
         result.current.setError(errorMessage);
@@ -292,11 +290,11 @@ describe('useBookingState', () => {
       expect(result.current.state.error).toBe(errorMessage);
     });
 
-    it('should clear error message', () => {
+    it("should clear error message", () => {
       const { result } = renderHook(() => useBookingState());
 
       act(() => {
-        result.current.setError('Error message');
+        result.current.setError("Error message");
       });
 
       act(() => {
@@ -307,8 +305,8 @@ describe('useBookingState', () => {
     });
   });
 
-  describe('Reservation Summary', () => {
-    it('should set reservation summary and advance to summary step', () => {
+  describe("Reservation Summary", () => {
+    it("should set reservation summary and advance to summary step", () => {
       const { result } = renderHook(() => useBookingState());
 
       act(() => {
@@ -316,10 +314,10 @@ describe('useBookingState', () => {
       });
 
       expect(result.current.state.reservationSummary).toEqual(mockReservation);
-      expect(result.current.state.currentStep).toBe('reservation-summary');
+      expect(result.current.state.currentStep).toBe("reservation-summary");
     });
 
-    it('should not change step when clearing reservation summary', () => {
+    it("should not change step when clearing reservation summary", () => {
       const { result } = renderHook(() => useBookingState());
 
       // Set reservation first
@@ -333,23 +331,23 @@ describe('useBookingState', () => {
       });
 
       expect(result.current.state.reservationSummary).toBeNull();
-      expect(result.current.state.currentStep).toBe('reservation-summary'); // Should remain unchanged
+      expect(result.current.state.currentStep).toBe("reservation-summary"); // Should remain unchanged
     });
   });
 
-  describe('Step Navigation - Reset Functions', () => {
-    it('should reset to service selection and clear all related data', () => {
+  describe("Step Navigation - Reset Functions", () => {
+    it("should reset to service selection and clear all related data", () => {
       const { result } = renderHook(() => useBookingState());
 
       // Set up some state first
       act(() => {
         result.current.setSelectedService(mockService);
-        result.current.setSelectedDay('2025-11-15');
+        result.current.setSelectedDay("2025-11-15");
         result.current.setSelectedSlot(mockAvailableSlot);
         result.current.setSelectedVehicle(mockVehicle);
         result.current.setSlots([mockAvailableSlot]);
         result.current.setVehicles([mockVehicle]);
-        result.current.setError('Some error');
+        result.current.setError("Some error");
       });
 
       // Reset to service selection
@@ -358,7 +356,7 @@ describe('useBookingState', () => {
       });
 
       expect(result.current.state).toMatchObject({
-        currentStep: 'service-selection',
+        currentStep: "service-selection",
         selectedService: null,
         selectedDay: null,
         selectedSlot: null,
@@ -369,17 +367,17 @@ describe('useBookingState', () => {
       });
     });
 
-    it('should reset to calendar and clear booking-specific data', () => {
+    it("should reset to calendar and clear booking-specific data", () => {
       const { result } = renderHook(() => useBookingState());
 
       // Set up some state first
       act(() => {
         result.current.setSelectedService(mockService);
-        result.current.setSelectedDay('2025-11-15');
+        result.current.setSelectedDay("2025-11-15");
         result.current.setSelectedSlot(mockAvailableSlot);
         result.current.setSelectedVehicle(mockVehicle);
         result.current.setVehicles([mockVehicle]);
-        result.current.setError('Some error');
+        result.current.setError("Some error");
       });
 
       // Reset to calendar
@@ -388,7 +386,7 @@ describe('useBookingState', () => {
       });
 
       expect(result.current.state).toMatchObject({
-        currentStep: 'calendar',
+        currentStep: "calendar",
         selectedSlot: null,
         selectedVehicle: null,
         vehicles: [],
@@ -397,19 +395,19 @@ describe('useBookingState', () => {
 
       // Should preserve service and day selection
       expect(result.current.state.selectedService).toEqual(mockService);
-      expect(result.current.state.selectedDay).toBe('2025-11-15');
+      expect(result.current.state.selectedDay).toBe("2025-11-15");
     });
   });
 
-  describe('Booking State Restoration', () => {
-    it('should restore booking state from external data', () => {
+  describe("Booking State Restoration", () => {
+    it("should restore booking state from external data", () => {
       const { result } = renderHook(() => useBookingState());
 
       const bookingStateToRestore = {
         selectedService: mockService,
         selectedSlot: mockAvailableSlot,
-        returnUrl: '/reservations/available',
-        step: 'booking-confirmation',
+        returnUrl: "/reservations/available",
+        step: "booking-confirmation",
       };
 
       act(() => {
@@ -418,11 +416,11 @@ describe('useBookingState', () => {
 
       expect(result.current.state.selectedService).toEqual(mockService);
       expect(result.current.state.selectedSlot).toEqual(mockAvailableSlot);
-      expect(result.current.state.currentStep).toBe('booking-confirmation');
+      expect(result.current.state.currentStep).toBe("booking-confirmation");
       expect(result.current.state.isLoading).toBe(true);
     });
 
-    it('should handle restoration with partial data', () => {
+    it("should handle restoration with partial data", () => {
       const { result } = renderHook(() => useBookingState());
 
       const partialBookingState = {
@@ -436,12 +434,12 @@ describe('useBookingState', () => {
 
       expect(result.current.state.selectedService).toEqual(mockService);
       expect(result.current.state.selectedSlot).toBeUndefined(); // Should be undefined, not null
-      expect(result.current.state.currentStep).toBe('booking-confirmation');
+      expect(result.current.state.currentStep).toBe("booking-confirmation");
     });
   });
 
-  describe('Hook Stability', () => {
-    it('should provide stable function references across re-renders', () => {
+  describe("Hook Stability", () => {
+    it("should provide stable function references across re-renders", () => {
       const { result, rerender } = renderHook(() => useBookingState());
 
       const initialFunctions = {
@@ -460,7 +458,7 @@ describe('useBookingState', () => {
       expect(result.current.resetToServiceSelection).toBe(initialFunctions.resetToServiceSelection);
     });
 
-    it('should maintain function stability even after state changes', () => {
+    it("should maintain function stability even after state changes", () => {
       const { result } = renderHook(() => useBookingState());
 
       const setSelectedService = result.current.setSelectedService;
@@ -473,15 +471,15 @@ describe('useBookingState', () => {
     });
   });
 
-  describe('Complex State Transitions', () => {
-    it('should handle complete booking flow state transitions', () => {
+  describe("Complex State Transitions", () => {
+    it("should handle complete booking flow state transitions", () => {
       const { result } = renderHook(() => useBookingState());
 
       // Step 1: Service selection
       act(() => {
         result.current.setSelectedService(mockService);
       });
-      expect(result.current.state.currentStep).toBe('calendar');
+      expect(result.current.state.currentStep).toBe("calendar");
 
       // Step 2: Time selection (simulated - normally done by child component)
       act(() => {
@@ -497,7 +495,7 @@ describe('useBookingState', () => {
       act(() => {
         result.current.setReservationSummary(mockReservation);
       });
-      expect(result.current.state.currentStep).toBe('reservation-summary');
+      expect(result.current.state.currentStep).toBe("reservation-summary");
 
       // Verify all data is preserved
       expect(result.current.state.selectedService).toEqual(mockService);
@@ -506,7 +504,7 @@ describe('useBookingState', () => {
       expect(result.current.state.reservationSummary).toEqual(mockReservation);
     });
 
-    it('should handle backward navigation correctly', () => {
+    it("should handle backward navigation correctly", () => {
       const { result } = renderHook(() => useBookingState());
 
       // Set up complete state
@@ -521,7 +519,7 @@ describe('useBookingState', () => {
         result.current.resetToCalendar();
       });
 
-      expect(result.current.state.currentStep).toBe('calendar');
+      expect(result.current.state.currentStep).toBe("calendar");
       expect(result.current.state.selectedService).toEqual(mockService); // Preserved
       expect(result.current.state.selectedSlot).toBeNull(); // Cleared
       expect(result.current.state.selectedVehicle).toBeNull(); // Cleared
@@ -531,13 +529,13 @@ describe('useBookingState', () => {
         result.current.resetToServiceSelection();
       });
 
-      expect(result.current.state.currentStep).toBe('service-selection');
+      expect(result.current.state.currentStep).toBe("service-selection");
       expect(result.current.state.selectedService).toBeNull(); // Cleared
     });
   });
 
-  describe('Edge Cases', () => {
-    it('should handle setting empty arrays', () => {
+  describe("Edge Cases", () => {
+    it("should handle setting empty arrays", () => {
       const { result } = renderHook(() => useBookingState());
 
       act(() => {
@@ -549,25 +547,24 @@ describe('useBookingState', () => {
       expect(result.current.state.vehicles).toEqual([]);
     });
 
-    it('should handle multiple rapid state changes', () => {
+    it("should handle multiple rapid state changes", () => {
       const { result } = renderHook(() => useBookingState());
 
       act(() => {
         result.current.setSelectedService(mockService);
-        result.current.setSelectedDay('2025-11-15');
+        result.current.setSelectedDay("2025-11-15");
         result.current.setSelectedSlot(mockAvailableSlot);
         result.current.setLoading(true);
-        result.current.setError('Error');
+        result.current.setError("Error");
         result.current.setError(null);
         result.current.setLoading(false);
       });
 
       expect(result.current.state.selectedService).toEqual(mockService);
-      expect(result.current.state.selectedDay).toBe('2025-11-15');
+      expect(result.current.state.selectedDay).toBe("2025-11-15");
       expect(result.current.state.selectedSlot).toEqual(mockAvailableSlot);
       expect(result.current.state.isLoading).toBe(false);
       expect(result.current.state.error).toBeNull();
     });
   });
 });
-

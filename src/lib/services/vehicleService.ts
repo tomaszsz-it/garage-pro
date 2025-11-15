@@ -1,6 +1,12 @@
 // src/lib/services/vehicleService.ts
 import type { SupabaseClient } from "../../db/supabase.client";
-import type { VehicleCreateDto, VehicleDto, VehicleUpdateDto, VehiclesListResponseDto, VehiclesQueryParams } from "../../types";
+import type {
+  VehicleCreateDto,
+  VehicleDto,
+  VehicleUpdateDto,
+  VehiclesListResponseDto,
+  VehiclesQueryParams,
+} from "../../types";
 import { DatabaseError } from "../errors/database.error";
 
 /**
@@ -162,11 +168,7 @@ export class VehicleService {
       // Handle specific database errors
       if (error.code === "23505") {
         // Unique constraint violation (VIN)
-        throw new DatabaseError(
-          "Vehicle with this VIN already exists",
-          { field: "vin" },
-          error.code
-        );
+        throw new DatabaseError("Vehicle with this VIN already exists", { field: "vin" }, error.code);
       }
       throw new DatabaseError("Failed to update vehicle", error, error.code);
     }

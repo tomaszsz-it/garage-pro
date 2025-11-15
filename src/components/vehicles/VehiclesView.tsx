@@ -51,7 +51,7 @@ export function VehiclesView() {
 
   const handleConfirmDelete = async () => {
     if (!vehicleToDelete) return;
-    
+
     const success = await deleteVehicle(vehicleToDelete);
     if (success) {
       // Success handling is done in the hook's onSuccess callback
@@ -68,7 +68,7 @@ export function VehiclesView() {
   // Error handling
   if (error) {
     return (
-      <ErrorNotification 
+      <ErrorNotification
         onRetry={refetch}
         title="Nie udało się załadować pojazdów"
         message="Wystąpił problem podczas ładowania listy pojazdów. Spróbuj ponownie lub odśwież stronę."
@@ -100,21 +100,10 @@ export function VehiclesView() {
       <VehiclesActionPanel onRefresh={refetch} isRefreshing={isLoading} />
 
       {/* Vehicles List */}
-      {vehicles && (
-        <VehiclesList
-          vehicles={vehicles}
-          onEdit={handleEditVehicle}
-          onDelete={handleDeleteVehicle}
-        />
-      )}
+      {vehicles && <VehiclesList vehicles={vehicles} onEdit={handleEditVehicle} onDelete={handleDeleteVehicle} />}
 
       {/* Pagination */}
-      {pagination && (
-        <PaginationControls 
-          pagination={pagination} 
-          onPageChange={handlePageChange} 
-        />
-      )}
+      {pagination && <PaginationControls pagination={pagination} onPageChange={handlePageChange} />}
 
       {/* Delete Confirmation Dialog */}
       <DeleteConfirmationDialog

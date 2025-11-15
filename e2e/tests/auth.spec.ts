@@ -7,10 +7,10 @@ test.describe("Authentication", () => {
   test.beforeEach(async ({ page, context }) => {
     // Ensure user is logged out before each test
     await context.clearCookies();
-    
+
     loginPage = new LoginPage(page);
     await loginPage.goto();
-    
+
     // Wait for React to hydrate by interacting with the form
     await loginPage.emailInput.waitFor({ state: "visible" });
     await loginPage.emailInput.click();

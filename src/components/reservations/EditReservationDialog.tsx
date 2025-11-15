@@ -230,13 +230,15 @@ export function EditReservationDialog({ reservation, isOpen, onSave, onCancel }:
 
           {/* Vehicle Selection */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Pojazd</label>
+            <label htmlFor="vehicle-select" className="text-sm font-medium text-gray-700">
+              Pojazd
+            </label>
             <Select
               value={formData.vehicle_license_plate}
               onValueChange={(value) => setFormData((prev) => ({ ...prev, vehicle_license_plate: value }))}
               disabled={isLoadingVehicles || isSaving}
             >
-              <SelectTrigger>
+              <SelectTrigger id="vehicle-select">
                 <SelectValue placeholder={isLoadingVehicles ? "Ładowanie..." : "Wybierz pojazd"} />
               </SelectTrigger>
               <SelectContent>
@@ -256,13 +258,15 @@ export function EditReservationDialog({ reservation, isOpen, onSave, onCancel }:
 
           {/* Service Selection */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Usługa</label>
+            <label htmlFor="service-select" className="text-sm font-medium text-gray-700">
+              Usługa
+            </label>
             <Select
               value={formData.service_id.toString()}
               onValueChange={handleServiceChange}
               disabled={isLoadingServices || isSaving}
             >
-              <SelectTrigger>
+              <SelectTrigger id="service-select">
                 <SelectValue placeholder={isLoadingServices ? "Ładowanie..." : "Wybierz usługę"} />
               </SelectTrigger>
               <SelectContent>
@@ -282,7 +286,9 @@ export function EditReservationDialog({ reservation, isOpen, onSave, onCancel }:
 
           {/* Time Slot Selection */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Termin</label>
+            <label htmlFor="timeslot-select" className="text-sm font-medium text-gray-700">
+              Termin
+            </label>
             <Select
               value={
                 formData.employee_id && formData.start_ts && formData.end_ts
@@ -292,7 +298,7 @@ export function EditReservationDialog({ reservation, isOpen, onSave, onCancel }:
               onValueChange={handleTimeSlotChange}
               disabled={!formData.service_id || isLoadingSlots || isSaving}
             >
-              <SelectTrigger>
+              <SelectTrigger id="timeslot-select">
                 <SelectValue
                   placeholder={
                     !formData.service_id

@@ -67,12 +67,8 @@ export const useApiWithRetry = () => {
   );
 
   const retry = useCallback(async (lastFailedCall: () => Promise<any>) => {
-    try {
-      setRetryCount(0);
-      return await lastFailedCall();
-    } catch (error) {
-      throw error;
-    }
+    setRetryCount(0);
+    return await lastFailedCall();
   }, []);
 
   return {

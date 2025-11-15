@@ -167,27 +167,42 @@ export function useVehicleForm({ mode, initialData, onSuccess, onError }: UseVeh
       setErrors({});
 
       try {
-        const endpoint = mode === "create" ? "/api/vehicles" : `/api/vehicles/${encodeURIComponent(licensePlate!)}`;
+        if (mode === "edit" && !licensePlate) {
+          throw new Error("License plate is required for edit mode");
+        }
+
+        const endpoint = mode === "create" ? "/api/vehicles" : `/api/vehicles/${encodeURIComponent(licensePlate)}`;
 
         const method = mode === "create" ? "POST" : "PATCH";
 
         // Prepare payload
-        const payload: VehicleCreateDto | VehicleUpdateDto = {
-          ...(mode === "create" && { license_plate: formData.license_plate.trim() }),
-          brand: formData.brand.trim() || undefined,
-          model: formData.model.trim() || undefined,
-          production_year: formData.production_year ? parseInt(formData.production_year, 10) : undefined,
-          vin: formData.vin.trim() || undefined,
-          car_type: formData.car_type.trim() || undefined,
-        };
+        let payload: VehicleCreateDto | VehicleUpdateDto;
 
-        // Remove undefined values for update
-        if (mode === "edit") {
-          Object.keys(payload).forEach((key) => {
-            if (payload[key as keyof typeof payload] === undefined) {
-              delete payload[key as keyof typeof payload];
-            }
-          });
+        if (mode === "create") {
+          payload = {
+            license_plate: formData.license_plate.trim(),
+            brand: formData.brand.trim() || undefined,
+            model: formData.model.trim() || undefined,
+            production_year: formData.production_year ? parseInt(formData.production_year, 10) : undefined,
+            vin: formData.vin.trim() || undefined,
+            car_type: formData.car_type.trim() || undefined,
+          };
+        } else {
+          // For edit mode, only include defined values
+          const updatePayload: VehicleUpdateDto = {};
+          const brand = formData.brand.trim();
+          const model = formData.model.trim();
+          const vin = formData.vin.trim();
+          const carType = formData.car_type.trim();
+          const prodYear = formData.production_year ? parseInt(formData.production_year, 10) : null;
+
+          if (brand) updatePayload.brand = brand;
+          if (model) updatePayload.model = model;
+          if (vin) updatePayload.vin = vin;
+          if (carType) updatePayload.car_type = carType;
+          if (prodYear) updatePayload.production_year = prodYear;
+
+          payload = updatePayload;
         }
 
         const response = await fetch(endpoint, {

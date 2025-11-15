@@ -1,4 +1,4 @@
-name: Test & Build  Master
+name: Test & Build Master
 
 on:
   push:
@@ -11,34 +11,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         with:
           node-version: '18'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Run tests (Vitest & Playwright)
         run: |
           npm run test
           npm run playwright:test
+
   build:
     runs-on: ubuntu-latest
     needs: test
     steps:
-        - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v5
 
-        - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
         with:
           node-version: '18'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build
         run: npm run build

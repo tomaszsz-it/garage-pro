@@ -23,13 +23,20 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests (Vitest & Playwright)
+      - name: Run tests Vitest
         env:
           CI: true
-          FORCE_COLOR: '1'
-        run: |
-          npm run test -- --reporter=verbose --no-coverage
+        run:
+          echo "Starting Vitest tests..."
+          npm run test
+          echo "Vitest tests completed!"
+      - name: Run tests Playwright
+        env:
+          CI: true
+        run: 
+          echo "Starting Playwright tests..."
           npm run playwright:test
+          echo "Playwright tests completed!"
 
   build:
     runs-on: ubuntu-latest

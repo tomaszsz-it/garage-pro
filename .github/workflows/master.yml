@@ -23,6 +23,8 @@ jobs:
         run: npm ci
 
       - name: Run tests (Vitest & Playwright)
+        env:
+          CI: true
         run: |
           npm run test
           npm run playwright:test

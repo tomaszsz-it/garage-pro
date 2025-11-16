@@ -119,8 +119,8 @@ export const useAvailableReservations = ({
         onLoading(false);
       }
     },
-    [mapToViewModel]
-  ); // Usunięto callback z dependencies
+    [mapToViewModel, onError, onLoading, onSuccess]
+  );
 
   return {
     fetchAvailableReservations,

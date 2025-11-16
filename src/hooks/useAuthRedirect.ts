@@ -20,6 +20,7 @@ export const useAuthRedirect = () => {
             // Ignore sessionStorage errors (e.g., quota exceeded)
           }
         }
+        // eslint-disable-next-line react-compiler/react-compiler
         window.location.href = "/auth/login";
         return true;
       }

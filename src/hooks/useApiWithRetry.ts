@@ -18,7 +18,7 @@ interface PendingBookingState {
 }
 
 export const useApiWithRetry = () => {
-  const { checkAuthAndRedirect } = useAuthRedirect();
+  const { checkAuthAndRedirect, redirectToLogin } = useAuthRedirect();
   const [retryCount, setRetryCount] = useState(0);
 
   const makeApiCall = useCallback(
@@ -46,6 +46,7 @@ export const useApiWithRetry = () => {
           // Check for auth redirect
           const shouldRedirect = await checkAuthAndRedirect(response, pendingBookingState);
           if (shouldRedirect) {
+            redirectToLogin();
             return null;
           }
 
@@ -71,7 +72,7 @@ export const useApiWithRetry = () => {
 
       throw lastError;
     },
-    [checkAuthAndRedirect]
+    [checkAuthAndRedirect, redirectToLogin]
   );
 
   const retry = useCallback(async <T>(lastFailedCall: () => Promise<T>): Promise<T> => {

@@ -20,8 +20,6 @@ export const useAuthRedirect = () => {
             // Ignore sessionStorage errors (e.g., quota exceeded)
           }
         }
-        // eslint-disable-next-line react-compiler/react-compiler
-        window.location.href = "/auth/login";
         return true;
       }
 
@@ -35,7 +33,6 @@ export const useAuthRedirect = () => {
             // Ignore sessionStorage errors (e.g., quota exceeded)
           }
         }
-        window.location.href = "/auth/login";
         return true;
       }
 
@@ -43,6 +40,11 @@ export const useAuthRedirect = () => {
     },
     []
   );
+
+  const redirectToLogin = () => {
+    // eslint-disable-next-line react-compiler/react-compiler
+    window.location.href = "/auth/login";
+  };
 
   const getPendingBooking = useCallback(() => {
     const pendingBooking = sessionStorage.getItem("pendingBooking");
@@ -61,6 +63,7 @@ export const useAuthRedirect = () => {
 
   return {
     checkAuthAndRedirect,
+    redirectToLogin,
     getPendingBooking,
   };
 };

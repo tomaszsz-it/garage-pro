@@ -46,7 +46,7 @@ export function ReservationDetailView({ reservationId }: ReservationDetailViewPr
       await editReservation(data);
       toast.success("Rezerwacja została zaktualizowana pomyślnie");
       setIsEditDialogOpen(false);
-    } catch (error) {
+    } catch {
       // Error is already handled in the hook and dialog
       toast.error("Nie udało się zaktualizować rezerwacji");
     }
@@ -57,12 +57,12 @@ export function ReservationDetailView({ reservationId }: ReservationDetailViewPr
       await cancelReservation();
       toast.success("Rezerwacja została anulowana");
       setIsCancelDialogOpen(false);
-      
+
       // Redirect to reservations list after successful cancellation
       setTimeout(() => {
         window.location.href = "/reservations";
       }, 1500);
-    } catch (error) {
+    } catch {
       // Error is already handled in the hook and dialog
       toast.error("Nie udało się anulować rezerwacji");
     }
@@ -85,10 +85,7 @@ export function ReservationDetailView({ reservationId }: ReservationDetailViewPr
   if (error) {
     return (
       <div className="max-w-2xl mx-auto">
-        <ErrorNotification
-          message={error}
-          onRetry={handleRetry}
-        />
+        <ErrorNotification message={error} onRetry={handleRetry} />
       </div>
     );
   }
@@ -97,10 +94,7 @@ export function ReservationDetailView({ reservationId }: ReservationDetailViewPr
   if (!reservation) {
     return (
       <div className="max-w-2xl mx-auto">
-        <ErrorNotification
-          message="Nie znaleziono rezerwacji"
-          onRetry={handleRetry}
-        />
+        <ErrorNotification message="Nie znaleziono rezerwacji" onRetry={handleRetry} />
       </div>
     );
   }
@@ -122,9 +116,7 @@ export function ReservationDetailView({ reservationId }: ReservationDetailViewPr
       />
 
       {/* AI Recommendations */}
-      {reservation.recommendation_text && (
-        <RecommendationDisplay recommendation={reservation.recommendation_text} />
-      )}
+      {reservation.recommendation_text && <RecommendationDisplay recommendation={reservation.recommendation_text} />}
 
       {/* Edit Dialog */}
       {isEditDialogOpen && (

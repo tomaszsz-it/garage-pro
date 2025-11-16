@@ -1,20 +1,18 @@
-import { vi } from 'vitest';
+import { vi } from "vitest";
 
 // Mock Supabase client responses
-export const createMockSupabaseResponse = <T>(data: T, error: any = null) => ({
+export const createMockSupabaseResponse = <T>(data: T, error: Error | null = null) => ({
   data,
   error,
   status: error ? 400 : 200,
-  statusText: error ? 'Bad Request' : 'OK',
+  statusText: error ? "Bad Request" : "OK",
 });
 
 // Mock successful responses
-export const mockSupabaseSuccess = <T>(data: T) => 
-  createMockSupabaseResponse(data, null);
+export const mockSupabaseSuccess = <T>(data: T) => createMockSupabaseResponse(data, null);
 
 // Mock error responses
-export const mockSupabaseError = (message: string) =>
-  createMockSupabaseResponse(null, { message });
+export const mockSupabaseError = (message: string) => createMockSupabaseResponse(null, new Error(message));
 
 // Complete Supabase client mock
 export const createMockSupabaseClient = () => {
@@ -111,30 +109,30 @@ export const createMockSupabaseClient = () => {
 
 // Mock authentication states
 export const mockAuthUser = {
-  id: 'user-123',
-  email: 'test@example.com',
-  created_at: '2023-01-01T00:00:00.000Z',
-  updated_at: '2023-01-01T00:00:00.000Z',
-  email_confirmed_at: '2023-01-01T00:00:00.000Z',
-  last_sign_in_at: '2023-01-01T00:00:00.000Z',
-  role: 'authenticated',
+  id: "user-123",
+  email: "test@example.com",
+  created_at: "2023-01-01T00:00:00.000Z",
+  updated_at: "2023-01-01T00:00:00.000Z",
+  email_confirmed_at: "2023-01-01T00:00:00.000Z",
+  last_sign_in_at: "2023-01-01T00:00:00.000Z",
+  role: "authenticated",
   app_metadata: {},
   user_metadata: {},
   identities: [],
-  aud: 'authenticated',
+  aud: "authenticated",
 };
 
 export const mockAuthSession = {
-  access_token: 'mock-access-token',
-  refresh_token: 'mock-refresh-token',
+  access_token: "mock-access-token",
+  refresh_token: "mock-refresh-token",
   expires_in: 3600,
   expires_at: Date.now() + 3600 * 1000,
-  token_type: 'bearer',
+  token_type: "bearer",
   user: mockAuthUser,
 };
 
 // Mock database types for TypeScript
-export type MockVehicle = {
+export interface MockVehicle {
   id: string;
   brand: string;
   model: string;
@@ -146,9 +144,9 @@ export type MockVehicle = {
   owner_email: string;
   created_at: string;
   updated_at: string;
-};
+}
 
-export type MockReservation = {
+export interface MockReservation {
   id: string;
   vehicle_id: string;
   customer_name: string;
@@ -160,4 +158,4 @@ export type MockReservation = {
   notes?: string;
   created_at: string;
   updated_at: string;
-};
+}

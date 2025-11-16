@@ -28,7 +28,14 @@ export class ServiceSelectionPage {
    * Waits for React state update before proceeding.
    */
   async selectOilChangeService() {
-    await this.serviceOption1.click();
+    // Wait for component to be interactive (React hydrated)
+    await this.page.waitForTimeout(500);
+
+    // Click the radio input directly to trigger React onChange
+    const radioInput = this.page.locator('input[type="radio"][value="1"]');
+    await radioInput.waitFor({ state: "visible" });
+    await radioInput.click({ force: true });
+
     // Wait for React to update state and enable the submit button
     await expect(this.submitButton).toBeEnabled({ timeout: 5000 });
   }

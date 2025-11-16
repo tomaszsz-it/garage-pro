@@ -252,7 +252,7 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
     // Handle known database errors
     if (error instanceof DatabaseError) {
       let statusCode = 400;
-      
+
       // Map specific error codes to HTTP status codes
       if (error.code === "PGRST116") {
         statusCode = 404; // Not found
@@ -363,7 +363,7 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
     // Handle known database errors
     if (error instanceof DatabaseError) {
       let statusCode = 400;
-      
+
       // Map specific error codes to HTTP status codes
       if (error.code === "PGRST116") {
         statusCode = 404; // Not found

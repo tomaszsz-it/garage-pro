@@ -7,10 +7,10 @@ interface ErrorNotificationProps {
   message?: string;
 }
 
-export function ErrorNotification({ 
-  onRetry, 
+export function ErrorNotification({
+  onRetry,
   title = "Nie udało się załadować danych",
-  message = "Wystąpił problem podczas ładowania danych. Spróbuj ponownie lub odśwież stronę."
+  message = "Wystąpił problem podczas ładowania danych. Spróbuj ponownie lub odśwież stronę.",
 }: ErrorNotificationProps) {
   return (
     <div

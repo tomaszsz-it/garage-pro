@@ -1,11 +1,11 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect } from "react";
 
 export const useDarkMode = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   // Load dark mode preference from localStorage on mount
   useEffect(() => {
-    const savedMode = localStorage.getItem('darkMode');
+    const savedMode = localStorage.getItem("darkMode");
     if (savedMode) {
       setIsDarkMode(JSON.parse(savedMode));
     }
@@ -13,7 +13,7 @@ export const useDarkMode = () => {
 
   const toggleDarkMode = useCallback((checked: boolean) => {
     setIsDarkMode(checked);
-    localStorage.setItem('darkMode', JSON.stringify(checked));
+    localStorage.setItem("darkMode", JSON.stringify(checked));
   }, []);
 
   return {
@@ -21,5 +21,3 @@ export const useDarkMode = () => {
     toggleDarkMode,
   };
 };
-
-

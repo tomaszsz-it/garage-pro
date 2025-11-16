@@ -1,17 +1,18 @@
-import type { APIRoute } from 'astro';
-import { createSupabaseServerInstance } from '../../../db/supabase.client.ts';
-import { z } from 'zod';
+/* eslint-disable no-console */
+import type { APIRoute } from "astro";
+import { createSupabaseServerInstance } from "../../../db/supabase.client.ts";
+import { z } from "zod";
 
 export const prerender = false;
 
 const forgotPasswordSchema = z.object({
-  email: z.string().email('Nieprawidłowy format adresu e-mail'),
+  email: z.string().email("Nieprawidłowy format adresu e-mail"),
 });
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
     const body = await request.json();
-    
+
     // Validate input data
     const validationResult = forgotPasswordSchema.safeParse(body);
     if (!validationResult.success) {
@@ -19,13 +20,13 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         JSON.stringify({
           success: false,
           error: {
-            message: 'Nieprawidłowe dane wejściowe',
+            message: "Nieprawidłowe dane wejściowe",
             details: validationResult.error.issues,
           },
         }),
         {
           status: 400,
-          headers: { 'Content-Type': 'application/json' },
+          headers: { "Content-Type": "application/json" },
         }
       );
     }
@@ -42,7 +43,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     });
 
     if (error) {
-      console.error('Forgot password error:', error);
+      console.error("Forgot password error:", error);
     }
 
     // Always return success for security reasons (don't reveal if email exists)
@@ -50,26 +51,26 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       JSON.stringify({
         success: true,
         data: {
-          message: 'Jeśli podany adres e-mail istnieje w naszej bazie, wyślemy link do resetowania hasła',
+          message: "Jeśli podany adres e-mail istnieje w naszej bazie, wyślemy link do resetowania hasła",
         },
       }),
       {
         status: 200,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       }
     );
   } catch (error) {
-    console.error('Forgot password error:', error);
+    console.error("Forgot password error:", error);
     return new Response(
       JSON.stringify({
         success: false,
         error: {
-          message: 'Wystąpił błąd serwera',
+          message: "Wystąpił błąd serwera",
         },
       }),
       {
         status: 500,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       }
     );
   }

@@ -1,46 +1,52 @@
-import { useCallback } from 'react';
+import { useCallback } from "react";
+import type { ServiceDto, AvailableReservationViewModel } from "../types";
 
 interface PendingBookingState {
-  selectedService: any;
-  selectedSlot: any;
+  selectedService: ServiceDto | null;
+  selectedSlot: AvailableReservationViewModel | null;
   returnUrl: string;
   step: string;
 }
 
 export const useAuthRedirect = () => {
-  const checkAuthAndRedirect = useCallback(async (
-    response: Response,
-    pendingBookingState?: PendingBookingState
-  ): Promise<boolean> => {
-    // Check if we were redirected to login page
-    if (response.url.includes("/auth/login") || response.status === 401) {
-      if (pendingBookingState) {
-        try {
-          sessionStorage.setItem("pendingBooking", JSON.stringify(pendingBookingState));
-        } catch {
-          // Ignore sessionStorage errors (e.g., quota exceeded)
-        }
-      }
-      window.location.href = "/auth/login";
-      return true;
-    }
-
-    // Check if response is HTML (login page) instead of JSON
-    const contentType = response.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
-      if (pendingBookingState) {
-        try {
-          sessionStorage.setItem("pendingBooking", JSON.stringify(pendingBookingState));
-        } catch {
-          // Ignore sessionStorage errors (e.g., quota exceeded)
-        }
-      }
-      window.location.href = "/auth/login";
-      return true;
-    }
-
-    return false;
+  const redirectToLogin = useCallback(() => {
+    // eslint-disable-next-line react-compiler/react-compiler
+    window.location.href = "/auth/login";
   }, []);
+
+  const checkAuthAndRedirect = useCallback(
+    async (response: Response, pendingBookingState?: PendingBookingState): Promise<boolean> => {
+      // Check if we were redirected to login page
+      if (response.url.includes("/auth/login") || response.status === 401) {
+        if (pendingBookingState) {
+          try {
+            sessionStorage.setItem("pendingBooking", JSON.stringify(pendingBookingState));
+          } catch {
+            // Ignore sessionStorage errors (e.g., quota exceeded)
+          }
+        }
+        redirectToLogin();
+        return true;
+      }
+
+      // Check if response is HTML (login page) instead of JSON
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        if (pendingBookingState) {
+          try {
+            sessionStorage.setItem("pendingBooking", JSON.stringify(pendingBookingState));
+          } catch {
+            // Ignore sessionStorage errors (e.g., quota exceeded)
+          }
+        }
+        redirectToLogin();
+        return true;
+      }
+
+      return false;
+    },
+    [redirectToLogin]
+  );
 
   const getPendingBooking = useCallback(() => {
     const pendingBooking = sessionStorage.getItem("pendingBooking");
@@ -59,6 +65,7 @@ export const useAuthRedirect = () => {
 
   return {
     checkAuthAndRedirect,
-    getPendingBooking
+    redirectToLogin,
+    getPendingBooking,
   };
 };

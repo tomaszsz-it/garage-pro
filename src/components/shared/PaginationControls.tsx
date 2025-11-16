@@ -54,20 +54,29 @@ export function PaginationControls({ pagination, onPageChange }: PaginationContr
   }, [page, totalPages]);
 
   // Memoize click handlers
-  const handlePrevious = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    if (page > 1) onPageChange(page - 1);
-  }, [page, onPageChange]);
+  const handlePrevious = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      if (page > 1) onPageChange(page - 1);
+    },
+    [page, onPageChange]
+  );
 
-  const handleNext = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    if (page < totalPages) onPageChange(page + 1);
-  }, [page, totalPages, onPageChange]);
+  const handleNext = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      if (page < totalPages) onPageChange(page + 1);
+    },
+    [page, totalPages, onPageChange]
+  );
 
-  const handlePageClick = useCallback((pageNum: number) => (e: React.MouseEvent) => {
-    e.preventDefault();
-    onPageChange(pageNum);
-  }, [onPageChange]);
+  const handlePageClick = useCallback(
+    (pageNum: number) => (e: React.MouseEvent) => {
+      e.preventDefault();
+      onPageChange(pageNum);
+    },
+    [onPageChange]
+  );
 
   if (totalPages <= 1) {
     return null;
@@ -92,11 +101,7 @@ export function PaginationControls({ pagination, onPageChange }: PaginationContr
             </PaginationItem>
           ) : (
             <PaginationItem key={pageNum}>
-              <PaginationLink
-                href="#"
-                onClick={handlePageClick(pageNum)}
-                isActive={pageNum === page}
-              >
+              <PaginationLink href="#" onClick={handlePageClick(pageNum)} isActive={pageNum === page}>
                 {pageNum}
               </PaginationLink>
             </PaginationItem>

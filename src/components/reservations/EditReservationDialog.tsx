@@ -1,23 +1,9 @@
 import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "../ui/dialog";
-import type { 
-  ReservationDetailViewModel 
-} from "./hooks/useReservationDetail";
-import type { 
-  ReservationUpdateDto, 
-  VehicleDto, 
-  ServiceDto, 
-  AvailableReservationDto 
-} from "../../types";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
+import type { ReservationDetailViewModel } from "./hooks/useReservationDetail";
+import type { ReservationUpdateDto, VehicleDto, ServiceDto, AvailableReservationDto } from "../../types";
 
 interface EditReservationDialogProps {
   reservation: ReservationDetailViewModel;
@@ -34,12 +20,7 @@ interface EditFormData {
   end_ts: string;
 }
 
-export function EditReservationDialog({
-  reservation,
-  isOpen,
-  onSave,
-  onCancel,
-}: EditReservationDialogProps) {
+export function EditReservationDialog({ reservation, isOpen, onSave, onCancel }: EditReservationDialogProps) {
   const [formData, setFormData] = useState<EditFormData>({
     vehicle_license_plate: reservation.vehicle_license_plate,
     service_id: reservation.service_id,
@@ -47,16 +28,16 @@ export function EditReservationDialog({
     start_ts: reservation.start_ts,
     end_ts: reservation.end_ts,
   });
-  
+
   const [vehicles, setVehicles] = useState<VehicleDto[]>([]);
   const [services, setServices] = useState<ServiceDto[]>([]);
   const [availableSlots, setAvailableSlots] = useState<AvailableReservationDto[]>([]);
-  
+
   const [isLoadingVehicles, setIsLoadingVehicles] = useState(false);
   const [isLoadingServices, setIsLoadingServices] = useState(false);
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  
+
   const [error, setError] = useState<string | null>(null);
 
   // Load vehicles on dialog open
@@ -133,14 +114,14 @@ export function EditReservationDialog({
       const startDate = new Date();
       const endDate = new Date();
       endDate.setDate(endDate.getDate() + 30);
-      
+
       const params = new URLSearchParams({
         service_id: serviceId.toString(),
         start_ts: startDate.toISOString(),
         end_ts: endDate.toISOString(),
         limit: "50",
       });
-      
+
       const response = await fetch(`/api/reservations/available?${params}`);
       if (!response.ok) {
         throw new Error("Nie udało się pobrać dostępnych terminów");
@@ -156,7 +137,7 @@ export function EditReservationDialog({
 
   const handleServiceChange = (serviceIdStr: string) => {
     const serviceId = parseInt(serviceIdStr);
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       service_id: serviceId,
       // Reset time slot when service changes
@@ -167,12 +148,10 @@ export function EditReservationDialog({
   };
 
   const handleTimeSlotChange = (slotValue: string) => {
-    const slot = availableSlots.find(s => 
-      `${s.employee_id}:${s.start_ts}:${s.end_ts}` === slotValue
-    );
-    
+    const slot = availableSlots.find((s) => `${s.employee_id}:${s.start_ts}:${s.end_ts}` === slotValue);
+
     if (slot) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         employee_id: slot.employee_id,
         start_ts: slot.start_ts,
@@ -184,21 +163,26 @@ export function EditReservationDialog({
   const handleSave = async () => {
     setIsSaving(true);
     setError(null);
-    
+
     try {
       // Validate required fields
-      if (!formData.vehicle_license_plate || !formData.service_id || 
-          !formData.employee_id || !formData.start_ts || !formData.end_ts) {
+      if (
+        !formData.vehicle_license_plate ||
+        !formData.service_id ||
+        !formData.employee_id ||
+        !formData.start_ts ||
+        !formData.end_ts
+      ) {
         throw new Error("Wszystkie pola są wymagane");
       }
-      
+
       const updateData: ReservationUpdateDto = {
         vehicle_license_plate: formData.vehicle_license_plate,
         service_id: formData.service_id,
         start_ts: formData.start_ts,
         end_ts: formData.end_ts,
       };
-      
+
       await onSave(updateData);
       onCancel(); // Close dialog on success
     } catch (err) {
@@ -211,21 +195,21 @@ export function EditReservationDialog({
   const formatTimeSlot = (slot: AvailableReservationDto) => {
     const start = new Date(slot.start_ts);
     const end = new Date(slot.end_ts);
-    
+
     const dateStr = start.toLocaleDateString("pl-PL", {
       weekday: "short",
       day: "2-digit",
       month: "2-digit",
     });
-    
-    const timeStr = `${start.toLocaleTimeString("pl-PL", { 
-      hour: "2-digit", 
-      minute: "2-digit" 
-    })} - ${end.toLocaleTimeString("pl-PL", { 
-      hour: "2-digit", 
-      minute: "2-digit" 
+
+    const timeStr = `${start.toLocaleTimeString("pl-PL", {
+      hour: "2-digit",
+      minute: "2-digit",
+    })} - ${end.toLocaleTimeString("pl-PL", {
+      hour: "2-digit",
+      minute: "2-digit",
     })}`;
-    
+
     return `${dateStr} ${timeStr} (${slot.employee_name})`;
   };
 
@@ -234,9 +218,7 @@ export function EditReservationDialog({
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Edytuj rezerwację</DialogTitle>
-          <DialogDescription>
-            Zmień szczegóły swojej rezerwacji. Wszystkie pola są wymagane.
-          </DialogDescription>
+          <DialogDescription>Zmień szczegóły swojej rezerwacji. Wszystkie pola są wymagane.</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
@@ -248,15 +230,15 @@ export function EditReservationDialog({
 
           {/* Vehicle Selection */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
+            <label htmlFor="vehicle-select" className="text-sm font-medium text-gray-700">
               Pojazd
             </label>
             <Select
               value={formData.vehicle_license_plate}
-              onValueChange={(value) => setFormData(prev => ({ ...prev, vehicle_license_plate: value }))}
+              onValueChange={(value) => setFormData((prev) => ({ ...prev, vehicle_license_plate: value }))}
               disabled={isLoadingVehicles || isSaving}
             >
-              <SelectTrigger>
+              <SelectTrigger id="vehicle-select">
                 <SelectValue placeholder={isLoadingVehicles ? "Ładowanie..." : "Wybierz pojazd"} />
               </SelectTrigger>
               <SelectContent>
@@ -276,7 +258,7 @@ export function EditReservationDialog({
 
           {/* Service Selection */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
+            <label htmlFor="service-select" className="text-sm font-medium text-gray-700">
               Usługa
             </label>
             <Select
@@ -284,7 +266,7 @@ export function EditReservationDialog({
               onValueChange={handleServiceChange}
               disabled={isLoadingServices || isSaving}
             >
-              <SelectTrigger>
+              <SelectTrigger id="service-select">
                 <SelectValue placeholder={isLoadingServices ? "Ładowanie..." : "Wybierz usługę"} />
               </SelectTrigger>
               <SelectContent>
@@ -304,31 +286,32 @@ export function EditReservationDialog({
 
           {/* Time Slot Selection */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
+            <label htmlFor="timeslot-select" className="text-sm font-medium text-gray-700">
               Termin
             </label>
             <Select
-              value={formData.employee_id && formData.start_ts && formData.end_ts 
-                ? `${formData.employee_id}:${formData.start_ts}:${formData.end_ts}` 
-                : ""
+              value={
+                formData.employee_id && formData.start_ts && formData.end_ts
+                  ? `${formData.employee_id}:${formData.start_ts}:${formData.end_ts}`
+                  : ""
               }
               onValueChange={handleTimeSlotChange}
               disabled={!formData.service_id || isLoadingSlots || isSaving}
             >
-              <SelectTrigger>
-                <SelectValue 
+              <SelectTrigger id="timeslot-select">
+                <SelectValue
                   placeholder={
-                    !formData.service_id 
-                      ? "Najpierw wybierz usługę" 
-                      : isLoadingSlots 
-                        ? "Ładowanie terminów..." 
+                    !formData.service_id
+                      ? "Najpierw wybierz usługę"
+                      : isLoadingSlots
+                        ? "Ładowanie terminów..."
                         : "Wybierz termin"
-                  } 
+                  }
                 />
               </SelectTrigger>
               <SelectContent>
                 {availableSlots.map((slot) => (
-                  <SelectItem 
+                  <SelectItem
                     key={`${slot.employee_id}:${slot.start_ts}:${slot.end_ts}`}
                     value={`${slot.employee_id}:${slot.start_ts}:${slot.end_ts}`}
                   >

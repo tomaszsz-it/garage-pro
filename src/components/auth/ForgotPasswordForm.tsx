@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Mail, Send, CheckCircle } from 'lucide-react';
-import { Button } from '../ui/button';
+import React, { useState } from "react";
+import { Mail, Send, CheckCircle } from "lucide-react";
+import { Button } from "../ui/button";
 
 interface ForgotPasswordFormData {
   email: string;
@@ -13,7 +13,7 @@ interface ForgotPasswordFormErrors {
 
 export default function ForgotPasswordForm() {
   const [formData, setFormData] = useState<ForgotPasswordFormData>({
-    email: '',
+    email: "",
   });
   const [errors, setErrors] = useState<ForgotPasswordFormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -24,9 +24,9 @@ export default function ForgotPasswordForm() {
 
     // Email validation
     if (!formData.email) {
-      newErrors.email = 'Adres e-mail jest wymagany';
+      newErrors.email = "Adres e-mail jest wymagany";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Wprowadź prawidłowy adres e-mail';
+      newErrors.email = "Wprowadź prawidłowy adres e-mail";
     }
 
     setErrors(newErrors);
@@ -35,7 +35,7 @@ export default function ForgotPasswordForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -44,10 +44,10 @@ export default function ForgotPasswordForm() {
     setErrors({});
 
     try {
-      const response = await fetch('/api/auth/forgot-password', {
-        method: 'POST',
+      const response = await fetch("/api/auth/forgot-password", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
@@ -56,17 +56,15 @@ export default function ForgotPasswordForm() {
 
       if (!response.ok || !result.success) {
         setErrors({
-          general: result.error?.message || 'Wystąpił błąd podczas wysyłania e-maila'
+          general: result.error?.message || "Wystąpił błąd podczas wysyłania e-maila",
         });
         return;
       }
 
       setIsSuccess(true);
-      
-    } catch (error) {
-      console.error('Forgot password error:', error);
+    } catch {
       setErrors({
-        general: 'Wystąpił błąd połączenia. Spróbuj ponownie.'
+        general: "Wystąpił błąd połączenia. Spróbuj ponownie.",
       });
     } finally {
       setIsLoading(false);
@@ -75,14 +73,14 @@ export default function ForgotPasswordForm() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
-      email: e.target.value
+      email: e.target.value,
     });
-    
+
     // Clear field error when user starts typing
     if (errors.email) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        email: undefined
+        email: undefined,
       }));
     }
   };
@@ -99,7 +97,7 @@ export default function ForgotPasswordForm() {
         </p>
         <div className="pt-4">
           <Button
-            onClick={() => window.location.href = '/auth/login'}
+            onClick={() => (window.location.href = "/auth/login")}
             className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200"
           >
             Powrót do logowania
@@ -133,17 +131,13 @@ export default function ForgotPasswordForm() {
             value={formData.email}
             onChange={handleInputChange}
             className={`w-full pl-10 pr-4 py-3 rounded-xl bg-white/5 border backdrop-blur-sm text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-400/50 transition-all ${
-              errors.email 
-                ? 'border-red-400/50 focus:ring-red-400/50' 
-                : 'border-white/10 hover:border-white/20'
+              errors.email ? "border-red-400/50 focus:ring-red-400/50" : "border-white/10 hover:border-white/20"
             }`}
             placeholder="twoj@email.com"
             disabled={isLoading}
           />
         </div>
-        {errors.email && (
-          <p className="text-red-300 text-sm">{errors.email}</p>
-        )}
+        {errors.email && <p className="text-red-300 text-sm">{errors.email}</p>}
       </div>
 
       {/* Info Text */}

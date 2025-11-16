@@ -86,7 +86,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
     // Handle known database errors
     if (error instanceof DatabaseError) {
       let statusCode = 400;
-      
+
       // Map specific error messages to appropriate HTTP status codes
       if (error.message.includes("not found")) {
         statusCode = 404;
@@ -248,25 +248,31 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
     // Handle known database errors
     if (error instanceof DatabaseError) {
       let statusCode = 400;
-      
+
       // Map specific error messages to appropriate HTTP status codes
       if (error.message.includes("not found")) {
         statusCode = 404;
-      } else if (error.message.includes("Access denied") || 
-                 error.message.includes("Only secretariat can") ||
-                 error.message.includes("insufficient permissions")) {
+      } else if (
+        error.message.includes("Access denied") ||
+        error.message.includes("Only secretariat can") ||
+        error.message.includes("insufficient permissions")
+      ) {
         statusCode = 403;
-      } else if (error.message.includes("not available") || 
-                 error.message.includes("conflicts") ||
-                 error.message.includes("Time slot not available")) {
+      } else if (
+        error.message.includes("not available") ||
+        error.message.includes("conflicts") ||
+        error.message.includes("Time slot not available")
+      ) {
         statusCode = 409;
-      } else if (error.message.includes("Cannot modify past") ||
-                 error.message.includes("Cannot change status") ||
-                 error.message.includes("Invalid status transition") ||
-                 error.message.includes("Cannot schedule reservation in the past") ||
-                 error.message.includes("duration does not match") ||
-                 error.message.includes("not owned by user") ||
-                 error.message.includes("Employee not available")) {
+      } else if (
+        error.message.includes("Cannot modify past") ||
+        error.message.includes("Cannot change status") ||
+        error.message.includes("Invalid status transition") ||
+        error.message.includes("Cannot schedule reservation in the past") ||
+        error.message.includes("duration does not match") ||
+        error.message.includes("not owned by user") ||
+        error.message.includes("Employee not available")
+      ) {
         statusCode = 400;
       }
 

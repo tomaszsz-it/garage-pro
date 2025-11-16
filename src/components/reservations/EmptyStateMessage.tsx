@@ -8,11 +8,7 @@ interface EmptyStateMessageProps {
 
 export function EmptyStateMessage({ hasVehicles, hasFilters }: EmptyStateMessageProps) {
   return (
-    <div
-      role="status"
-      aria-live="polite"
-      className="text-center py-[var(--spacing-5xl)] px-[var(--spacing-xl)]"
-    >
+    <div role="status" aria-live="polite" className="text-center py-[var(--spacing-5xl)] px-[var(--spacing-xl)]">
       <div className="flex justify-center mb-[var(--spacing-2xl)] p-[var(--spacing-xl)] bg-[var(--neutral-10)] rounded-full w-fit mx-auto shadow-[var(--elevation-2)]">
         {hasFilters ? (
           <CalendarPlus className="h-16 w-16 text-[var(--neutral-60)]" />

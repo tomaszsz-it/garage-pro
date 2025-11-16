@@ -11,8 +11,8 @@ import type {
 import { AVAILABLE_SERVICES } from "../constants";
 
 // Sorting types
-export type SortField = 'date' | 'service' | 'vehicle' | 'status';
-export type SortDirection = 'asc' | 'desc';
+export type SortField = "date" | "service" | "vehicle" | "status";
+export type SortDirection = "asc" | "desc";
 
 interface UseReservationsParams {
   page: number;
@@ -40,18 +40,18 @@ interface UseReservationsResult {
   refetch: () => Promise<void>;
 }
 
-export function useReservations({ 
-  page, 
-  limit = 10, 
-  filters, 
+export function useReservations({
+  page,
+  limit = 10,
+  filters,
   sorting,
-  enabled = true
+  enabled = true,
 }: UseReservationsParams): UseReservationsResult {
   const [allReservations, setAllReservations] = useState<ReservationDto[] | null>(null);
   const [vehicles, setVehicles] = useState<VehicleDto[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  
+
   // Use ref to prevent unnecessary re-fetches when vehicles are already loaded
   const vehiclesLoadedRef = useRef(false);
 
@@ -64,7 +64,6 @@ export function useReservations({
       const reservationsResponse = await fetch(`/api/reservations?page=1&limit=100`);
       if (!reservationsResponse.ok) {
         const errorText = await reservationsResponse.text();
-        console.error("Reservations API error:", reservationsResponse.status, errorText);
         throw new Error(`Failed to fetch reservations: ${reservationsResponse.status} ${errorText}`);
       }
       const reservationsData: ReservationsListResponseDto = await reservationsResponse.json();
@@ -87,7 +86,6 @@ export function useReservations({
     }
     // Note: 'vehicles' is intentionally excluded from dependencies to prevent infinite loop
     // The function checks current vehicles state value when executed
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -121,19 +119,19 @@ export function useReservations({
         let bValue: string | number;
 
         switch (sorting.field) {
-          case 'date':
+          case "date":
             aValue = new Date(a.start_ts).getTime();
             bValue = new Date(b.start_ts).getTime();
             break;
-          case 'service':
+          case "service":
             aValue = a.service_name.toLowerCase();
             bValue = b.service_name.toLowerCase();
             break;
-          case 'vehicle':
+          case "vehicle":
             aValue = a.vehicle_license_plate.toLowerCase();
             bValue = b.vehicle_license_plate.toLowerCase();
             break;
-          case 'status':
+          case "status":
             aValue = a.status.toLowerCase();
             bValue = b.status.toLowerCase();
             break;
@@ -142,10 +140,10 @@ export function useReservations({
         }
 
         if (aValue < bValue) {
-          return sorting.direction === 'asc' ? -1 : 1;
+          return sorting.direction === "asc" ? -1 : 1;
         }
         if (aValue > bValue) {
-          return sorting.direction === 'asc' ? 1 : -1;
+          return sorting.direction === "asc" ? 1 : -1;
         }
         return 0;
       });

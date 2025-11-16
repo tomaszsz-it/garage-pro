@@ -25,10 +25,8 @@ export function ReservationActionsPanel({
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">
-        Akcje
-      </h3>
-      
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">Akcje</h3>
+
       <div className="flex flex-col sm:flex-row gap-3">
         {/* Przycisk edycji */}
         <Button
@@ -74,9 +72,7 @@ export function ReservationActionsPanel({
                     : "Nie można edytować anulowanych lub zakończonych rezerwacji"}
                 </li>
               )}
-              {!reservation.canCancel && (
-                <li>Nie można anulować zakończonych lub już anulowanych rezerwacji</li>
-              )}
+              {!reservation.canCancel && <li>Nie można anulować zakończonych lub już anulowanych rezerwacji</li>}
             </ul>
           </div>
         </div>

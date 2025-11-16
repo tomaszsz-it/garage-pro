@@ -45,33 +45,35 @@ export const vehicleCreateSchema = z.object({
  * Based on VehicleUpdateDto requirements from the implementation plan
  * All fields are optional for PATCH operations
  */
-export const vehicleUpdateSchema = z.object({
-  // Optional field: VIN (exactly 17 characters if provided)
-  vin: z
-    .string()
-    .length(17, "VIN must be exactly 17 characters long")
-    .regex(/^[A-HJ-NPR-Z0-9]{17}$/, "VIN contains invalid characters")
-    .optional(),
+export const vehicleUpdateSchema = z
+  .object({
+    // Optional field: VIN (exactly 17 characters if provided)
+    vin: z
+      .string()
+      .length(17, "VIN must be exactly 17 characters long")
+      .regex(/^[A-HJ-NPR-Z0-9]{17}$/, "VIN contains invalid characters")
+      .optional(),
 
-  // Optional field: brand (max 50 characters)
-  brand: z.string().max(50, "Brand cannot exceed 50 characters").trim().optional(),
+    // Optional field: brand (max 50 characters)
+    brand: z.string().max(50, "Brand cannot exceed 50 characters").trim().optional(),
 
-  // Optional field: model (max 50 characters)
-  model: z.string().max(50, "Model cannot exceed 50 characters").trim().optional(),
+    // Optional field: model (max 50 characters)
+    model: z.string().max(50, "Model cannot exceed 50 characters").trim().optional(),
 
-  // Optional field: production year (1900-2050 as per plan)
-  production_year: z
-    .number()
-    .int("Production year must be an integer")
-    .min(1900, "Production year cannot be earlier than 1900")
-    .max(2050, "Production year cannot be later than 2050")
-    .optional(),
+    // Optional field: production year (1900-2050 as per plan)
+    production_year: z
+      .number()
+      .int("Production year must be an integer")
+      .min(1900, "Production year cannot be earlier than 1900")
+      .max(2050, "Production year cannot be later than 2050")
+      .optional(),
 
-  // Optional field: car type (max 200 characters)
-  car_type: z.string().max(200, "Car type cannot exceed 200 characters").trim().optional(),
-}).refine(data => Object.keys(data).length > 0, {
-  message: "At least one field must be provided for update"
-});
+    // Optional field: car type (max 200 characters)
+    car_type: z.string().max(200, "Car type cannot exceed 200 characters").trim().optional(),
+  })
+  .refine((data) => Object.keys(data).length > 0, {
+    message: "At least one field must be provided for update",
+  });
 
 /**
  * Zod schema for validating query parameters for GET /vehicles

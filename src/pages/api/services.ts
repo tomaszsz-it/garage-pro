@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { APIRoute } from "astro";
 import type { ServiceDto } from "../../types";
 
@@ -52,7 +53,7 @@ export const GET: APIRoute = async ({ locals }) => {
     });
   } catch (error) {
     console.error("Unexpected error in GET /api/services:", error);
-    
+
     return new Response(
       JSON.stringify({
         error: "Internal Server Error",

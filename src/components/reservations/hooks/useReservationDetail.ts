@@ -3,12 +3,12 @@ import type { ReservationDetailDto, ReservationUpdateDto } from "../../../types"
 
 // Extended ViewModel with UI-specific properties
 export interface ReservationDetailViewModel extends ReservationDetailDto {
-  displayDate: string;        // "DD.MM.YYYY"
-  displayTime: string;        // "HH:MM - HH:MM"
-  displayStatus: string;      // "Nowa", "Anulowana", "Zakończona"
-  canEdit: boolean;           // czy można edytować
-  canCancel: boolean;         // czy można anulować
-  isPast: boolean;            // czy termin minął
+  displayDate: string; // "DD.MM.YYYY"
+  displayTime: string; // "HH:MM - HH:MM"
+  displayStatus: string; // "Nowa", "Anulowana", "Zakończona"
+  canEdit: boolean; // czy można edytować
+  canCancel: boolean; // czy można anulować
+  isPast: boolean; // czy termin minął
 }
 
 interface UseReservationDetailState {
@@ -39,7 +39,7 @@ function formatDate(dateString: string): string {
 function formatTimeRange(startString: string, endString: string): string {
   const start = new Date(startString);
   const end = new Date(endString);
-  
+
   const startTime = start.toLocaleTimeString("pl-PL", {
     hour: "2-digit",
     minute: "2-digit",
@@ -48,7 +48,7 @@ function formatTimeRange(startString: string, endString: string): string {
     hour: "2-digit",
     minute: "2-digit",
   });
-  
+
   return `${startTime} - ${endTime}`;
 }
 
@@ -79,12 +79,12 @@ function canEditReservation(reservation: ReservationDetailDto): boolean {
   if (isPastReservation(reservation.start_ts)) {
     return false;
   }
-  
+
   // Can't edit cancelled or completed reservations
   if (reservation.status === "Cancelled" || reservation.status === "Completed") {
     return false;
   }
-  
+
   return true;
 }
 
@@ -94,7 +94,7 @@ function canCancelReservation(reservation: ReservationDetailDto): boolean {
   if (reservation.status === "Cancelled" || reservation.status === "Completed") {
     return false;
   }
-  
+
   return true;
 }
 
@@ -103,7 +103,7 @@ function transformToViewModel(reservation: ReservationDetailDto): ReservationDet
   const isPast = isPastReservation(reservation.start_ts);
   const canEdit = canEditReservation(reservation);
   const canCancel = canCancelReservation(reservation);
-  
+
   return {
     ...reservation,
     displayDate: formatDate(reservation.start_ts),
@@ -125,27 +125,27 @@ export function useReservationDetail(reservationId: string): UseReservationDetai
   });
 
   const loadReservation = useCallback(async () => {
-    setState(prev => ({ ...prev, isLoading: true, error: null }));
-    
+    setState((prev) => ({ ...prev, isLoading: true, error: null }));
+
     try {
       const response = await fetch(`/api/reservations/${reservationId}`);
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || `HTTP ${response.status}`);
       }
-      
+
       const reservationData: ReservationDetailDto = await response.json();
       const viewModel = transformToViewModel(reservationData);
-      
-      setState(prev => ({
+
+      setState((prev) => ({
         ...prev,
         reservation: viewModel,
         isLoading: false,
         error: null,
       }));
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         reservation: null,
         isLoading: false,
@@ -154,49 +154,52 @@ export function useReservationDetail(reservationId: string): UseReservationDetai
     }
   }, [reservationId]);
 
-  const editReservation = useCallback(async (data: ReservationUpdateDto) => {
-    if (!state.reservation) return;
-    
-    setState(prev => ({ ...prev, isEditing: true, error: null }));
-    
-    try {
-      const response = await fetch(`/api/reservations/${reservationId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || `HTTP ${response.status}`);
+  const editReservation = useCallback(
+    async (data: ReservationUpdateDto) => {
+      if (!state.reservation) return;
+
+      setState((prev) => ({ ...prev, isEditing: true, error: null }));
+
+      try {
+        const response = await fetch(`/api/reservations/${reservationId}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || `HTTP ${response.status}`);
+        }
+
+        const updatedReservation: ReservationDetailDto = await response.json();
+        const viewModel = transformToViewModel(updatedReservation);
+
+        setState((prev) => ({
+          ...prev,
+          reservation: viewModel,
+          isEditing: false,
+          error: null,
+        }));
+      } catch (error) {
+        setState((prev) => ({
+          ...prev,
+          isEditing: false,
+          error: error instanceof Error ? error.message : "Wystąpił błąd podczas edycji rezerwacji",
+        }));
+        throw error; // Re-throw to allow component to handle it
       }
-      
-      const updatedReservation: ReservationDetailDto = await response.json();
-      const viewModel = transformToViewModel(updatedReservation);
-      
-      setState(prev => ({
-        ...prev,
-        reservation: viewModel,
-        isEditing: false,
-        error: null,
-      }));
-    } catch (error) {
-      setState(prev => ({
-        ...prev,
-        isEditing: false,
-        error: error instanceof Error ? error.message : "Wystąpił błąd podczas edycji rezerwacji",
-      }));
-      throw error; // Re-throw to allow component to handle it
-    }
-  }, [reservationId, state.reservation]);
+    },
+    [reservationId, state.reservation]
+  );
 
   const cancelReservation = useCallback(async () => {
     if (!state.reservation) return;
-    
-    setState(prev => ({ ...prev, isCancelling: true, error: null }));
-    
+
+    setState((prev) => ({ ...prev, isCancelling: true, error: null }));
+
     try {
       const response = await fetch(`/api/reservations/${reservationId}`, {
         method: "PATCH",
@@ -205,23 +208,23 @@ export function useReservationDetail(reservationId: string): UseReservationDetai
         },
         body: JSON.stringify({ status: "Cancelled" }),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || `HTTP ${response.status}`);
       }
-      
+
       const updatedReservation: ReservationDetailDto = await response.json();
       const viewModel = transformToViewModel(updatedReservation);
-      
-      setState(prev => ({
+
+      setState((prev) => ({
         ...prev,
         reservation: viewModel,
         isCancelling: false,
         error: null,
       }));
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         isCancelling: false,
         error: error instanceof Error ? error.message : "Wystąpił błąd podczas anulowania rezerwacji",

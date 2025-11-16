@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator } from "@playwright/test";
 
 export class HomePage {
   readonly page: Page;
@@ -20,31 +20,31 @@ export class HomePage {
   }
 
   async goto() {
-    await this.page.goto('/');
+    await this.page.goto("/");
   }
 
   async navigateToVehicles() {
     await this.vehiclesLink.click();
-    await this.page.waitForURL('**/vehicles');
+    await this.page.waitForURL("**/vehicles");
   }
 
   async navigateToReservations() {
     await this.reservationsLink.click();
-    await this.page.waitForURL('**/reservations');
+    await this.page.waitForURL("**/reservations");
   }
 
   async navigateToUsers() {
     await this.usersLink.click();
-    await this.page.waitForURL('**/users');
+    await this.page.waitForURL("**/users");
   }
 
   async navigateToLogin() {
     await this.loginButton.click();
-    await this.page.waitForURL('**/auth/login');
+    await this.page.waitForURL("**/auth/login");
   }
 
   async expectToBeLoaded() {
-    await this.welcomeTitle.waitFor({ state: 'visible' });
-    await this.navigationMenu.waitFor({ state: 'visible' });
+    await this.welcomeTitle.waitFor({ state: "visible" });
+    await this.navigationMenu.waitFor({ state: "visible" });
   }
 }

@@ -115,7 +115,9 @@ export type ReservationDetailDto = Omit<Reservation, "created_by"> & {
 //      - status: must be valid enum value ("New", "Cancelled", "Completed")
 //      - Only future reservations can be modified (except status changes)
 // ------------------------------------------------------------------------------------------------
-export type ReservationUpdateDto = Partial<Pick<ReservationUpdate, "service_id" | "vehicle_license_plate" | "start_ts" | "end_ts" | "status">>;
+export type ReservationUpdateDto = Partial<
+  Pick<ReservationUpdate, "service_id" | "vehicle_license_plate" | "start_ts" | "end_ts" | "status">
+>;
 
 // ------------------------------------------------------------------------------------------------
 // 10. Vehicles List Response DTO
@@ -151,7 +153,7 @@ export interface AvailableReservationsResponseDto {
 // 13. Service DTO
 //     Represents a service for the frontend (ensures description is never null)
 // ------------------------------------------------------------------------------------------------
-export type ServiceDto = Omit<Service, 'description'> & {
+export type ServiceDto = Omit<Service, "description"> & {
   description: string;
 };
 

@@ -14,10 +14,12 @@ export const paginationQuerySchema = z.object({
  * License plate parameter schema for URL path parameters
  * Used in vehicle endpoints: GET/PATCH/DELETE /vehicles/{license_plate}
  */
-export const licensePlateParamSchema = z.string()
-  .min(2).max(20)
+export const licensePlateParamSchema = z
+  .string()
+  .min(2)
+  .max(20)
   .regex(/^[A-Za-z0-9\s]+$/)
-  .transform(val => decodeURIComponent(val).trim());
+  .transform((val) => decodeURIComponent(val).trim());
 
 /**
  * UUID parameter schema for URL path parameters

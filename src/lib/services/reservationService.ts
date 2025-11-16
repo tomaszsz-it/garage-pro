@@ -242,7 +242,11 @@ export function createReservationService(supabase: SupabaseClient, openRouter?: 
       }
 
       // 3. Verify employee exists
-      const { data: employee, error: employeeError } = await supabase.from("employees").select("id, name").eq("id", dto.employee_id).single();
+      const { data: employee, error: employeeError } = await supabase
+        .from("employees")
+        .select("id, name")
+        .eq("id", dto.employee_id)
+        .single();
 
       if (employeeError || !employee) {
         throw new DatabaseError("Employee not found", { employee_id: dto.employee_id });

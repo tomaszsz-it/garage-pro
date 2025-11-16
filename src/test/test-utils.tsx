@@ -1,6 +1,6 @@
-import React, { ReactElement } from 'react';
-import { render, RenderOptions } from '@testing-library/react';
-import { vi } from 'vitest';
+import React, { ReactElement } from "react";
+import { render, RenderOptions } from "@testing-library/react";
+import { vi } from "vitest";
 
 // Custom render function with providers
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
@@ -12,10 +12,8 @@ const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-const customRender = (
-  ui: ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>,
-) => render(ui, { wrapper: AllTheProviders, ...options });
+const customRender = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) =>
+  render(ui, { wrapper: AllTheProviders, ...options });
 
 // Mock factories for common external services
 export const createMockSupabaseClient = () => ({
@@ -52,56 +50,56 @@ export const createMockUserEvent = () => {
 
 // Mock data factories
 export const createMockVehicle = (overrides = {}) => ({
-  license_plate: 'ABC-123',
-  brand: 'Toyota',
-  model: 'Camry',
+  license_plate: "ABC-123",
+  brand: "Toyota",
+  model: "Camry",
   production_year: 2023,
-  vin: '1234567890ABCDEFG',
-  car_type: 'Sedan',
+  vin: "1234567890ABCDEFG",
+  car_type: "Sedan",
   created_at: new Date().toISOString(),
   ...overrides,
 });
 
 export const createMockService = (overrides = {}) => ({
   id: 1,
-  name: 'Oil Change',
-  description: 'Regular oil change service',
+  name: "Oil Change",
+  description: "Regular oil change service",
   duration_minutes: 30,
-  price: 50.00,
+  price: 50.0,
   is_active: true,
   ...overrides,
 });
 
 export const createMockAvailableSlot = (overrides = {}) => ({
-  start_ts: '2025-11-15T10:00:00Z',
-  end_ts: '2025-11-15T10:30:00Z',
-  employee_id: 'emp1',
-  employee_name: 'John Mechanic',
+  start_ts: "2025-11-15T10:00:00Z",
+  end_ts: "2025-11-15T10:30:00Z",
+  employee_id: "emp1",
+  employee_name: "John Mechanic",
   ...overrides,
 });
 
 export const createMockReservation = (overrides = {}) => ({
-  id: 'res1',
+  id: "res1",
   service_id: 1,
-  vehicle_license_plate: 'ABC-123',
-  employee_id: 'emp1',
-  start_ts: '2025-11-15T10:00:00Z',
-  end_ts: '2025-11-15T10:30:00Z',
-  status: 'scheduled' as const,
+  vehicle_license_plate: "ABC-123",
+  employee_id: "emp1",
+  start_ts: "2025-11-15T10:00:00Z",
+  end_ts: "2025-11-15T10:30:00Z",
+  status: "scheduled" as const,
   created_at: new Date().toISOString(),
-  service_name: 'Oil Change',
+  service_name: "Oil Change",
   service_duration_minutes: 30,
-  employee_name: 'John Mechanic',
-  recommendation_text: 'Regular maintenance',
+  employee_name: "John Mechanic",
+  recommendation_text: "Regular maintenance",
   ...overrides,
 });
 
 export const createMockReservationCreateDto = (overrides = {}) => ({
   service_id: 1,
-  vehicle_license_plate: 'ABC-123',
-  employee_id: 'emp1',
-  start_ts: '2025-11-15T10:00:00Z',
-  end_ts: '2025-11-15T10:30:00Z',
+  vehicle_license_plate: "ABC-123",
+  employee_id: "emp1",
+  start_ts: "2025-11-15T10:00:00Z",
+  end_ts: "2025-11-15T10:30:00Z",
   ...overrides,
 });
 
@@ -115,11 +113,11 @@ export const createMockBookingState = (overrides = {}) => ({
   isLoading: false,
   isCreatingReservation: false,
   error: null,
-  currentStep: 'service-selection' as const,
+  currentStep: "service-selection" as const,
   reservationSummary: null,
   ...overrides,
 });
 
 // Re-export everything
-export * from '@testing-library/react';
+export * from "@testing-library/react";
 export { customRender as render };

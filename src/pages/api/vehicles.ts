@@ -2,7 +2,7 @@
 import type { APIRoute } from "astro";
 import { vehicleCreateSchema, vehiclesQuerySchema } from "../../lib/validation/vehicleSchemas";
 import { createVehicleService } from "../../lib/services/vehicleService";
-import type { VehicleCreateDto, VehiclesListResponseDto } from "../../types";
+import type { VehicleCreateDto } from "../../types";
 import { DatabaseError } from "../../lib/errors/database.error";
 
 export const prerender = false;

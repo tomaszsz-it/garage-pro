@@ -29,17 +29,10 @@ export const ReservationConfirmationView: React.FC<ReservationConfirmationViewPr
             viewBox="0 0 24 24"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M5 13l4 4L19 7"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Rezerwacja potwierdzona!
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Rezerwacja potwierdzona!</h1>
         <p className="text-gray-600">
           Twoja rezerwacja została pomyślnie utworzona. Poniżej znajdziesz szczegóły oraz rekomendacje serwisowe.
         </p>
@@ -52,10 +45,7 @@ export const ReservationConfirmationView: React.FC<ReservationConfirmationViewPr
       <RecommendationSection recommendationText={reservation.recommendation_text} />
 
       {/* Action Buttons */}
-      <ActionButtons
-        reservationId={reservation.id}
-        onBackToReservations={onBackToReservations}
-      />
+      <ActionButtons reservationId={reservation.id} onBackToReservations={onBackToReservations} />
     </div>
   );
 };

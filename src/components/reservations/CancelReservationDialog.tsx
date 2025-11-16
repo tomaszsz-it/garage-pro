@@ -1,13 +1,6 @@
 import { useState } from "react";
 import { Button } from "../ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "../ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { AlertTriangle } from "lucide-react";
 import type { ReservationDetailViewModel } from "./hooks/useReservationDetail";
 
@@ -18,19 +11,14 @@ interface CancelReservationDialogProps {
   onCancel: () => void;
 }
 
-export function CancelReservationDialog({
-  reservation,
-  isOpen,
-  onConfirm,
-  onCancel,
-}: CancelReservationDialogProps) {
+export function CancelReservationDialog({ reservation, isOpen, onConfirm, onCancel }: CancelReservationDialogProps) {
   const [isConfirming, setIsConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleConfirm = async () => {
     setIsConfirming(true);
     setError(null);
-    
+
     try {
       await onConfirm();
       onCancel(); // Close dialog on success
@@ -70,37 +58,29 @@ export function CancelReservationDialog({
 
           {/* Reservation Details Summary */}
           <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-            <h4 className="font-medium text-gray-900">
-              Szczegóły rezerwacji do anulowania:
-            </h4>
-            
+            <h4 className="font-medium text-gray-900">Szczegóły rezerwacji do anulowania:</h4>
+
             <div className="grid grid-cols-1 gap-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600">Usługa:</span>
-                <span className="font-medium text-gray-900">
-                  {reservation.service_name}
-                </span>
+                <span className="font-medium text-gray-900">{reservation.service_name}</span>
               </div>
-              
+
               <div className="flex justify-between">
                 <span className="text-gray-600">Pojazd:</span>
-                <span className="font-medium text-gray-900">
-                  {reservation.vehicle_license_plate}
-                </span>
+                <span className="font-medium text-gray-900">{reservation.vehicle_license_plate}</span>
               </div>
-              
+
               <div className="flex justify-between">
                 <span className="text-gray-600">Termin:</span>
                 <span className="font-medium text-gray-900">
                   {reservation.displayDate} {reservation.displayTime}
                 </span>
               </div>
-              
+
               <div className="flex justify-between">
                 <span className="text-gray-600">Mechanik:</span>
-                <span className="font-medium text-gray-900">
-                  {reservation.employee_name}
-                </span>
+                <span className="font-medium text-gray-900">{reservation.employee_name}</span>
               </div>
             </div>
           </div>
@@ -122,18 +102,10 @@ export function CancelReservationDialog({
         </div>
 
         <DialogFooter>
-          <Button 
-            variant="outline" 
-            onClick={handleCancel} 
-            disabled={isConfirming}
-          >
+          <Button variant="outline" onClick={handleCancel} disabled={isConfirming}>
             Nie, zachowaj rezerwację
           </Button>
-          <Button 
-            variant="destructive" 
-            onClick={handleConfirm} 
-            disabled={isConfirming}
-          >
+          <Button variant="destructive" onClick={handleConfirm} disabled={isConfirming}>
             {isConfirming ? "Anulowanie..." : "Tak, anuluj rezerwację"}
           </Button>
         </DialogFooter>

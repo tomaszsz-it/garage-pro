@@ -25,7 +25,6 @@ export async function getAvailableReservations(
   const endTs = params.end_ts ? new Date(params.end_ts) : new Date(startTs.getTime() + 30 * 24 * 60 * 60 * 1000); // +30 days
   const limit = params.limit ?? 32;
 
-
   // 1. Validate service exists and get duration
   const { data: service, error: serviceError } = await supabase
     .from("services")
@@ -51,8 +50,8 @@ export async function getAvailableReservations(
       )
     `
     )
-    .gte("end_ts", startTs.toISOString())    // Schedule ends after our start time
-    .lte("start_ts", endTs.toISOString());   // Schedule starts before our end time
+    .gte("end_ts", startTs.toISOString()) // Schedule ends after our start time
+    .lte("start_ts", endTs.toISOString()); // Schedule starts before our end time
 
   if (schedulesError) {
     throw new DatabaseError("Failed to fetch employee schedules", schedulesError);
@@ -69,7 +68,6 @@ export async function getAvailableReservations(
     // Generate slots within the schedule
     let slotStart = new Date(Math.max(scheduleStart.getTime(), startTs.getTime()));
 
-    let slotCount = 0;
     while (slotStart.getTime() + durationMs <= scheduleEnd.getTime()) {
       timeSlots.push({
         start_ts: slotStart,
@@ -78,7 +76,6 @@ export async function getAvailableReservations(
         employee_name: schedule.employees?.name || "Unknown",
       });
 
-      slotCount++;
       // Move to next slot
       slotStart = new Date(slotStart.getTime() + durationMs);
     }
@@ -94,10 +91,10 @@ export async function getAvailableReservations(
   const { data: existingReservations, error: reservationsError } = await supabase
     .from("reservations")
     .select("start_ts, end_ts, employee_id")
-    .lt("start_ts", endTs.toISOString())     // Reservation starts before our end time
-    .gt("end_ts", startTs.toISOString())     // Reservation ends after our start time
+    .lt("start_ts", endTs.toISOString()) // Reservation starts before our end time
+    .gt("end_ts", startTs.toISOString()) // Reservation ends after our start time
     .neq("status", "Cancelled");
-  
+
   if (reservationsError) {
     throw new DatabaseError("Failed to fetch existing reservations", reservationsError);
   }

@@ -49,9 +49,9 @@ export function DeleteConfirmationDialog({
     return null;
   }
 
-  const vehicleDisplayName = [vehicle.brand, vehicle.model, vehicle.production_year?.toString()]
-    .filter(Boolean)
-    .join(" ") || vehicle.license_plate;
+  const vehicleDisplayName =
+    [vehicle.brand, vehicle.model, vehicle.production_year?.toString()].filter(Boolean).join(" ") ||
+    vehicle.license_plate;
 
   return (
     <div
@@ -103,8 +103,7 @@ export function DeleteConfirmationDialog({
             className="space-y-[var(--spacing-lg)] text-[var(--font-size-body)] leading-[var(--line-height-body)]"
           >
             <p className="text-[var(--neutral-80)]">
-              Czy na pewno chcesz usunąć pojazd{" "}
-              <strong className="text-foreground">{vehicle.license_plate}</strong>
+              Czy na pewno chcesz usunąć pojazd <strong className="text-foreground">{vehicle.license_plate}</strong>
               {vehicleDisplayName !== vehicle.license_plate && (
                 <span className="text-[var(--neutral-70)]"> ({vehicleDisplayName})</span>
               )}
@@ -131,20 +130,10 @@ export function DeleteConfirmationDialog({
 
         {/* Footer */}
         <div className="flex justify-end gap-[var(--spacing-lg)] p-[var(--spacing-2xl)] border-t border-[var(--neutral-30)] bg-[var(--neutral-5)]">
-          <Button
-            variant="outline"
-            onClick={onCancel}
-            disabled={isDeleting}
-            className="min-w-[6rem]"
-          >
+          <Button variant="outline" onClick={onCancel} disabled={isDeleting} className="min-w-[6rem]">
             Anuluj
           </Button>
-          <Button
-            variant="destructive"
-            onClick={onConfirm}
-            disabled={isDeleting}
-            className="min-w-[6rem]"
-          >
+          <Button variant="destructive" onClick={onConfirm} disabled={isDeleting} className="min-w-[6rem]">
             {isDeleting ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />

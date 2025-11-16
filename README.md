@@ -104,6 +104,14 @@ A web application for automotive workshops that enables customers to quickly fin
 - Recommendation accuracy monitoring
 - Audit logs and change history
 
+## Project Status
+
+This project is currently in **MVP development phase**. The core booking functionality is being implemented with focus on:
+- Customer appointment booking workflow
+- Staff reservation management
+- Admin scheduling interface
+- AI-powered maintenance recommendations
+
 Success metrics:
 - >50% of reservations made online
 - Booking Cancellation rates below established threshold

@@ -15,15 +15,4 @@ import Layout from "../../layouts/Layout.astro";
   </main>
 </Layout>
 
-<script>
-  // Import and render the VehicleForm React component
-  import { VehicleForm } from "../../components/vehicles/VehicleForm";
-  import { createRoot } from "react-dom/client";
-  import { createElement } from "react";
-
-  const container = document.getElementById("vehicle-form");
-  if (container) {
-    const root = createRoot(container);
-    root.render(createElement(VehicleForm, { mode: "create" }));
-  }
-</script>
+<script src="../../scripts/vehicle-form-create-loader.ts"></script>

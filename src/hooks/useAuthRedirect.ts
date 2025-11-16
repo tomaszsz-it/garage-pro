@@ -9,6 +9,11 @@ interface PendingBookingState {
 }
 
 export const useAuthRedirect = () => {
+  const redirectToLogin = useCallback(() => {
+    // eslint-disable-next-line react-compiler/react-compiler
+    window.location.href = "/auth/login";
+  }, []);
+
   const checkAuthAndRedirect = useCallback(
     async (response: Response, pendingBookingState?: PendingBookingState): Promise<boolean> => {
       // Check if we were redirected to login page
@@ -20,6 +25,7 @@ export const useAuthRedirect = () => {
             // Ignore sessionStorage errors (e.g., quota exceeded)
           }
         }
+        redirectToLogin();
         return true;
       }
 
@@ -33,18 +39,14 @@ export const useAuthRedirect = () => {
             // Ignore sessionStorage errors (e.g., quota exceeded)
           }
         }
+        redirectToLogin();
         return true;
       }
 
       return false;
     },
-    []
+    [redirectToLogin]
   );
-
-  const redirectToLogin = () => {
-    // eslint-disable-next-line react-compiler/react-compiler
-    window.location.href = "/auth/login";
-  };
 
   const getPendingBooking = useCallback(() => {
     const pendingBooking = sessionStorage.getItem("pendingBooking");

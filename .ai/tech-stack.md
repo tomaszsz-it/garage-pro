@@ -28,4 +28,5 @@ Testowanie - Kompleksowe pokrycie testowe z nowoczesnymi narzędziami:
 
 CI/CD i Hosting:
 - Github Actions do tworzenia pipeline'ów CI/CD
+- Cloudflare Pages jako hosting aplikacji Astro
 - DigitalOcean do hostowania aplikacji za pośrednictwem obrazu docker

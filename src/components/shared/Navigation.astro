@@ -1,0 +1,128 @@
+---
+// src/components/shared/Navigation.astro
+import { Calendar, Wrench, Car, House } from "lucide-react";
+import AuthNav from "../auth/AuthNav";
+import DarkModeToggle from "./DarkModeToggle";
+
+interface Props {
+  user?: {
+    email: string;
+    id: string;
+  } | null;
+}
+
+const { user = null } = Astro.props;
+const currentPath = Astro.url.pathname;
+
+// Define navigation items with access control
+const publicNavItems = [
+  { href: "/reservations/available", label: "Dostępne terminy", icon: Calendar, requiresAuth: false },
+];
+
+const protectedNavItems = [
+  { href: "/reservations", label: "Rezerwacje", icon: Wrench, requiresAuth: true },
+  { href: "/vehicles", label: "Pojazdy", icon: Car, requiresAuth: true },
+];
+
+// Show all items if user is authenticated, otherwise only public items
+const navItems = user ? [...publicNavItems, ...protectedNavItems] : publicNavItems;
+---
+
+<nav
+  class="bg-gradient-to-r from-indigo-900 via-purple-900 to-blue-900 border-b border-white/10 shadow-2xl sticky top-0 z-40 backdrop-blur-xl"
+>
+  <div class="container mx-auto px-4">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo/Brand -->
+      <div class="flex items-center space-x-4">
+        <a href="/" class="text-xl font-bold text-white hover:text-blue-200 transition-colors flex items-center gap-3">
+          <House size={24} className="text-blue-200" />
+          <span class="bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 text-transparent bg-clip-text">
+            Garage Pro
+          </span>
+        </a>
+      </div>
+
+      <!-- Navigation Links -->
+      <div class="hidden md:flex items-center space-x-1">
+        {
+          navItems.map((item) => {
+            const IconComponent = item.icon;
+            const isActive = currentPath === item.href || currentPath.startsWith(item.href + "/");
+            return (
+              <a
+                href={item.href}
+                class={`px-4 py-2 rounded-xl text-base font-medium transition-all duration-150 ease-out flex items-center gap-3 ${
+                  isActive
+                    ? "bg-gradient-to-r from-white/20 to-white/10 text-white shadow-lg backdrop-blur-sm border border-white/20"
+                    : "text-blue-100/90 hover:text-white hover:bg-white/10 backdrop-blur-sm"
+                }`}
+              >
+                <IconComponent size={20} className={isActive ? "text-blue-200" : "text-blue-300"} />
+                {item.label}
+              </a>
+            );
+          })
+        }
+      </div>
+
+      <!-- Auth Navigation -->
+      <div class="flex items-center space-x-4">
+        <!-- Dark Mode Toggle -->
+        <div class="hidden md:block">
+          <DarkModeToggle client:load />
+        </div>
+
+        <AuthNav user={user} client:load />
+
+        <!-- Mobile Menu Button -->
+        <div class="md:hidden">
+          <button
+            id="mobile-menu-button"
+            class="p-2 rounded-xl text-blue-100/90 hover:text-white hover:bg-white/10 transition-colors backdrop-blur-sm"
+            aria-label="Toggle mobile menu"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="md:hidden hidden pb-4">
+      <!-- Dark Mode Toggle for Mobile -->
+      <div class="px-4 py-2 mb-3">
+        <div class="flex items-center justify-between">
+          <span class="text-blue-100/90 text-sm font-medium">Tryb ciemny</span>
+          <DarkModeToggle client:load />
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        {
+          navItems.map((item) => {
+            const IconComponent = item.icon;
+            const isActive = currentPath === item.href || currentPath.startsWith(item.href + "/");
+            return (
+              <a
+                href={item.href}
+                class={`block px-4 py-3 rounded-xl text-base font-medium transition-all duration-150 ease-out flex items-center gap-3 ${
+                  isActive
+                    ? "bg-gradient-to-r from-white/20 to-white/10 text-white shadow-lg backdrop-blur-sm border border-white/20"
+                    : "text-blue-100/90 hover:text-white hover:bg-white/10 backdrop-blur-sm"
+                }`}
+              >
+                <IconComponent size={22} className={isActive ? "text-blue-200" : "text-blue-300"} />
+                {item.label}
+              </a>
+            );
+          })
+        }
+      </div>
+    </div>
+  </div>
+</nav>
+
+<script src="../../scripts/navigation-mobile-menu.ts"></script>

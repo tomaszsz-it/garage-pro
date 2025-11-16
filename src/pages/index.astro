@@ -1,0 +1,11 @@
+---
+import Welcome from "../components/Welcome.astro";
+import HomeLayout from "../layouts/HomeLayout.astro";
+
+// Get user from middleware
+const user = Astro.locals.user || null;
+---
+
+<HomeLayout>
+  <Welcome user={user} />
+</HomeLayout>

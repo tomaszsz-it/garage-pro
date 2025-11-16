@@ -1,0 +1,30 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { ReservationDetailView } from "../../components/reservations/ReservationDetailView";
+
+export const prerender = false;
+
+// Validate UUID format
+function isValidUUID(uuid: string): boolean {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(uuid);
+}
+
+// Get reservation ID from URL params
+const { id } = Astro.params;
+
+// Validate reservation ID
+if (!id || !isValidUUID(id)) {
+  return Astro.redirect("/reservations?error=invalid-id");
+}
+---
+
+<Layout title="Szczegóły rezerwacji - Garage Pro">
+  <main class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Szczegóły rezerwacji</h1>
+      <p class="text-gray-600 mt-2">Przeglądaj i zarządzaj szczegółami swojej rezerwacji.</p>
+    </div>
+    <ReservationDetailView client:load reservationId={id} />
+  </main>
+</Layout>

@@ -1,0 +1,105 @@
+# Database Schema Plan
+
+## 1. Tables
+
+### users
+This table is managed by Supabase Auth.
+- id: UUID PRIMARY KEY
+- email: varchar(255) NOT NULL UNIQUE
+- name: varchar(100) NOT NULL
+- surname: varchar(100) NOT NULL
+- created_at: TIMESTAMPTZ NOT NULL DEFAULT now()
+- confirmed_at: TIMESTAMPTZ
+
+### employees
+- id: UUID PRIMARY KEY DEFAULT gen_random_uuid()
+- name: varchar(100) NOT NULL
+- surname: varchar(100) NOT NULL
+- email: varchar(255) NOT NULL UNIQUE
+- type: varchar(50) NOT NULL CHECK (type IN ('Mechanic','Secretary'))
+- created_at: TIMESTAMPTZ NOT NULL DEFAULT now()
+
+
+### services
+- service_id: SERIAL PRIMARY KEY
+- name: varchar(100) NOT NULL
+- duration_minutes: INT NOT NULL
+- description: varchar(200) NULLABLE
+- created_at: TIMESTAMPTZ NOT NULL DEFAULT now()
+
+### vehicles
+- license_plate: varchar(20) NOT NULL PRIMARY KEY
+- user_id: UUID NOT NULL REFERENCES users(id)
+- vin: varchar(17) NULLABLE
+- UNIQUE(vin) WHERE vin IS NOT NULL
+- CHECK (char_length(vin) = 17)
+- brand: varchar(50)
+- model: varchar(50)
+- production_year: INT
+- car_type: varchar(200)
+- created_at: TIMESTAMPTZ NOT NULL DEFAULT now()
+
+### employee_schedules
+- id: UUID PRIMARY KEY DEFAULT gen_random_uuid()
+- employee_id: UUID NOT NULL REFERENCES employees(id)
+- start_ts: TIMESTAMPTZ NOT NULL  -- schedule start
+- end_ts: TIMESTAMPTZ NOT NULL  -- schedule end
+
+### reservations
+- id: UUID PRIMARY KEY DEFAULT gen_random_uuid()
+- user_id: UUID NOT NULL REFERENCES users(id)
+- created_by: UUID NOT NULL REFERENCES users(id)
+- service_id: INT NOT NULL REFERENCES services(service_id)
+- vehicle_license_plate: varchar(20) NOT NULL REFERENCES vehicles(license_plate)
+- employee_id: UUID NOT NULL REFERENCES employees(id)
+- start_ts: TIMESTAMPTZ NOT NULL
+- end_ts: TIMESTAMPTZ NOT NULL
+- status: reservation_status ENUM NOT NULL DEFAULT 'New'
+- recommendation_text: TEXT NOT NULL DEFAULT ''
+- created_at: TIMESTAMPTZ NOT NULL DEFAULT now()
+- updated_at: TIMESTAMPTZ NOT NULL DEFAULT now()
+
+## 2. Relationships
+- users 1:N vehicles
+- users 1:N reservations
+- employees 1:N reservations
+- employees 1:N employee_schedules
+- services 1:N reservations
+- vehicles 1:N reservations
+
+## 3. Indexes
+```sql
+-- Foreign key indexes
+CREATE INDEX idx_reservations_user_id ON reservations(user_id);
+CREATE INDEX idx_reservations_created_by ON reservations(created_by);
+CREATE INDEX idx_reservations_employee_id ON reservations(employee_id);
+
+-- Vehicle lookups
+CREATE INDEX idx_vehicles_license_plate ON vehicles(license_plate);
+-- Unique VIN lookup
+CREATE UNIQUE INDEX idx_vehicles_vin ON vehicles(vin) WHERE vin IS NOT NULL;
+
+-- Employee schedules indexes
+CREATE INDEX idx_employee_schedules_employee_id ON employee_schedules(employee_id);
+CREATE INDEX idx_employee_schedules_start_ts ON employee_schedules(start_ts);
+CREATE INDEX idx_employee_schedules_end_ts ON employee_schedules(end_ts);
+
+```
+
+## 4. Constraints
+```sql
+-- Prevent overlapping bookings per mechanic
+ALTER TABLE reservations
+  ADD CONSTRAINT no_employee_time_overlap
+  EXCLUDE USING GIST (
+    employee_id WITH =,
+    tstzrange(start_ts, end_ts, '[]') WITH &&
+  );
+```
+
+## 5. Row-Level Security (RLS)
+- W tabelach reservations, vehicles wdrożyć polityki RLS:
+  - Klienci: SELECT/INSERT/UPDATE/DELETE tylko gdy auth.uid() = user_id
+  - Sekretariat (rola 'secretariat'): pełne uprawnienia (USING (current_setting('app.user_role') = 'secretariat')).
+- (services, employees, employee_schedules): SELECT dla anon i authenticated, bez ograniczeń.
+

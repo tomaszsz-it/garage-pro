@@ -86,21 +86,21 @@ A web application for automotive workshops that enables customers to quickly fin
 ### MVP Features
 - **Appointment Search**: Browse available reservations across all mechanics with service type filtering
 - **Online Booking**: Customer booking form with inline validation for logged-in users
-- **Reservation Management**: Full CRUD operations for customers and staff
-- **Admin Panel**: Monthly scheduling of mechanics and workstation availability (unlocked on the 10th of each month)
+- **Reservation Management**: Reservation's operations for customers
+- **Vehicle Management**: CRUD operations
 - **AI-powered Maintenance Recommendations**: Suggestions based on repair history displayed after booking
-- **KPI Dashboard**: Monthly cancellation reports for staff
 - **Authentication & Authorization**: Role-based access (customers see only their bookings, staff sees all)
 
 ### Out of Scope (Future Versions)
 - Dedicated workstations for specialized repairs
 - Complex repairs requiring multiple mechanics
+- Admin Panel: Monthly scheduling of mechanics and workstation availability (unlocked on the 10th of each month)
 - Mobile applications
+- KPI Dashboard: Monthly cancellation reports for staff
 - External calendar integrations
 - Push notifications, SMS, email notifications
 - Recommendation accuracy monitoring
 - Audit logs and change history
-- Load testing beyond 2 concurrent users
 
 ## Project Status
 
@@ -114,7 +114,3 @@ Success metrics:
 - >50% of reservations made online
 - Cancellation rates below established threshold
 - Demo showcasing booking, editing, and cancellation scenarios
-
-## License
-
-MIT License - see LICENSE file for details

@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
 import type { APIRoute } from "astro";
-import { createSupabaseServerInstance } from "../../../db/supabase.client.ts";
 import { z } from "zod";
 
 export const prerender = false;
@@ -10,7 +9,7 @@ const registerSchema = z.object({
   password: z.string().min(6, "Hasło musi mieć co najmniej 6 znaków"),
 });
 
-export const POST: APIRoute = async ({ request, cookies }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const body = await request.json();
 
@@ -34,10 +33,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     const { email, password } = validationResult.data;
 
-    const supabase = createSupabaseServerInstance({
-      cookies,
-      headers: request.headers,
-    });
+    const supabase = locals.supabase;
 
     const { data, error } = await supabase.auth.signUp({
       email,

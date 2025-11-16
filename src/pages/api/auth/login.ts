@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
 import type { APIRoute } from "astro";
-import { createSupabaseServerInstance } from "../../../db/supabase.client.ts";
 import { z } from "zod";
 
 export const prerender = false;
@@ -10,7 +9,7 @@ const loginSchema = z.object({
   password: z.string().min(1, "Hasło jest wymagane"),
 });
 
-export const POST: APIRoute = async ({ request, cookies }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const body = await request.json();
 
@@ -34,10 +33,23 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     const { email, password } = validationResult.data;
 
-    const supabase = createSupabaseServerInstance({
-      cookies,
-      headers: request.headers,
-    });
+    const supabase = locals.supabase;
+
+    if (!supabase) {
+      console.error("Supabase client not available in locals");
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: {
+            message: "Wystąpił błąd konfiguracji serwera",
+          },
+        }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,

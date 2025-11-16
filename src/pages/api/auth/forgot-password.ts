@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
 import type { APIRoute } from "astro";
-import { createSupabaseServerInstance } from "../../../db/supabase.client.ts";
 import { z } from "zod";
 
 export const prerender = false;
@@ -9,7 +8,7 @@ const forgotPasswordSchema = z.object({
   email: z.string().email("Nieprawidłowy format adresu e-mail"),
 });
 
-export const POST: APIRoute = async ({ request, cookies }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const body = await request.json();
 
@@ -33,10 +32,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     const { email } = validationResult.data;
 
-    const supabase = createSupabaseServerInstance({
-      cookies,
-      headers: request.headers,
-    });
+    const supabase = locals.supabase;
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${new URL(request.url).origin}/auth/reset-password`,

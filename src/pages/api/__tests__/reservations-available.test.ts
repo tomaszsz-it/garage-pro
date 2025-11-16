@@ -34,8 +34,17 @@ describe("GET /reservations/available", () => {
   };
 
   // Mock Supabase client
-  let mockSupabase: any;
-  let mockQueryBuilder: any;
+  let mockSupabase: ReturnType<typeof createMockSupabaseClient>;
+  let mockQueryBuilder: {
+    select: ReturnType<typeof vi.fn>;
+    eq: ReturnType<typeof vi.fn>;
+    gte: ReturnType<typeof vi.fn>;
+    lte: ReturnType<typeof vi.fn>;
+    neq: ReturnType<typeof vi.fn>;
+    gt: ReturnType<typeof vi.fn>;
+    lt: ReturnType<typeof vi.fn>;
+    single: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
     mockSupabase = createMockSupabaseClient();

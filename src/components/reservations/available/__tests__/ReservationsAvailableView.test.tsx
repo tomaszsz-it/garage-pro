@@ -3,7 +3,13 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ReservationsAvailableView } from "../ReservationsAvailableView";
-import type { ServiceDto, AvailableReservationViewModel, VehicleDto, ReservationDto } from "../../../../types";
+import type {
+  ServiceDto,
+  AvailableReservationViewModel,
+  VehicleDto,
+  ReservationDto,
+  ReservationCreateDto,
+} from "../../../../types";
 
 // Mock all the hooks at the top level
 const mockUseBookingState = {
@@ -101,7 +107,7 @@ vi.mock("../BookingConfirmationForm", () => ({
     onBack,
   }: {
     onVehicleSelect: (vehicle: VehicleDto) => void;
-    onCreateReservation: (data: any) => void;
+    onCreateReservation: (data: ReservationCreateDto) => void;
     onBack: () => void;
   }) => (
     <div data-testid="booking-confirmation-form">

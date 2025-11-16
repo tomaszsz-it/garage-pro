@@ -4,6 +4,20 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { DatabaseError } from "../../errors/database.error";
 import { createMockSupabaseClient } from "../../../test/supabase-mocks";
 
+// Interface for mock query builder
+interface MockQueryBuilder {
+  select: ReturnType<typeof vi.fn>;
+  eq?: ReturnType<typeof vi.fn>;
+  single?: ReturnType<typeof vi.fn>;
+  gte?: ReturnType<typeof vi.fn>;
+  lte?: ReturnType<typeof vi.fn>;
+  lt?: ReturnType<typeof vi.fn>;
+  gt?: ReturnType<typeof vi.fn>;
+  neq?: ReturnType<typeof vi.fn>;
+  then?: <T>(onResolve: (value: unknown) => T) => Promise<T>;
+  catch?: <T>(onReject: (error: unknown) => T) => Promise<T>;
+}
+
 describe("reservationAvailabilityService", () => {
   // Mock data
   const mockService = {
@@ -46,7 +60,7 @@ describe("reservationAvailabilityService", () => {
             data: mockService,
             error: null,
           }),
-        } as any;
+        } as unknown as MockQueryBuilder;
       }
 
       if (table === "employee_schedules") {
@@ -57,18 +71,18 @@ describe("reservationAvailabilityService", () => {
         };
         // Add promise methods to make it awaitable
         Object.assign(query, {
-          then: (onResolve: any) =>
+          then: <T>(onResolve: (value: unknown) => T) =>
             Promise.resolve({
               data: mockEmployeeSchedules,
               error: null,
             }).then(onResolve),
-          catch: (onReject: any) =>
+          catch: <T>(onReject: (error: unknown) => T) =>
             Promise.resolve({
               data: mockEmployeeSchedules,
               error: null,
             }).catch(onReject),
         });
-        return query as any;
+        return query as unknown as MockQueryBuilder;
       }
 
       if (table === "reservations") {
@@ -80,21 +94,21 @@ describe("reservationAvailabilityService", () => {
         };
         // Add promise methods to make it awaitable
         Object.assign(query, {
-          then: (onResolve: any) =>
+          then: <T>(onResolve: (value: unknown) => T) =>
             Promise.resolve({
               data: mockReservations,
               error: null,
             }).then(onResolve),
-          catch: (onReject: any) =>
+          catch: <T>(onReject: (error: unknown) => T) =>
             Promise.resolve({
               data: mockReservations,
               error: null,
             }).catch(onReject),
         });
-        return query as any;
+        return query as unknown as MockQueryBuilder;
       }
 
-      return {} as any;
+      return {} as unknown as MockQueryBuilder;
     });
 
     // Test params
@@ -133,9 +147,9 @@ describe("reservationAvailabilityService", () => {
             data: null,
             error: { message: "Service not found" },
           }),
-        } as any;
+        } as unknown as MockQueryBuilder;
       }
-      return {} as any;
+      return {} as unknown as MockQueryBuilder;
     });
 
     // Test params
@@ -160,7 +174,7 @@ describe("reservationAvailabilityService", () => {
             data: mockService,
             error: null,
           }),
-        } as any;
+        } as unknown as MockQueryBuilder;
       }
 
       if (table === "employee_schedules") {
@@ -171,18 +185,18 @@ describe("reservationAvailabilityService", () => {
         };
         // Add promise methods to make it awaitable
         Object.assign(query, {
-          then: (onResolve: any) =>
+          then: <T>(onResolve: (value: unknown) => T) =>
             Promise.resolve({
               data: [], // Empty schedules
               error: null,
             }).then(onResolve),
-          catch: (onReject: any) =>
+          catch: <T>(onReject: (error: unknown) => T) =>
             Promise.resolve({
               data: [], // Empty schedules
               error: null,
             }).catch(onReject),
         });
-        return query as any;
+        return query as unknown as MockQueryBuilder;
       }
 
       if (table === "reservations") {
@@ -194,21 +208,21 @@ describe("reservationAvailabilityService", () => {
         };
         // Add promise methods to make it awaitable
         Object.assign(query, {
-          then: (onResolve: any) =>
+          then: <T>(onResolve: (value: unknown) => T) =>
             Promise.resolve({
               data: [], // Empty reservations
               error: null,
             }).then(onResolve),
-          catch: (onReject: any) =>
+          catch: <T>(onReject: (error: unknown) => T) =>
             Promise.resolve({
               data: [], // Empty reservations
               error: null,
             }).catch(onReject),
         });
-        return query as any;
+        return query as unknown as MockQueryBuilder;
       }
 
-      return {} as any;
+      return {} as unknown as MockQueryBuilder;
     });
 
     // Test params
@@ -236,7 +250,7 @@ describe("reservationAvailabilityService", () => {
             data: mockService,
             error: null,
           }),
-        } as any;
+        } as unknown as MockQueryBuilder;
       }
 
       if (table === "employee_schedules") {
@@ -247,18 +261,18 @@ describe("reservationAvailabilityService", () => {
         };
         // Add promise methods to make it awaitable
         Object.assign(query, {
-          then: (onResolve: any) =>
+          then: <T>(onResolve: (value: unknown) => T) =>
             Promise.resolve({
               data: mockEmployeeSchedules,
               error: null,
             }).then(onResolve),
-          catch: (onReject: any) =>
+          catch: <T>(onReject: (error: unknown) => T) =>
             Promise.resolve({
               data: mockEmployeeSchedules,
               error: null,
             }).catch(onReject),
         });
-        return query as any;
+        return query as unknown as MockQueryBuilder;
       }
 
       if (table === "reservations") {
@@ -270,21 +284,21 @@ describe("reservationAvailabilityService", () => {
         };
         // Add promise methods to make it awaitable
         Object.assign(query, {
-          then: (onResolve: any) =>
+          then: <T>(onResolve: (value: unknown) => T) =>
             Promise.resolve({
               data: [], // Empty reservations
               error: null,
             }).then(onResolve),
-          catch: (onReject: any) =>
+          catch: <T>(onReject: (error: unknown) => T) =>
             Promise.resolve({
               data: [], // Empty reservations
               error: null,
             }).catch(onReject),
         });
-        return query as any;
+        return query as unknown as MockQueryBuilder;
       }
 
-      return {} as any;
+      return {} as unknown as MockQueryBuilder;
     });
 
     // Test params with limit
@@ -335,7 +349,7 @@ describe("reservationAvailabilityService", () => {
             data: mockService,
             error: null,
           }),
-        } as any;
+        } as unknown as MockQueryBuilder;
       }
 
       if (table === "employee_schedules") {
@@ -346,18 +360,18 @@ describe("reservationAvailabilityService", () => {
         };
         // Add promise methods to make it awaitable
         Object.assign(query, {
-          then: (onResolve: any) =>
+          then: <T>(onResolve: (value: unknown) => T) =>
             Promise.resolve({
               data: mockMultipleEmployeeSchedules,
               error: null,
             }).then(onResolve),
-          catch: (onReject: any) =>
+          catch: <T>(onReject: (error: unknown) => T) =>
             Promise.resolve({
               data: mockMultipleEmployeeSchedules,
               error: null,
             }).catch(onReject),
         });
-        return query as any;
+        return query as unknown as MockQueryBuilder;
       }
 
       if (table === "reservations") {
@@ -369,21 +383,21 @@ describe("reservationAvailabilityService", () => {
         };
         // Add promise methods to make it awaitable
         Object.assign(query, {
-          then: (onResolve: any) =>
+          then: <T>(onResolve: (value: unknown) => T) =>
             Promise.resolve({
               data: [], // Empty reservations
               error: null,
             }).then(onResolve),
-          catch: (onReject: any) =>
+          catch: <T>(onReject: (error: unknown) => T) =>
             Promise.resolve({
               data: [], // Empty reservations
               error: null,
             }).catch(onReject),
         });
-        return query as any;
+        return query as unknown as MockQueryBuilder;
       }
 
-      return {} as any;
+      return {} as unknown as MockQueryBuilder;
     });
 
     // Test params

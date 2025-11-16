@@ -220,7 +220,7 @@ describe("useAuthRedirect", () => {
 
       mockSessionStorage.getItem.mockReturnValue(JSON.stringify(pendingBooking));
 
-      let bookingState: any;
+      let bookingState: unknown;
 
       act(() => {
         bookingState = result.current.getPendingBooking();
@@ -236,7 +236,7 @@ describe("useAuthRedirect", () => {
 
       mockSessionStorage.getItem.mockReturnValue(null);
 
-      let bookingState: any;
+      let bookingState: unknown;
 
       act(() => {
         bookingState = result.current.getPendingBooking();
@@ -252,7 +252,7 @@ describe("useAuthRedirect", () => {
 
       mockSessionStorage.getItem.mockReturnValue("invalid-json{");
 
-      let bookingState: any;
+      let bookingState: unknown;
 
       act(() => {
         bookingState = result.current.getPendingBooking();
@@ -280,7 +280,7 @@ describe("useAuthRedirect", () => {
 
       mockSessionStorage.getItem.mockReturnValue("");
 
-      let bookingState: any;
+      let bookingState: unknown;
 
       act(() => {
         bookingState = result.current.getPendingBooking();
@@ -336,7 +336,7 @@ describe("useAuthRedirect", () => {
       // Simulate returning from login
       mockSessionStorage.getItem.mockReturnValue(JSON.stringify(pendingBookingState));
 
-      let retrievedState: any;
+      let retrievedState: unknown;
 
       act(() => {
         retrievedState = result.current.getPendingBooking();
@@ -483,7 +483,7 @@ describe("useAuthRedirect", () => {
 
       mockSessionStorage.getItem.mockReturnValue(null);
 
-      let bookingState: any;
+      let bookingState: unknown;
 
       act(() => {
         bookingState = result.current.getPendingBooking();

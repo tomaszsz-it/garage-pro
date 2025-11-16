@@ -112,10 +112,11 @@ expect.extend({
 
 // Type declarations for custom matchers
 declare module "vitest" {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   interface Assertion<T = any> {
     toHaveNoConsoleErrors(): T;
   }
   interface AsymmetricMatchersContaining {
-    toHaveNoConsoleErrors(): any;
+    toHaveNoConsoleErrors(): unknown;
   }
 }

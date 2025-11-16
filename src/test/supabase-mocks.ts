@@ -1,7 +1,7 @@
 import { vi } from "vitest";
 
 // Mock Supabase client responses
-export const createMockSupabaseResponse = <T>(data: T, error: any = null) => ({
+export const createMockSupabaseResponse = <T>(data: T, error: Error | null = null) => ({
   data,
   error,
   status: error ? 400 : 200,
@@ -12,7 +12,7 @@ export const createMockSupabaseResponse = <T>(data: T, error: any = null) => ({
 export const mockSupabaseSuccess = <T>(data: T) => createMockSupabaseResponse(data, null);
 
 // Mock error responses
-export const mockSupabaseError = (message: string) => createMockSupabaseResponse(null, { message });
+export const mockSupabaseError = (message: string) => createMockSupabaseResponse(null, new Error(message));
 
 // Complete Supabase client mock
 export const createMockSupabaseClient = () => {

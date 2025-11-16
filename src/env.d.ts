@@ -14,6 +14,9 @@ declare global {
     interface Locals {
       supabase: SupabaseClient;
       user?: User;
+      runtime?: {
+        env?: Record<string, string>;
+      };
     }
   }
 }

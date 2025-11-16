@@ -1,4 +1,4 @@
-import { createSupabaseServerInstance, createSupabaseClient } from "../db/supabase.client.ts";
+import { createSupabaseServerInstance } from "../db/supabase.client.ts";
 import { defineMiddleware } from "astro:middleware";
 
 // Public paths - Auth API endpoints & Server-Rendered Astro Pages
@@ -26,15 +26,7 @@ export const onRequest = defineMiddleware(async ({ locals, cookies, url, request
   // Get Cloudflare runtime context
   const runtime = locals.runtime;
 
-  // For public API endpoints that don't need authentication (read-only operations)
-  const publicReadOnlyPaths = ["/api/reservations/available", "/api/services"];
-
-  if (publicReadOnlyPaths.includes(url.pathname)) {
-    locals.supabase = createSupabaseClient(runtime);
-    return next();
-  }
-
-  // For all other routes (including auth endpoints), use server instance with session management
+  // For all routes, use server instance with session management for consistency
   const supabase = createSupabaseServerInstance({
     cookies,
     headers: request.headers,

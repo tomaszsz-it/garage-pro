@@ -1,6 +1,6 @@
 # Garage Pro
 
-A web application for automotive workshops that enables customers to quickly find available reservations (appointment slots) for basic car repairs and make reservations. The system also allows workshop staff to handle phone reservations through the same interface, with an admin panel for monthly scheduling of mechanics and workstations availability.
+A web application for automotive workshops that enables customers to quickly find available reservations (appointment slots), make reservations, and manage vehicles (CRUD). Additionally, the application is powered by AI that provides extra ideas on how to best take care of your vehicle. 
 
 ## Tech Stack
 
@@ -42,7 +42,7 @@ A web application for automotive workshops that enables customers to quickly fin
 ### Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/garage-pro.git
+   git clone https://github.com/tomaszsz-it/garage-pro.git
    cd garage-pro
    ```
 
@@ -61,7 +61,8 @@ A web application for automotive workshops that enables customers to quickly fin
    npm run dev
    ```
 
-5. Open [http://localhost:4321](http://localhost:4321) in your browser.
+5. Open https://garage-pro.pages.dev in your browser
+   or http://localhost:3000 for local execution
 
 ## Available Scripts
 
@@ -90,6 +91,7 @@ A web application for automotive workshops that enables customers to quickly fin
 - **Vehicle Management**: CRUD operations
 - **AI-powered Maintenance Recommendations**: Suggestions based on repair history displayed after booking
 - **Authentication & Authorization**: Role-based access (customers see only their bookings, staff sees all)
+- **Unlogged user**: User without login can search available reservations
 
 ### Out of Scope (Future Versions)
 - Dedicated workstations for specialized repairs
@@ -112,5 +114,5 @@ This project is currently in **MVP development phase**. The core booking functio
 
 Success metrics:
 - >50% of reservations made online
-- Cancellation rates below established threshold
+- Booking Cancellation rates below established threshold
 - Demo showcasing booking, editing, and cancellation scenarios

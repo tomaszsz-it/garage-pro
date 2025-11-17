@@ -2,31 +2,43 @@ import type { AstroCookies } from "astro";
 import { createClient } from "@supabase/supabase-js";
 import { createServerClient, type CookieOptionsWithName } from "@supabase/ssr";
 import type { Database } from "./database.types.ts";
-
-// Runtime type for Cloudflare Workers
-interface CloudflareRuntime {
-  env?: Record<string, string>;
-}
+import type { PlatformRuntime } from "../env.d.ts";
 
 // Default user ID for public operations (viewing available slots, services)
 export const DEFAULT_USER_ID = "606bb2b1-f97f-40d4-bfb9-97e1e59dc6c4";
 
-// Helper to get env variables (works both locally and on Cloudflare)
-function getEnv(key: string, runtime?: CloudflareRuntime): string {
-  // Try Cloudflare Workers runtime first
+// Cache for environment variables to avoid repeated lookups
+const envCache = new Map<string, string>();
+
+// Helper to get env variables with caching (works both locally and on hosting platforms)
+function getEnv(key: string, runtime?: PlatformRuntime): string {
+  // Check cache first
+  const cached = envCache.get(key);
+  if (cached !== undefined) {
+    return cached;
+  }
+
+  let value: string | undefined;
+
+  // Try platform runtime first (Cloudflare Workers, Vercel Edge, etc.)
   if (runtime?.env?.[key]) {
-    return runtime.env[key];
+    value = runtime.env[key];
   }
   // Fallback to import.meta.env for local development
-  const envValue = import.meta.env?.[key];
-  if (envValue) {
-    return envValue;
+  else if (import.meta.env?.[key]) {
+    value = import.meta.env[key];
   }
-  throw new Error(`Missing environment variable: ${key}`);
+
+  if (value) {
+    envCache.set(key, value);
+    return value;
+  }
+
+  throw new Error(`Missing environment variable: ${key}. Check runtime and import.meta.env configuration.`);
 }
 
 // Client-side Supabase client (now a factory function)
-export function createSupabaseClient(runtime?: CloudflareRuntime) {
+export function createSupabaseClient(runtime?: PlatformRuntime) {
   const supabaseUrl = getEnv("SUPABASE_URL", runtime);
   const supabaseAnonKey = getEnv("SUPABASE_KEY", runtime);
 
@@ -35,7 +47,7 @@ export function createSupabaseClient(runtime?: CloudflareRuntime) {
 
 // For backwards compatibility - will be created on first use
 let _cachedClient: ReturnType<typeof createSupabaseClient> | null = null;
-export function getSupabaseClient(runtime?: CloudflareRuntime) {
+export function getSupabaseClient(runtime?: PlatformRuntime) {
   if (!_cachedClient) {
     _cachedClient = createSupabaseClient(runtime);
   }
@@ -75,7 +87,7 @@ function parseCookieHeader(cookieHeader: string): { name: string; value: string 
 export const createSupabaseServerInstance = (context: {
   headers: Headers;
   cookies: AstroCookies;
-  runtime?: CloudflareRuntime;
+  runtime?: PlatformRuntime;
 }) => {
   const supabaseUrl = getEnv("SUPABASE_URL", context.runtime);
   const supabaseAnonKey = getEnv("SUPABASE_KEY", context.runtime);

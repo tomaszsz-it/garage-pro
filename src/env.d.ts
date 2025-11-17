@@ -2,6 +2,11 @@
 
 import type { SupabaseClient } from "./db/supabase.client.ts";
 
+// Platform runtime context for hosting providers
+export interface PlatformRuntime {
+  env?: Record<string, string>;
+}
+
 // User type for authentication context
 export interface User {
   id: string;
@@ -14,9 +19,7 @@ declare global {
     interface Locals {
       supabase: SupabaseClient;
       user?: User;
-      runtime?: {
-        env?: Record<string, string>;
-      };
+      runtime?: PlatformRuntime;
     }
   }
 }

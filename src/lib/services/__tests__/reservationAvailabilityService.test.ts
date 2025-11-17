@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { getAvailableReservations } from "../reservationAvailabilityService";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { getAvailableTimeSlots } from "../reservationAvailabilityService";
+import type { SupabaseClient } from "../../../db/supabase.client";
 import { DatabaseError } from "../../errors/database.error";
 import { createMockSupabaseClient } from "../../../test/supabase-mocks";
 

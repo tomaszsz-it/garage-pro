@@ -45,27 +45,6 @@ export function createSupabaseClient(runtime?: PlatformRuntime) {
   return createClient<Database>(supabaseUrl, supabaseAnonKey);
 }
 
-// For backwards compatibility - will be created on first use
-let _cachedClient: ReturnType<typeof createSupabaseClient> | null = null;
-export function getSupabaseClient(runtime?: PlatformRuntime) {
-  if (!_cachedClient) {
-    _cachedClient = createSupabaseClient(runtime);
-  }
-  return _cachedClient;
-}
-
-// Alias for compatibility
-export const supabaseClient = new Proxy({} as ReturnType<typeof createSupabaseClient>, {
-  get(target, prop) {
-    if (!_cachedClient) {
-      throw new Error(
-        "supabaseClient must be initialized with runtime context first. Use createSupabaseClient(runtime) or getSupabaseClient(runtime)"
-      );
-    }
-    return (_cachedClient as unknown as Record<string | symbol, unknown>)[prop];
-  },
-});
-
 export type SupabaseClient = ReturnType<typeof createSupabaseClient>;
 
 // Cookie options for SSR
@@ -77,6 +56,10 @@ export const cookieOptions: CookieOptionsWithName = {
 };
 
 function parseCookieHeader(cookieHeader: string): { name: string; value: string }[] {
+  if (!cookieHeader) {
+    return [];
+  }
+
   return cookieHeader.split(";").map((cookie) => {
     const [name, ...rest] = cookie.trim().split("=");
     return { name, value: rest.join("=") };

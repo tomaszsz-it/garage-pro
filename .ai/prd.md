@@ -78,9 +78,7 @@ W MVP nie uwzględniamy:
   - walidacja inline z komunikatami o błędach
   - po zatwierdzeniu wyświetlany jest ekran podsumowania z numerem rezerwacji i możliwością skopiowania linku
   - funkcjonalność rezerwacji nie jest dostępna bez logowania się do systemu (US-010).
-  <scope_update>
-  Zakładam endpoint POST /reservations z użyciem standardowej walidacji danych wejściowych.
-  </scope_update> 
+  - zakładam endpoint POST /reservations z użyciem standardowej walidacji danych wejściowych.
 
 - ID: US-003
   Tytuł: Anulowanie rezerwacji
@@ -90,8 +88,7 @@ W MVP nie uwzględniamy:
   - po anulowaniu slot jest natychmiast widoczny w liście dostępnych terminów
   - klient otrzymuje potwierdzenie anulowania
   - funkcjonalność anulowania rezerwacji nie jest dostępna bez logowania się do systemu (US-010).
-   </scope_update> Zakładam, że anulowanie rezerwacji będzie realizowane poprzez aktualizację flagi rezerwacji przy użyciu endpointu PATCH /reservations, ustawiając status na 'Cancelled'.
-</scope_update> 
+  - zakładam, że anulowanie rezerwacji będzie realizowane poprzez aktualizację flagi rezerwacji przy użyciu endpointu PATCH /reservations, ustawiając status na 'Cancelled'.
 
 - ID: US-004
   Tytuł: Edycja rezerwacji
@@ -113,15 +110,9 @@ W MVP nie uwzględniamy:
   Tytuł: Definiowanie dostępności
   Opis: Jako administrator chcę raz w miesiącu zdefiniować dostępność mechaników i stanowisk, aby zaplanować harmonogram.
   Kryteria akceptacji:
-  - administrator wprowadza dni i godziny pracy każdego mechanika i stanowiska
-  - system zapisuje harmonogram i udostępnia sloty klientom od 10. dnia miesiąca
-  - możliwość edycji harmonogramu przed jego odblokowaniem
-  - możliwe jest dodanie wyjątków dla wybranych dni lub godzin
-  - klienci widzą listę najbliższych terminów w ustalonym horyzoncie (np. 30 dni)
-  </scope_update> To wymaganie w kontekście GUI jest poza MVP, zakładam że w MVP właściciel warsztatu jest również administratorem systemu i może sam wykonać insert do bazy danych. Natomiast W zakresie MVP jest 
-  - wyprodukowanie skryptu bazodanowego odpowiedzialnego za utworzenie 3 mechaników z ich losowymi danymi ale imionami Mechanik1 Mechanik2 Mechanik3
-   oraz charmongramu dostepności w pracy we wszystkie dni robocze w Polsce roku 2025 i 2026
-   - dodatkowo skrypt z insertami do bazy danych który tworzy 4 stanowiska z losowymi danymi. Stanowiska będą dostępne we wszystkie dni w roku 2025 i 2026</scope_update> 
+  - administrator wprowadza dni i godziny pracy każdego mechanika
+  - zakładam że w MVP właściciel warsztatu jest również administratorem systemu i może sam wykonać insert do bazy danych. 
+  - w zakresie MVP jest wyprodukowanie skryptu bazodanowego odpowiedzialnego za utworzenie 3 mechaników z ich losowymi danymi ale imionami Mechanik1 Mechanik2 Mechanik3 oraz charmongramu dostepności w pracy we wszystkie dni robocze w Polsce roku 2025 i 2026
 
 - ID: US-007
   Tytuł: rekomendacja konserwacji
@@ -130,24 +121,15 @@ W MVP nie uwzględniamy:
   - po zakończonej rezerwacji wyświetlana jest rekomendacja w formie tekstu
   - rekomendacja uwzględnia historię napraw z systemu
   - tekst jest sformatowany i czytelny
-  </scope_update>W MVP nie jest analizowana hostoria serwisowa, natomiast wysyłane jest zapytanie do modelu LLM a dnymi auta, rokiem produkcji oraz aktualna data. Na tej podstawie klient dostaje rekomendację, np. jeśli wizyta jest rok po dacie produkcji auta oraz auto ma przjejechane tylko 15000 km, nie ma sensu propozycja wymiany filtra paliwa, ale to AI już lepiej wie, co doradzić w takiej sytuacji </scope_update> 
-
-- ID: US-008
-  Tytuł: Dashboard KPI dla sekretariatu
-  Opis: Jako pracownik sekretariatu chcę zobaczyć raport liczby anulowanych wizyt z poprzedniego miesiąca, aby monitorować wskaźniki.
-  Kryteria akceptacji:
-  - dashboard pokazuje liczbę anulowanych wizyt za poprzedni miesiąc
-  - widok przedstawia dane w tabeli
-  </scope_update> Usunięto to wymaganie z MVP</scope_update> 
-
+  - W MVP nie jest analizowana hostoria serwisowa, natomiast wysyłane jest zapytanie do modelu LLM a danymi auta, rokiem produkcji oraz aktualna data. Na tej podstawie klient dostaje rekomendację, np. jeśli wizyta jest rok po dacie produkcji auta oraz auto ma przjejechane tylko 15000 km, nie ma sensu propozycja wymiany filtra paliwa, ale to AI już lepiej wie, co doradzić w takiej sytuacji
 
 - ID: US-009
   Tytuł: Logowanie i autoryzacja
   Opis: Jako użytkownik systemu chcę się zalogować i mieć dostęp zgodny z moją rolą, aby zapewnić bezpieczeństwo danych.
   Kryteria akceptacji:
-  - możliwy jest login dla klientów oraz pracowników sekretariatu
+  - możliwy jest login dla klientów
   - klienci widzą tylko swoje rezerwacje
-  - sekretariat ma dostęp do wszystkich danych rezerwacji
+  - sekretariat ma dostęp do wszystkich danych rezerwacji, sekretariat jest poza MVP
 
 - US-010: Bezpieczny dostęp i uwierzytelnianie
   Tytuł: Bezpieczny dostęp
@@ -166,8 +148,6 @@ W MVP nie uwzględniamy:
 
 ## 6. Metryki sukcesu
 
-- ponad 50% wszystkich rezerwacji realizowanych online (źródło rezerwacji rejestrowane jako online/telefon)
-- liczba anulowanych wizyt poniżej ustalonego progu (monitorowane w dashboardzie)
-- brak błędów przy obsłudze 2 jednoczesnych użytkowników
-- demo prezentujące scenariusze tworzenia, edycji i anulowania wizyt
-</scope_update> 90% wszystkich rezerwacji realizowanych online (źródło rezerwacji rejestrowane jako online przez system). Tylko 10% rezerwacji może pochodzić z interwencji manualnych przez administartora systemu</scope_update>
+- Brak błędów podczas obsługi 10 jednoczesnych użytkowników.
+- Brak przestojów w pracy mechaników.
+- Zmniejszenie liczby nieodwołanych wizyt.

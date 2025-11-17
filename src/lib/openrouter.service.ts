@@ -138,6 +138,18 @@ export class OpenRouterService {
   }
 
   /**
+   * Sets model parameters without changing the current model
+   *
+   * @param parameters Model parameters configuration to merge with current parameters
+   */
+  public setModelParameters(parameters: ModelParameters): void {
+    this.currentModelParameters = {
+      ...this.currentModelParameters,
+      ...parameters,
+    };
+  }
+
+  /**
    * Sends a chat message to the OpenRouter API
    *
    * @param userMessage The user message to send (overrides any previously set user message)

@@ -74,7 +74,9 @@ async function generateRecommendation(
 ): Promise<string> {
   // If OpenRouter service is not available, return a default recommendation
   if (!openRouter) {
-    return `Podczas wizyty w serwisie rozważ także konserwację innych elementów pojazdu${vehicleInfo ? ` w Twoim ${vehicleInfo.brand} ${vehicleInfo.model} z ${vehicleInfo.production_year} roku` : ""} - np. sprawdzenie filtrów, płynów eksploatacyjnych czy stanu opon. Nasi mechanicy chętnie doradzą w kwestiach konserwacji.`;
+    return vehicleInfo
+      ? `Przegląd dodatkowych elementów (filtry powietrza co 15-20 tys. km, płyn hamulcowy co 2 lata).`
+      : `Przegląd podstawowych elementów eksploatacyjnych zgodnie z książką serwisową.`;
   }
 
   try {
@@ -83,30 +85,57 @@ async function generateRecommendation(
       ? `${vehicleInfo.brand} ${vehicleInfo.model} z ${vehicleInfo.production_year} roku`
       : "pojazd";
 
-    // Set system message to guide the LLM response
+    // Set system message to guide the LLM response with clear examples
     openRouter.setSystemMessage(
-      "Jesteś doświadczonym mechanikiem samochodowym z 15-letnim stażem. Udzielasz konkretnych, praktycznych rekomendacji konserwacyjnych. " +
-        "ZASADY: " +
-        "1. Używaj poprawnej polszczyzny " +
-        "2. Sugeruj TYLKO sprawdzone elementy pojazdu RÓŻNE od aktualnie serwisowanego " +
-        "3. Opieraj się na rzeczywistych intervalach konserwacyjnych i zależnościach technicznych " +
-        "4. Unikaj spekulacji i niepewnych stwierdzeń " +
-        "5. Maksymalnie 2 zdania, bez wstępów i zakończeń " +
-        "6. Podawaj konkretne interwały (km/miesiące) dla rekomendowanych czynności " +
-        "7. NIE wspominaj o aktualnie wykonywanej usłudze - skup się na innych elementach"
+      "Jesteś mechanikiem analizującym potrzeby konserwacyjne pojazdu. " +
+        "WYMOGI ODPOWIEDZI: " +
+        "1. Podaj DOKŁADNIE 1-2 konkretne elementy do sprawdzenia/wymiany, RÓŻNE od aktualnego serwisu " +
+        "2. Dla każdego elementu podaj interwał (km lub miesiące) oparty na standardach producentów " +
+        "3. Napisz w formacie: 'Element X (interwał Y), Element Z (interwał W)' " +
+        "4. ZAKAZANE frazy: 'rozważ', 'warto', 'nasi mechanicy', 'doradzą', 'skontaktuj się', 'sprawdź w księdze' " +
+        "5. Używaj tylko konkretnych nazw części i precyzyjnych interwałów " +
+        "6. Maksymalnie 2 zdania " +
+        "\nPRZYKŁADY DOBRYCH ODPOWIEDZI: " +
+        "'Filtr kabinowy (wymiana co 15 tys. km), płyn chłodniczy (kontrola co 2 lata).' " +
+        "'Świece zapłonowe (wymiana co 30-60 tys. km), filtr paliwa (co 40 tys. km).' " +
+        "'Pasek rozrządu (wymiana co 100-150 tys. km lub 5 lat), chłodziwo (wymiana co 3-4 lata).'"
     );
 
     // Set the user message with details about the vehicle and service
-    const userMessage = `Dla pojazdu ${vehicleDescription}, gdy klient będzie w serwisie na usłudze "${serviceName}" - jakie INNE elementy pojazdu warto mu przypomnieć do konserwacji? Podaj konkretne rekomendacje z intervalami, które NIE dotyczą aktualnie wykonywanej usługi.`;
+    const userMessage = `Pojazd: ${vehicleDescription}. Klient zamówił serwis: "${serviceName}". Podaj INNE elementy do konserwacji (nie związane z "${serviceName}") z konkretnymi interwałami.`;
+
+    // Set model parameters for more deterministic responses
+    openRouter.setModelParameters({
+      temperature: 0.3, // Lower temperature for more consistent responses
+      max_tokens: 150, // Limit response length
+    });
 
     // Get recommendation from LLM
     const recommendation = await openRouter.sendChatMessage<string>(userMessage);
-    return recommendation;
+
+    // Clean up the response - remove common filler phrases if they somehow appear
+    const cleanedRecommendation = recommendation
+      .replace(/Podczas wizyty.*?-\s*/gi, "")
+      .replace(/Nasi mechanicy.*?\.?$/gi, "")
+      .replace(/[Ww]arto(?: także)?.*?:/gi, "")
+      .replace(/[Rr]ozważ.*?:/gi, "")
+      .trim();
+
+    return cleanedRecommendation || recommendation;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error("LLM recommendation failed:", error);
-    // Fallback to default recommendation if LLM fails
-    return `Podczas wizyty w serwisie rozważ także konserwację innych elementów pojazdu${vehicleInfo ? ` w Twoim ${vehicleInfo.brand} ${vehicleInfo.model} z ${vehicleInfo.production_year} roku` : ""} - np. sprawdzenie filtrów, płynów eksploatacyjnych czy stanu opon. Nasi mechanicy chętnie doradzą w kwestiach konserwacji.`;
+    // Fallback to specific recommendation based on vehicle age if available
+    if (vehicleInfo) {
+      const vehicleAge = new Date().getFullYear() - vehicleInfo.production_year;
+      if (vehicleAge > 10) {
+        return `Pasek rozrządu (wymiana co 100-150 tys. km lub 5 lat), amortyzatory (kontrola co 80 tys. km).`;
+      } else if (vehicleAge > 5) {
+        return `Płyn hamulcowy (wymiana co 2 lata), filtr kabinowy (co 15 tys. km).`;
+      }
+      return `Filtr powietrza (wymiana co 20 tys. km), płyn chłodniczy (kontrola co 2 lata).`;
+    }
+    return `Przegląd podstawowych elementów eksploatacyjnych zgodnie z książką serwisową.`;
   }
 }
 
@@ -306,7 +335,7 @@ export function createReservationService(supabase: SupabaseClient, openRouter?: 
       // Generate personalized recommendation using LLM
       const recommendationText = await generateRecommendation(
         openRouter,
-        vehicle
+        vehicle && vehicle.brand && vehicle.model && vehicle.production_year
           ? {
               brand: vehicle.brand,
               model: vehicle.model,
